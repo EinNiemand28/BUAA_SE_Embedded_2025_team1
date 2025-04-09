@@ -1,0 +1,162 @@
+<sdf version='1.6'>
+    <world name='library'>
+
+        <!-- light -->
+        <light name='sun' type='directional'>
+            <cast_shadows>1</cast_shadows>
+            <pose frame=''>0 0 10 0 -0 0</pose>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <attenuation>
+                <range>10000</range>
+                <constant>0.9</constant>
+                <linear>0.01</linear>
+                <quadratic>0.001</quadratic>
+            </attenuation>
+            <direction>-0.5 0.5 -1</direction>
+        </light>
+
+        <!-- south wall with door -->
+        <model name='south_wall1'>
+            <static>true</static>
+            <link name='link'>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.1 4 5</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.1 4 5</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <diffuse>0.8 0.8 0.8 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+            <pose frame=''>-5 -3 2.5 0 -0 0</pose>
+        </model>
+        <model name='south_wall2'>
+            <static>true</static>
+            <link name='link'>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.1 4 5</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.1 4 5</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <diffuse>0.8 0.8 0.8 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+            <pose frame=''>-5 3 2.5 0 -0 0</pose>
+        </model>
+        <model name='south_wall3'>
+            <static>true</static>
+            <link name='link'>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.1 2 2</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.1 2 2</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <diffuse>0.8 0.8 0.8 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+            <pose frame=''>-5 0 4 0 -0 0</pose>
+        </model>
+        <!-- north wall -->
+        <model name='north_wall'>
+            <static>true</static>
+            <link name='link'>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.1 10 5</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.1 10 5</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <diffuse>0.8 0.8 0.8 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+            <pose frame=''>5 0 2.5 0 -0 0</pose>
+        </model>
+        <!-- east wall -->
+        <model name='east_wall'>
+            <static>true</static>
+            <link name='link'>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>10 0.1 5</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>10 0.1 5</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <diffuse>0.8 0.8 0.8 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+            <pose frame=''>0 -5 2.5 0 -0 0</pose>
+        </model>
+        <!-- west wall -->
+        <model name='west_wall'>
+            <static>true</static>
+            <link name='link'>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>10 0.1 5</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>10 0.1 5</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <diffuse>0.8 0.8 0.8 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+            <pose frame=''>0 5 2.5 0 -0 0</pose>
+        </model>
+    </world>
+</sdf>
