@@ -1,0 +1,47 @@
+<sdf version='1.7'>
+  <model name='sofa'>
+    <link name='base_link'>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>10</mass>
+        <inertia>
+          <ixx>4.00538</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.00538</iyy>
+          <iyz>0</iyz>
+          <izz>0.51076</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_fixed_joint_lump__body_link_collision'>
+        <pose>0.48 1.1 0.23 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.96 2.2 0.46</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.001</size>
+          </box>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__body_link_visual_1'>
+        <pose>0 0.003 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://sofa/sofa.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <frame name='base_to_body' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='body_link' attached_to='base_to_body'/>
+  </model>
+</sdf>

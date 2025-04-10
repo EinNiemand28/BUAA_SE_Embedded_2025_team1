@@ -1,0 +1,14 @@
+material WallPaper0
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture wall_paper0.jpg
+                scale 0.5 0.5
+            }
+        }
+    }
+}

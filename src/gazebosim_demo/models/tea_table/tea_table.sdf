@@ -1,0 +1,107 @@
+<sdf version='1.7'>
+  <model name='tea_table'>
+    <link name='base_link'>
+      <inertial>
+        <pose>0 0 0.38 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>1.00538</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.00538</iyy>
+          <iyz>0</iyz>
+          <izz>0.11076</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_fixed_joint_lump__body_link_collision'>
+        <pose>0 0 0.38 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7 1.4 0.08</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__top_link_collision_1'>
+        <pose>0 0 0.06 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7 1.4 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__lb_link_collision_2'>
+        <pose>-0.3 -0.65 0.19 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.38</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__lf_link_collision_3'>
+        <pose>0.3 -0.65 0.19 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.38</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__rb_link_collision_4'>
+        <pose>-0.3 0.65 0.19 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.38</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__rf_link_collision_5'>
+        <pose>0.3 0.65 0.19 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.38</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.001</size>
+          </box>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__body_link_visual_1'>
+        <pose>-0.35 -0.704 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://tea_table/tea_table.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <frame name='base_to_body' attached_to='base_link'>
+      <pose>0 0 0.38 0 -0 0</pose>
+    </frame>
+    <frame name='body_link' attached_to='base_to_body'/>
+    <frame name='base_to_top' attached_to='base_link'>
+      <pose>0 0 0.06 0 -0 0</pose>
+    </frame>
+    <frame name='top_link' attached_to='base_to_top'/>
+    <frame name='body_to_lb' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='lb_link' attached_to='body_to_lb'/>
+    <frame name='body_to_lf' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='lf_link' attached_to='body_to_lf'/>
+    <frame name='body_to_rb' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='rb_link' attached_to='body_to_rb'/>
+    <frame name='body_to_rf' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='rf_link' attached_to='body_to_rf'/>
+  </model>
+</sdf>

@@ -1,44 +1,11 @@
 <launch>
+    <!-- Environment Variables -->
+    <env name="GAZEBO_MODEL_PATH" value="$(find gazebosim_demo)/models:$(optenv GAZEBO_MODEL_PATH)" />
+    <env name="GAZEBO_RESOURCE_PATH" value="$(find gazebosim_demo)/worlds:$(optenv GAZEBO_RESOURCE_PATH)" />
 
     <!-- World -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find gazebosim_demo)/worlds/library.xml" />
-        <arg name="paused" value="false" />
-        <arg name="use_sim_time" value="true" />
-        <arg name="gui" value="true" />
-        <arg name="recording" value="false" />
-        <arg name="debug" value="false" />
-    </include>
+    <include file='$(find gazebosim_demo)/launch/world.launch'/>
 
-    <!-- Spawn objects -->
-    <!-- ground plane -->
-    <node name="spawn_ground_plane" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/ground/ground_plane.xml -sdf -model ground -x 0 -y 0 -z 0" respawn="false" output="screen" />
-
-    <!-- tea_tables -->
-    <node name="tea_table1" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/tea_table.model -x -2.25 -y -2 -z 0 -Y 0 -urdf -model tea_table1" />
-    <node name="tea_table2" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/tea_table.model -x 2.25 -y -2 -z 0 -Y 0 -urdf -model tea_table2" />
-
-    <!-- sofas -->
-    <node name="sofa1" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/sofa.model -x -4.5 -y -3.5 -z 0 -Y 0 -urdf -model sofa1" />
-    <node name="sofa2" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/sofa.model -x 0 -y -1.3 -z 0 -Y 3.14 -urdf -model sofa2" />
-    <node name="sofa3" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/sofa.model -x 0 -y -3.5 -z 0 -Y 0 -urdf -model sofa3" />
-    <node name="sofa4" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/sofa.model -x 4.5 -y -1.3 -z 0 -Y 3.14 -urdf -model sofa4" />
-    <node name="sofa5" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/sofa.model -x -1.55 -y -5 -z 0 -Y 1.57 -urdf -model sofa5" />
-    <node name="sofa6" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/sofa.model -x 4.05 -y -5 -z 0 -Y 1.57 -urdf -model sofa6" />
-
-    <!-- bookshelves -->
-    <node name="bookshelf1" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/bookshelf.model -x -4.5 -y 2 -z 0 -Y 0 -urdf -model bookshelf1" />
-    <node name="bookshelf2" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/bookshelf.model -x 4.5 -y 2 -z 0 -Y 3.14 -urdf -model bookshelf2" />
-    <node name="bookshelf3" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/bookshelf.model -x 4.5 -y 4 -z 0 -Y 3.14 -urdf -model bookshelf3" />
-    <node name="bookshelf4" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/bookshelf.model -x -4.5 -y 4 -z 0 -Y 0 -urdf -model bookshelf4" />
-    <node name="bookshelf5" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/bookshelf.model -x 2.25 -y 4.8 -z 0 -Y -1.57 -urdf -model bookshelf5" />
-    <node name="bookshelf6" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/bookshelf.model -x -2.25 -y 4.8 -z 0 -Y -1.57 -urdf -model bookshelf6" />
-
-    <!-- tables -->
-    <node name="table1" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/table.model -x -1.5 -y 2 -z 0 -Y 0 -urdf -model table1" />
-    <node name="table2" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/table.model -x 1.5 -y 2 -z 0 -Y 0 -urdf -model table2" />
-
-    <!-- book -->
-    <node name="book" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/book/model.sdf -x -4.25 -y 2 -z 1.5 -R 1.57 -sdf -model book" />
-
+    <!-- Robot -->
+    <!-- <include file='$(find gazebosim_demo)/launch/robot.launch'/>  -->
 </launch>
