@@ -8,14 +8,31 @@ project(gazebosim_demo)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  controller_manager
+  joint_state_controller
+  robot_state_publisher
   roscpp
   rospy
   std_msgs
+  geometry_msgs
+  move_base_msgs 
+  actionlib
+  tf
+  cv_bridge 
+  image_transport
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+# Find Gazebo
+find_package(gazebo REQUIRED)
+include_directories(${GAZEBO_INCLUDE_DIRS})
+link_directories(${GAZEBO_LIBRARY_DIRS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
+# Find OpenCV
+find_package(OpenCV REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -116,14 +133,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/gazebosim_demo.cpp
-# )
+add_library(wpr_plugin SHARED src/wpr_plugin.cpp)
+target_link_libraries(wpr_plugin ${GAZEBO_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

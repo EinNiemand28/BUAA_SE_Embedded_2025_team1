@@ -7,5 +7,5 @@
     <include file='$(find gazebosim_demo)/launch/world.launch'/>
 
     <!-- Robot -->
-    <!-- <include file='$(find gazebosim_demo)/launch/robot.launch'/>  -->
+    <include file='$(find gazebosim_demo)/launch/robot.launch'/> 
 </launch>
