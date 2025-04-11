@@ -96,52 +96,52 @@
         <include>
             <name>bookshelf1</name>
             <uri>model://bookshelf</uri>
-            <pose>-4.5 2 0 0 0 0</pose>
+            <pose>-5 2 0 0 0 1.57</pose>
         </include>
         <include>
             <name>bookshelf2</name>
             <uri>model://bookshelf</uri>
-            <pose>4.5 2 0 0 0 3.14</pose>
+            <pose>5 2 0 0 0 -1.57</pose>
         </include>
         <include>
             <name>bookshelf3</name>
             <uri>model://bookshelf</uri>
-            <pose>4.5 4 0 0 0 3.14</pose>
+            <pose>5 4 0 0 0 -1.57</pose>
         </include>
         <include>
             <name>bookshelf4</name>
             <uri>model://bookshelf</uri>
-            <pose>-4.5 4 0 0 0 0</pose>
+            <pose>-5 4 0 0 0 1.57</pose>
         </include>
         <include>
             <name>bookshelf5</name>
             <uri>model://bookshelf</uri>
-            <pose>2.25 4.8 0 0 0 -1.57</pose>
+            <pose>2.5 4.8 0 0 0 0</pose>
         </include>
         <include>
             <name>bookshelf6</name>
             <uri>model://bookshelf</uri>
-            <pose>-2.25 4.8 0 0 0 -1.57</pose>
+            <pose>-2.5 4.8 0 0 0 0</pose>
         </include>
         <include>
             <name>bookshelf7</name>
             <uri>model://bookshelf</uri>
-            <pose>-2.25 2 0 0 0 -1.57</pose>
+            <pose>-2.5 2 0 0 0 0</pose>
         </include>
         <include>
             <name>bookshelf8</name>
             <uri>model://bookshelf</uri>
-            <pose>2.25 2 0 0 0 -1.57</pose>
+            <pose>2.5 2 0 0 0 0</pose>
         </include>
         <include>
             <name>bookshelf9</name>
             <uri>model://bookshelf</uri>
-            <pose>0 2 0 0 0 -1.57</pose>
+            <pose>0 2 0 0 0 0</pose>
         </include>
         <include>
             <name>bookshelf10</name>
             <uri>model://bookshelf</uri>
-            <pose>0 4.8 0 0 0 -1.57</pose>
+            <pose>0 4.8 0 0 0 0</pose>
         </include>
 
         <!-- tables -->

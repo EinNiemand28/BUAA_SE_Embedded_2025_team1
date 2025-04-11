@@ -151,6 +151,13 @@ target_link_libraries(wpr_plugin ${GAZEBO_LIBRARIES})
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/gazebosim_demo_node.cpp)
+add_executable(lidar_filter
+  src/lidar_filter.cpp
+)
+add_dependencies(lidar_filter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(lidar_filter
+  ${catkin_LIBRARIES}
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

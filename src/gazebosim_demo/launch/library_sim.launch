@@ -8,4 +8,7 @@
 
     <!-- Robot -->
     <include file='$(find gazebosim_demo)/launch/robot.launch'/> 
+
+    <!-- Navigation -->
+    <include file='$(find gazebosim_demo)/launch/navigation.launch'/>
 </launch>

@@ -12,6 +12,6 @@
 
     <!-- Spawn objects -->
     <!-- book -->
-    <node name="book" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/book/model.sdf -x -4.25 -y 2 -z 1.5 -R 1.57 -sdf -model book" />
+    <node name="book" pkg="gazebo_ros" type="spawn_model" args="-file $(find gazebosim_demo)/models/book/model.sdf -x -4.8 -y 2 -z 1.0 -R 1.57 -sdf -model book" />
 
 </launch>
