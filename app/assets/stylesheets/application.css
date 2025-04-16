@@ -13,3 +13,75 @@
  *= require_tree .
  *= require_self
  */
+
+/* 侧边栏浮动按钮样式 */
+.sidebar-toggle-button {
+  transition: all 0.3s ease-in-out;
+}
+
+/* 侧边栏展开时按钮位置 */
+[data-sidebar-collapsed="false"] ~ .sidebar-toggle-button,
+.sidebar-toggle-button.expanded {
+  left: 16rem; /* 与侧边栏宽度对应 */
+}
+
+/* 侧边栏收起时按钮位置 */
+[data-sidebar-collapsed="true"] ~ .sidebar-toggle-button,
+.sidebar-toggle-button.collapsed {
+  left: 4rem; /* 与侧边栏收起宽度对应 */
+}
+
+/* 按钮悬浮效果 */
+.sidebar-toggle-button:hover {
+  transform: scale(1.1);
+}
+
+/* 主内容区域在侧边栏折叠时的位置调整 - 修复选择器 */
+body:has([data-sidebar-collapsed="true"]) main {
+  padding-left: calc(4rem + 0.75rem) !important; /* 侧边栏折叠宽度 + 间距 */
+}
+
+/* 主内容区域在侧边栏展开时的位置调整 - 确保响应式设计 */
+@media (min-width: 768px) {
+  body:has([data-sidebar-collapsed="false"]) main, 
+  body:not(:has([data-sidebar-collapsed="true"])) main {
+    padding-left: calc(16rem + 0.75rem) !important; /* 与侧边栏宽度对应 + 间距 */
+  }
+}
+
+/* 在移动设备上确保内容区域不留空白 */
+@media (max-width: 767px) {
+  main {
+    padding-left: 1rem !important;
+  }
+}
+
+/* 确保内容区域高度适应固定导航栏和侧边栏 */
+.overflow-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 导航栏固定样式 */
+.navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+}
+
+/* 侧边栏固定样式 */
+.sidebar-fixed {
+  position: fixed;
+  top: 4rem; /* 导航栏高度 */
+  left: 0;
+  bottom: 0;
+  z-index: 30;
+  height: calc(100vh - 4rem);
+  overflow-y: auto;
+}
+
+/* 为主内容区域添加左侧边框，创造视觉分隔 */
+main {
+  border-left: 1px solid rgba(229, 231, 235, 0.5); /* 淡灰色边框 */
+}
