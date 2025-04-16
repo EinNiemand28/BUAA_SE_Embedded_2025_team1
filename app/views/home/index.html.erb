@@ -1,7 +1,273 @@
+<div class="space-y-6">
+  <!-- 页面标题 -->
 <div>
-  <h1 class="font-bold text-4xl">Home#index</h1>
-  <p>Find me in app/views/home/index.html.erb</p>
-  <h1 class="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+    <h1 class="text-2xl font-bold text-gray-900">仪表盘</h1>
+    <p class="mt-1 text-sm text-gray-500">
+      图书馆机器人控制系统概览
+    </p>
+  </div>
+
+  <!-- 状态卡片区域 -->
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- 机器人状态卡片 -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dt class="text-sm font-medium text-gray-500 truncate">
+              机器人状态
+            </dt>
+            <dd>
+              <div class="flex items-center">
+                <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
+                <span class="text-2xl font-semibold text-gray-900">在线</span>
+              </div>
+            </dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+            查看详情 &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 电池状态卡片 -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dt class="text-sm font-medium text-gray-500 truncate">
+              电池电量
+            </dt>
+            <dd>
+              <div class="flex items-center">
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                  <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                </div>
+                <span class="text-2xl font-semibold text-gray-900">85%</span>
+              </div>
+            </dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+            查看详情 &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 活动任务卡片 -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dt class="text-sm font-medium text-gray-500 truncate">
+              活动任务
+            </dt>
+            <dd>
+              <div class="text-2xl font-semibold text-gray-900">3 个</div>
+            </dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+            查看任务 &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 系统状态卡片 -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dt class="text-sm font-medium text-gray-500 truncate">
+              系统状态
+            </dt>
+            <dd>
+              <div class="text-2xl font-semibold text-gray-900">正常</div>
+            </dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+            查看详情 &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 地图区域（预留） -->
+  <div class="bg-white shadow overflow-hidden rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        机器人位置地图
+      </h3>
+      <div class="mt-4 rounded-lg bg-gray-100 h-96 flex items-center justify-center">
+        <div class="text-center">
+          <svg class="mx-auto h-16 w-16 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+          </svg>
+          <div class="mt-2 text-sm text-gray-500">
+            地图显示区域
+          </div>
+          <div class="mt-2">
+            <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              加载地图
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 任务列表 -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        最近任务
+      </h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">
+        最近分配的机器人任务列表
+      </p>
+    </div>
+    <ul role="list" class="divide-y divide-gray-200">
+      <li>
+        <div class="px-4 py-4 sm:px-6">
+          <div class="flex items-center justify-between">
+            <p class="text-sm font-medium text-blue-600 truncate">
+              图书归还 - 科技区 A12 架
+            </p>
+            <div class="ml-2 flex-shrink-0 flex">
+              <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                进行中
+              </p>
+            </div>
+          </div>
+          <div class="mt-2 sm:flex sm:justify-between">
+            <div class="sm:flex">
+              <p class="flex items-center text-sm text-gray-500">
+                <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                预计完成时间: 10分钟
+              </p>
+            </div>
+            <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+              <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p>
+                开始于 <time datetime="2023-01-07T00:00:00">10:30</time>
+              </p>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="px-4 py-4 sm:px-6">
+          <div class="flex items-center justify-between">
+            <p class="text-sm font-medium text-blue-600 truncate">
+              图书运送 - 总库至阅览室
+            </p>
+            <div class="ml-2 flex-shrink-0 flex">
+              <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                等待中
+              </p>
+            </div>
+          </div>
+          <div class="mt-2 sm:flex sm:justify-between">
+            <div class="sm:flex">
+              <p class="flex items-center text-sm text-gray-500">
+                <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                预计完成时间: 15分钟
+              </p>
+            </div>
+            <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+              <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p>
+                计划于 <time datetime="2023-01-07T00:00:00">11:00</time>
+              </p>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="px-4 py-4 sm:px-6">
+          <div class="flex items-center justify-between">
+            <p class="text-sm font-medium text-blue-600 truncate">
+              馆内巡逻 - 一层大厅
+            </p>
+            <div class="ml-2 flex-shrink-0 flex">
+              <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                已完成
+              </p>
+            </div>
+          </div>
+          <div class="mt-2 sm:flex sm:justify-between">
+            <div class="sm:flex">
+              <p class="flex items-center text-sm text-gray-500">
+                <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                耗时: 20分钟
+              </p>
+            </div>
+            <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+              <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p>
+                完成于 <time datetime="2023-01-07T00:00:00">10:20</time>
+              </p>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <div class="bg-gray-50 px-4 py-4 sm:px-6">
+      <div class="text-sm">
+        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+          查看全部任务 &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
