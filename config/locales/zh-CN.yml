@@ -1,0 +1,179 @@
+zh-CN:
+  app_name: "图书馆机器人控制系统"
+
+  application:
+    authenticate:
+      require_login: "请先登录"
+    require_admin:
+      unauthorized: "您没有权限访问此页面"
+
+  registrations:
+    new:
+      title: "创建新账户"
+      submit: "注册"
+      login_link: "已有账户？ %{link}"
+      login: "登录"
+      password_minimum: "至少 %{count} 个字符"
+    create:
+      signed_up_successfully: "欢迎！您已成功注册。"
+
+  sessions:
+    new:
+      title: "登录您的账户"
+      login_label: "邮箱或用户名"
+      password_label: "密码"
+      forgot_password_instruction: "忘记密码？请联系管理员重置。"
+      submit: "登录"
+      signup_link: "还没有账户？ %{link}"
+      signup: "立即注册"
+    create:
+      signed_in_successfully: "登录成功"
+      invalid_login_or_password: "邮箱/用户名或密码不正确"
+    destroy:
+      signed_out_successfully: "已成功退出登录"
+
+  shared:
+    navbar:
+      sign_in: "登录"
+      sign_up: "注册"
+      profile: "个人资料"
+      settings: "设置"
+      admin_panel: "管理后台"
+      sign_out: "退出登录"
+    sidebar:
+      main_menu: "主菜单"
+      dashboard: "仪表盘"
+      robot_control: "机器人控制"
+      task_management: "任务管理"
+      statistical_analysis: "统计分析"
+      system_management: "系统管理"
+      system_settings: "系统设置"
+      user_management: "用户管理"
+      system_logs: "系统日志"
+
+  helpers:
+    submit:
+      user:
+        create: "注册"
+    label:
+      user:
+        email: "邮箱"
+        username: "用户名"
+        password: "密码"
+        password_confirmation: "确认密码"
+      session:
+        login: "邮箱或用户名"
+        password: "密码"
+
+  activerecord:
+    models:
+      user:
+        one: "用户"
+        other: "用户"
+    attributes:
+      user:
+        email: "邮箱"
+        username: "用户名"
+        password: "密码"
+        password_confirmation: "确认密码"
+        password_challenge: "当前密码"
+        role: "角色"
+        roles:
+          user: "普通用户"
+          admin: "管理员"
+        verified: "已验证"
+        created_at: "创建时间"
+        updated_at: "更新时间"
+    errors:
+      models:
+        user:
+          attributes:
+            password_challenge:
+              blank: "当前密码不能为空"
+              invalid: "当前密码不正确"
+
+  errors:
+    messages:
+      # 可以覆盖或添加 activerecord 错误信息
+      confirmation: "与%{attribute}不匹配"
+      accepted: "必须是可被接受的"
+      blank: "不能为空字符"
+      present: "必须是空白"
+      empty: "不能为空"
+      equal_to: "必须等于 %{count}"
+      even: "必须为偶数"
+      exclusion: "是保留关键字"
+      greater_than: "必须大于 %{count}"
+      greater_than_or_equal_to: "必须大于或等于 %{count}"
+      inclusion: "不包含于列表中"
+      invalid: "是无效的"
+      less_than: "必须小于 %{count}"
+      less_than_or_equal_to: "必须小于或等于 %{count}"
+      model_invalid: "验证失败: %{errors}"
+      not_a_number: "不是数字"
+      not_an_integer: "必须是整数"
+      odd: "必须为奇数"
+      required: "必须存在"
+      taken: "已经被使用"
+      too_long:
+        one: "过长（最长为一个字符）"
+        other: "过长（最长为 %{count} 个字符）"
+      too_short:
+        one: "过短（最短为一个字符）"
+        other: "过短（最短为 %{count} 个字符）"
+      wrong_length:
+        one: "长度非法（必须为 1 个字符）"
+        other: "长度非法（必须为 %{count} 个字符）"
+      other_than: "必须与 %{count} 不同"
+      # 添加密码特定错误
+      password_challenge_failed: "当前密码不正确"
+
+  passwords:
+    edit:
+      title: "修改密码"
+      current_password: "当前密码"
+      new_password: "新密码"
+      confirm_new_password: "确认新密码"
+      submit: "保存更改"
+      cancel: "取消"
+    update:
+      password_changed: "密码已成功修改"
+
+  users:
+    index:
+      title: "用户管理"
+      description: "查看和管理所有已注册的用户。"
+      search_label: "搜索用户"
+      search_placeholder: "按用户名或邮箱搜索..."
+      search_button: "搜索"
+      no_results: "未找到匹配的用户。"
+      no_users: "当前没有注册用户。"
+      confirm_delete: "您确定要删除用户 %{username} 吗？此操作无法撤销。"
+    edit:
+      title: "编辑用户：%{username}"
+      submit: "更新用户"
+      cancel: "取消"
+    update:
+      user_updated_successfully: "用户信息已成功更新。"
+    destroy:
+      user_deleted_successfully: "用户已成功删除。"
+      cannot_delete_self: "无法删除您自己的账户。"
+    set_user:
+      user_not_found: "未找到指定的用户。"
+
+  time:
+    formats:
+      default: "%Y-%m-%d %H:%M:%S"
+      long: "%Y年%m月%d日 %H:%M"
+      short: "%m月%d日 %H:%M"
+
+  profiles:
+    show:
+      title: "个人资料"
+      section_title: "用户信息"
+      section_description: "您的个人详细信息。"
+
+  actions: # 通用操作
+    edit: "编辑"
+    delete: "删除"
+    show: "查看" 

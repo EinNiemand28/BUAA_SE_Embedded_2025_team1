@@ -6,9 +6,9 @@
 | ---------------- | ---------------- | ----------- | -------------------------- |
 | id               | 书籍ID           | INT         | 主键，自增                 |
 | isbn             | 国际标准图书编号 | VARCHAR(25) |                            |
-| title            | 书名             | VARCHAR(25) |                            |
-| author           | 作者             | VARCHAR(25) |                            |
-| publisher        | 出版社           | VARCHAR(35) |                            |
+| title            | 书名             | VARCHAR(50) |                            |
+| author           | 作者             | VARCHAR(50) |                            |
+| publisher        | 出版社           | VARCHAR(50) |                            |
 | publication_year | 出版年份         | YEAR        |                            |
 | shelf_slot_id    | 书架插槽ID       | INT         | 外键，关联对应的书架插槽   |
 | status           | 书籍状态         | ENUM        | 如“在架”、“借出”、“异常”等 |

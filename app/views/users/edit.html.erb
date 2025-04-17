@@ -1,0 +1,43 @@
+<% content_for :title, t('.title', username: @user.username) %>
+
+<div class="max-w-lg mx-auto bg-white shadow overflow-hidden sm:rounded-lg p-6">
+  <h2 class="text-xl font-semibold mb-6 text-gray-700"><%= t('.title', username: @user.username) %></h2>
+
+  <%= form_with(model: @user, url: user_path(@user), method: :patch, class: "space-y-6") do |form| %>
+    <% if @user.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <ul>
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.label :username, class: "block text-sm font-medium leading-6 text-gray-900" %>
+      <div class="mt-2">
+        <%= form.text_field :username, required: true, autocomplete: "username", class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :email, class: "block text-sm font-medium leading-6 text-gray-900" %>
+      <div class="mt-2">
+        <%= form.email_field :email, required: true, autocomplete: "email", class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :role, class: "block text-sm font-medium leading-6 text-gray-900" %>
+      <div class="mt-2">
+        <%= form.select :role, User.roles.keys.map { |role| [User.human_attribute_name("role.#{role}"), role] }, {}, { class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" } %>
+      </div>
+    </div>
+
+    <div class="flex justify-end space-x-3 border-t border-gray-200 pt-6">
+      <%= link_to t('.cancel'), users_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+      <%= form.submit t('.submit'), class: "rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer" %>
+    </div>
+  <% end %>
+</div> 
