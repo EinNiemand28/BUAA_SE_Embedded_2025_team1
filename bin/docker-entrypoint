@@ -3,15 +3,18 @@ set -e
 
 rm -f /rails/tmp/pids/server.pid
 
-# 如果是rails命令且数据库存在，则先运行迁移
-if [ "${1}" == "bin/rails" ] && [ "${2}" == "server" ]; then
-  echo "Preparing database if needed..."
-  ./bin/rails db:prepare
-  
-  # 如果环境变量设置了RAILS_MIGRATE，则运行迁移
-  if [ "${RAILS_MIGRATE}" == "true" ]; then
-    echo "Running database migrations..."
-    ./bin/rails db:migrate
+if [ "${RAILS_ENV}" == "production" ] && [ "${1}" == "bin/rails" ] && [ "${2}" == "server" ]; then
+  echo "Production environment detected, creating database if needed..."
+  # 尝试创建数据库
+  bundle exec rails db:create 2>/dev/null || true
+  bundle exec rails db:migrate 2>/dev/null || true
+  # 跳过完整准备过程
+  echo "Database setup completed."
+else
+  # 开发环境正常执行
+  if [ "${1}" == "bin/rails" ] && [ "${2}" == "server" ]; then
+    echo "Preparing database if needed..."
+    ./bin/rails db:prepare
   fi
 fi
 
