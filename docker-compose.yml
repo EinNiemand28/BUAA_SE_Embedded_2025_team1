@@ -17,6 +17,7 @@ services:
   worker:
     build:
       context: .
+    entrypoint: ["/rails/bin/docker-entrypoint"]
     command: bash -c "bundle install && bundle exec sidekiq"
     volumes:
       - .:/rails
