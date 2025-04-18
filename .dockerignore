@@ -46,3 +46,7 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+
+.env
+.env.*.local
+.env.local

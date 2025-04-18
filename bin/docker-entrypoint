@@ -1,13 +1,19 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
-# Enable jemalloc for reduced memory usage and latency.
-if [ -z "${LD_PRELOAD+x}" ] && [ -f /usr/lib/*/libjemalloc.so.2 ]; then
-  export LD_PRELOAD="$(echo /usr/lib/*/libjemalloc.so.2)"
-fi
+rm -f /rails/tmp/pids/server.pid
 
-# If running the rails server then create or migrate existing database
-if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
+# 如果是rails命令且数据库存在，则先运行迁移
+if [ "${1}" == "bin/rails" ] && [ "${2}" == "server" ]; then
+  echo "Preparing database if needed..."
   ./bin/rails db:prepare
+  
+  # 如果环境变量设置了RAILS_MIGRATE，则运行迁移
+  if [ "${RAILS_MIGRATE}" == "true" ]; then
+    echo "Running database migrations..."
+    ./bin/rails db:migrate
+  fi
 fi
 
-exec "${@}"
+# 执行传入的命令
+exec "${@}" 

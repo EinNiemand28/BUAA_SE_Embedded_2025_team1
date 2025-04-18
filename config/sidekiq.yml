@@ -1,0 +1,7 @@
+---
+:concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 5) %>
+:timeout: 25
+:queues:
+  - default
+  - low
+  - high

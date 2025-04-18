@@ -40,9 +40,11 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Mount Action Cable outside main process or domain.
-  # config.action_cable.mount_path = nil
-  # config.action_cable.url = "wss://example.com/cable"
-  # config.action_cable.allowed_request_origins = [ "http://example.com", /http:\/\/example.*/ ]
+  config.action_cable.url = ENV.fetch("ACTION_CABLE_URL") { "wss://#{ENV["RAILS_APP_DOMAIN"] || 'localhost:3000'}/cable" }
+  config.action_cable.allowed_request_origins = [ 
+    ENV.fetch("RAILS_APP_DOMAIN") { "http://localhost:3000" }, 
+    /http:\/\/localhost:.*/
+  ]
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   # Can be used together with config.force_ssl for Strict-Transport-Security and secure cookies.
@@ -68,7 +70,12 @@ Rails.application.configure do
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 
   # Use a different cache store in production.
-  # config.cache_store = :mem_cache_store
+  config.cache_store = :redis_cache_store, {
+    url: ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" },
+    connect_timeout: 30,
+    read_timeout: 0.5,
+    write_timeout: 0.5
+  }
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter = :resque
