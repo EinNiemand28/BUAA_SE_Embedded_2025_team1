@@ -41,5 +41,6 @@
 .env
 .env.local
 .env.*.local
+.kamal/secrets
 
 vendor/bundle
