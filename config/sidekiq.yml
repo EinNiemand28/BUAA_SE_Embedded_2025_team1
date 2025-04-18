@@ -1,7 +1,5 @@
----
-:concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 5) %>
-:timeout: 25
+:concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 10) %>
 :queues:
-  - default
-  - low
-  - high
+  - [default, 1]
+  - [mailers, 2]
+  - [critical, 3]
