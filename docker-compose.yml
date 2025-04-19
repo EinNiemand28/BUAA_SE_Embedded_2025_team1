@@ -8,8 +8,6 @@ services:
       - "3000:3000"
     volumes:
       - .:/rails
-      - ./tmp:/rails/tmp
-      - ./log:/rails/log
     depends_on:
       # - postgres
       - redis
@@ -44,8 +42,6 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

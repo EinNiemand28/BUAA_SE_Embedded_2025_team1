@@ -1,5 +1,3 @@
-# syntax = docker/dockerfile:1
-
 FROM ruby:3.3.4 AS base
 
 RUN apt-get update -qq && \

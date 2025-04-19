@@ -66,3 +66,5 @@ gem 'rails-i18n'
 gem "sidekiq", "~> 7.3"
 
 gem "kamal", "~> 2.5"
+
+gem "sidekiq-scheduler", "~> 5.0"

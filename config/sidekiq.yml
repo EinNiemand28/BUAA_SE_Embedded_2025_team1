@@ -3,3 +3,9 @@
   - [default, 1]
   - [mailers, 2]
   - [critical, 3]
+
+# :scheduler:
+#   :schedule:
+    # system_notification_worker:
+    #   class: SystemNotificationWorker
+    #   cron: "*/2 * * * *" # 每2分钟执行一次
