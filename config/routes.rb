@@ -19,6 +19,15 @@ Rails.application.routes.draw do
     resource :email_verification, only: [:show, :create]
   end
 
+  # 机器人控制路由
+  resources :robots, only: [:index] do
+    collection do
+      get :control
+      post :update_status
+      get :simulate_status
+    end
+  end
+
   get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

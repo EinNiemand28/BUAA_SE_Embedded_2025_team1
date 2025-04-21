@@ -4,3 +4,4 @@
 //= link application.js
 //= link controllers/application.js
 //= link_tree ../../javascript/controllers
+//= link_tree ../../javascript/channels

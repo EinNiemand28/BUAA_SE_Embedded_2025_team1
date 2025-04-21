@@ -6,6 +6,19 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= action_cable_meta_tag %>
+
+    <%# Log Current.user status %>
+    <% Rails.logger.debug "[Layout] Rendering head. Current.user ID: #{Current.user&.id || 'nil'}" %>
+    <% if Current.user %>
+      <% 
+        signed_id = Current.user.signed_id(purpose: :action_cable_connection) 
+        Rails.logger.debug "[Layout] Generated signed_id for meta tag: #{signed_id}"
+      %>
+      <meta name="current-user-id" content="<%= signed_id %>">
+    <% else %>
+       <% Rails.logger.debug "[Layout] Current.user is nil, skipping user-id meta tag." %>
+    <% end %>
 
     <%= yield :head %>
 
