@@ -10,4 +10,13 @@
 
 user = User.find_by(email: "1@1")
 
-user.update!(role: "admin") if user.present?
+if user.present?
+  user.update!(role: "admin")
+else
+  User.create!(
+    username: "root", 
+    email: "1@1", 
+    password: "123123", 
+    password_confirmation: "123123",
+    role: "admin")
+end

@@ -8,16 +8,16 @@ image: einniemand/library-robot
 servers:
   web:
     hosts:
-      - 165.232.159.58
-      - 143.198.232.128
+      - 137.184.81.212
+      - 164.92.93.178
     # options:
     #   health-cmd: bin/healthcheck web
   worker:
     hosts:
-      - 64.23.137.89
+      - 64.23.202.248
     cmd: bundle exec sidekiq
     options:
-      health-cmd: exit 0
+      health-cmd: exit 0 # worker
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
 # Remove this section when using multiple web servers and ensure you terminate SSL at your load balancer.

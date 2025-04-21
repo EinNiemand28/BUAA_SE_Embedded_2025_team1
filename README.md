@@ -23,3 +23,33 @@ graph LR
     D[Browser] -- Action Cable --> A
     A -- Updates --> D
 ```
+
+```mermaid
+graph TD
+    A[用户 Web 浏览器] -->|HTTP/HTTPS| B[Rails Web 应用]
+    B -->|渲染页面| A
+    A -->|WebSocket Action Cable| B
+    B -->|WebSocket Action Cable| A
+
+    B -->|WebSocket 连接到公网 IP| C[ROS 中间层节点]
+    C -->|WebSocket 连接到公网 IP| B
+
+    C -->|ROS Topics 订阅/发布| D[ROS 机器人节点]
+
+    subgraph Internet / 公网
+        B
+    end
+
+    subgraph 机器人机载电脑 / 本地网络
+        C
+        D
+    end
+
+    %% 交互说明
+    A -- 浏览器发送命令 --> B
+    B -- 通过 Action Cable 转发命令 --> C
+    C -- 将命令发布到 ROS Topic --> D
+    D -- 发布状态/传感器数据到 ROS Topic --> C
+    C -- 通过 Action Cable 发送数据 --> B
+    B -- 广播数据到连接的浏览器 --> A
+```

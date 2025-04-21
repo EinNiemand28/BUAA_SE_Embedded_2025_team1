@@ -68,3 +68,8 @@ gem "sidekiq", "~> 7.3"
 gem "kamal", "~> 2.5"
 
 gem "sidekiq-scheduler", "~> 5.0"
+
+# 添加分页功能
+gem "kaminari", "~> 1.2"
+
+gem "dotenv-rails", "~> 3.1"
