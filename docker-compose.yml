@@ -8,10 +8,10 @@ services:
       - "3000:3000"
     volumes:
       - .:/rails
-    stdin_open: true
-    tty: true
+      - /rails/vendor/bundle
+      - /rails/app/assets/builds
     environment:
-      - TAILWIND_WATCH=1
+      - REDIS_URL=redis://redis:6379/1
     depends_on:
       # - postgres
       - redis
@@ -23,6 +23,8 @@ services:
     command: bash -c "bundle install && bundle exec sidekiq"
     volumes:
       - .:/rails
+      - /rails/vendor/bundle
+      - /rails/app/assets/builds
     depends_on:
       # - postgres
       - redis
