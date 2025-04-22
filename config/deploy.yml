@@ -8,13 +8,13 @@ image: einniemand/library-robot
 servers:
   web:
     hosts:
-      - 64.23.139.3
-      - 64.23.166.245
+      - 137.184.33.51
+      - 146.190.115.105
     # options:
     #   health-cmd: bin/healthcheck web
   worker:
     hosts:
-      - 143.198.99.95
+      - 137.184.33.51
     cmd: bundle exec sidekiq
     options:
       health-cmd: exit 0 # worker
@@ -41,7 +41,7 @@ readiness_delay: 60
 registry:
   # Specify the registry server, if you're not using Docker Hub
   # server: registry.digitalocean.com / ghcr.io / ...
-  server: registry.digitalocean.com
+  # server: registry.digitalocean.com
   username: einniemand
 
   # Always use an access token rather than real password (pulled from .kamal/secrets).

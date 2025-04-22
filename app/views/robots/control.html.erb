@@ -7,155 +7,173 @@
     </p>
   </div>
 
-  <!-- 主内容网格：左侧状态卡片，右侧控制按钮 -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- 主内容 Flex 容器：定义左右两栏 -->
+  <div class="flex">
     
-    <!-- 左侧：状态卡片 2x2 区域 -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-      <!-- 机器人状态卡片 -->
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-         <div class="p-5">
-           <div class="flex items-center">
-             <div class="flex-shrink-0">
-               <!-- Robot Icon -->
-               <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-               </svg>
-             </div>
-             <div class="ml-5 w-0 flex-1">
-               <dt class="text-sm font-medium text-gray-500 truncate">机器人状态</dt>
-               <dd class="mt-1">
-                 <div class="flex items-baseline">
-                   <div id="robot-status-indicator" class="h-2.5 w-2.5 rounded-full bg-gray-400 mr-2 flex-shrink-0" data-robot-target="statusIndicator"></div>
-                   <span id="robot-status-text" class="text-2xl font-semibold text-gray-900" data-robot-target="statusText">未连接</span>
-                 </div>
-                 <div class="mt-1">
-                   <span id="connection-status" class="text-xs font-medium text-gray-500" data-robot-target="connectionStatus">正在连接...</span>
-                 </div>
-               </dd>
-             </div>
-           </div>
-         </div>
-      </div>
-
-      <!-- 电池状态卡片 -->
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-         <div class="p-5">
-           <div class="flex items-center">
-             <div class="flex-shrink-0">
-                <!-- Battery Icon -->
-                <svg class="h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-             </div>
-             <div class="ml-5 w-0 flex-1">
-               <dt class="text-sm font-medium text-gray-500 truncate">电池电量</dt>
-               <dd>
-                 <div class="flex items-center">
-                   <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
-                     <div id="battery-level-bar" class="bg-gray-400 h-2.5 rounded-full" style="width: 0%" data-robot-target="batteryBar"></div>
-                   </div>
-                   <span id="battery-level-text" class="text-2xl font-semibold text-gray-900" data-robot-target="batteryText">--</span>
-                 </div>
-               </dd>
-             </div>
-           </div>
-         </div>
-      </div>
-
-      <!-- 位置信息卡片 -->
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-               <!-- Location Icon -->
-              <svg class="h-8 w-8 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dt class="text-sm font-medium text-gray-500 truncate">当前位置</dt>
-              <dd class="mt-1">
-                <div class="flex flex-col">
-                  <span class="text-md font-medium text-gray-700">X: <span id="position-x" data-robot-target="positionX">--</span></span>
-                  <span class="text-md font-medium text-gray-700">Y: <span id="position-y" data-robot-target="positionY">--</span></span>
-                </div>
-              </dd>
+    <!-- ==================== 左侧栏：状态卡片 (使用 Flexbox 控制) ==================== -->
+    <div class="flex-1">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- 机器人状态卡片 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0"><!-- Robot Icon -->
+                <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate">机器人状态</dt>
+                <dd class="mt-1">
+                  <div class="flex items-baseline">
+                    <div id="robot-status-indicator" class="h-2.5 w-2.5 rounded-full bg-gray-400 mr-2 flex-shrink-0" data-robot-target="statusIndicator"></div>
+                    <span id="robot-status-text" class="text-2xl font-semibold text-gray-900" data-robot-target="statusText">未连接</span>
+                  </div>
+                  <div class="mt-1">
+                    <span id="connection-status" class="text-xs font-medium text-gray-500" data-robot-target="connectionStatus">正在连接...</span>
+                  </div>
+                </dd>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 速度信息卡片 -->
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-         <div class="p-5">
-           <div class="flex items-center">
-             <div class="flex-shrink-0">
-                <!-- Speed Icon -->
-               <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-               </svg>
-             </div>
-             <div class="ml-5 w-0 flex-1">
-               <dt class="text-sm font-medium text-gray-500 truncate">当前速度</dt>
-               <dd class="mt-1">
-                 <div class="flex flex-col">
-                   <span class="text-md font-medium text-gray-700">线速度: <span id="linear-velocity" data-robot-target="linearVelocity">--</span> m/s</span>
-                   <span class="text-md font-medium text-gray-700">角速度: <span id="angular-velocity" data-robot-target="angularVelocity">--</span> rad/s</span>
-                 </div>
-               </dd>
-             </div>
-           </div>
-         </div>
-      </div>
-    </div> 
-    <!-- 左侧结束 -->
+        <!-- 电池状态卡片 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0"><!-- Battery Icon -->
+                <svg class="h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate">电池电量</dt>
+                <dd>
+                  <div class="flex items-center">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                      <div id="battery-level-bar" class="bg-gray-400 h-2.5 rounded-full" style="width: 0%" data-robot-target="batteryBar"></div>
+                    </div>
+                    <span id="battery-level-text" class="text-2xl font-semibold text-gray-900" data-robot-target="batteryText">--</span>
+                  </div>
+                </dd>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- 右侧：控制按钮面板 -->
-    <div class="bg-white shadow overflow-hidden rounded-lg">
+        <!-- 位置信息卡片 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0"><!-- Location Icon -->
+                 <svg class="h-8 w-8 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate">当前位置</dt>
+                <dd class="mt-1">
+                  <div class="flex flex-col">
+                    <span class="text-md font-medium text-gray-700">X: <span id="position-x" data-robot-target="positionX">--</span></span>
+                    <span class="text-md font-medium text-gray-700">Y: <span id="position-y" data-robot-target="positionY">--</span></span>
+                  </div>
+                </dd>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 速度信息卡片 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0"><!-- Speed Icon -->
+                <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate">当前速度</dt>
+                <dd class="mt-1">
+                  <div class="flex flex-col">
+                    <span class="text-md font-medium text-gray-700">线速度: <span id="linear-velocity" data-robot-target="linearVelocity">--</span> m/s</span>
+                    <span class="text-md font-medium text-gray-700">角速度: <span id="angular-velocity" data-robot-target="angularVelocity">--</span> rad/s</span>
+                  </div>
+                </dd>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- // 状态卡片 2x2 网格结束 -->
+    </div> <!-- // 左侧 flex-1 包裹层结束 -->
+    <!-- ==================== 左侧栏结束 ==================== -->
+
+    <!-- ==================== 右侧栏：控制按钮面板 (使用 Flexbox 控制 + Margin) ==================== -->
+    <div class="bg-white shadow overflow-hidden rounded-lg flex-1 ml-6">
       <div class="px-4 py-5 sm:p-6 flex flex-col items-center justify-center h-full">
         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">
           移动控制
         </h3>
         
-        <%# 速度滑块（暂时移除，如果需要可以加回来） %>
-        <%# <div class="w-full max-w-xs mb-8"> ... </div> %>
-        <input type="hidden" data-robot-target="speedSlider" value="0.5"> <%# 保留 target 但隐藏滑块 %>
+        <input type="hidden" data-robot-target="speedSlider" value="0.5">
         <input type="hidden" data-robot-target="speedValue" value="0.5">
 
-        <!-- 方向控制按钮 (垂直布局) -->
-        <div class="flex flex-col items-center space-y-4">
-          <button type="button" data-action="robot#moveForward" class="control-button-circle">
-             <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+        <!-- 方向控制按钮 (现代化设计) -->
+        <div class="flex flex-col items-center space-y-5 w-full max-w-xs">
+          <!-- 向前按钮 -->
+          <button type="button" data-action="robot#moveForward" class="control-button-direction">
+            <div class="flex justify-center items-center relative">
+              <span class="absolute -top-5 text-xs font-medium text-gray-500">前进</span>
+              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+            </div>
           </button>
           
-          <div class="flex space-x-4">
-            <button type="button" data-action="robot#moveLeft" class="control-button-circle">
-              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <!-- 中间按钮组 (左、停止、右) -->
+          <div class="flex space-x-5 w-full justify-center">
+            <!-- 左转按钮 -->
+            <button type="button" data-action="robot#moveLeft" class="control-button-direction">
+              <div class="flex justify-center items-center relative">
+                <span class="absolute -top-5 text-xs font-medium text-gray-500">左转</span>
+                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </div>
             </button>
             
-            <button type="button" data-action="robot#stop" class="control-button-stop-circle">
-              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 9h6v6H9z"/></svg> <%# 换成更像停止的图标 %>
+            <!-- 停止按钮 -->
+            <button type="button" data-action="robot#stop" class="control-button-stop">
+              <div class="flex justify-center items-center relative">
+                <span class="absolute -top-5 text-xs font-medium text-gray-500">停止</span>
+                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z" clip-rule="evenodd" />
+                </svg>
+              </div>
             </button>
             
-            <button type="button" data-action="robot#moveRight" class="control-button-circle">
-              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+            <!-- 右转按钮 -->
+            <button type="button" data-action="robot#moveRight" class="control-button-direction">
+              <div class="flex justify-center items-center relative">
+                <span class="absolute -top-5 text-xs font-medium text-gray-500">右转</span>
+                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
             </button>
           </div>
 
-          <button type="button" data-action="robot#moveBackward" class="control-button-circle">
-            <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+          <!-- 向后按钮 -->
+          <button type="button" data-action="robot#moveBackward" class="control-button-direction">
+            <div class="flex justify-center items-center relative">
+              <span class="absolute -top-5 text-xs font-medium text-gray-500">后退</span>
+              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
           </button>
         </div>
       </div>
     </div> 
-    <!-- 右侧结束 -->
+    <!-- ==================== 右侧栏结束 ==================== -->
 
   </div> 
-  <!-- 主内容网格结束 -->
+  <!-- 主内容 Flex 容器结束 -->
 
-  <!-- 下方预留区域 -->
+  <!-- ==================== 下方预留区域 ==================== -->
   <div class="bg-white shadow overflow-hidden rounded-lg mt-6">
      <div class="px-4 py-5 sm:p-6 h-96 flex items-center justify-center">
         <div class="text-center">
@@ -167,14 +185,28 @@
         </div>
      </div>
   </div>
+  <!-- ==================== 下方预留区域结束 ==================== -->
 
 </div>
 
 <style>
-  .control-button-circle {
-    @apply inline-flex items-center justify-center p-3 border border-transparent rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-105;
+  .control-button-direction {
+    @apply inline-flex items-center justify-center p-4 border-2 border-blue-400 rounded-xl 
+           shadow-lg text-blue-600 bg-gradient-to-b from-blue-50 to-blue-100 
+           hover:from-blue-100 hover:to-blue-200 hover:border-blue-500 hover:text-blue-700
+           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+           active:shadow-inner active:from-blue-200 active:to-blue-300 active:border-blue-600
+           active:transform active:scale-95 active:text-blue-800
+           transition-all duration-150 ease-in-out w-20 h-20;
   }
-  .control-button-stop-circle {
-     @apply inline-flex items-center justify-center p-3 border border-transparent rounded-full shadow-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-150 ease-in-out transform hover:scale-105;
+  
+  .control-button-stop {
+    @apply inline-flex items-center justify-center p-4 border-2 border-red-400 rounded-xl 
+           shadow-lg text-red-600 bg-gradient-to-b from-red-50 to-red-100 
+           hover:from-red-100 hover:to-red-200 hover:border-red-500 hover:text-red-700
+           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
+           active:shadow-inner active:from-red-200 active:to-red-300 active:border-red-600
+           active:transform active:scale-95 active:text-red-800
+           transition-all duration-150 ease-in-out w-20 h-20;
   }
 </style> 

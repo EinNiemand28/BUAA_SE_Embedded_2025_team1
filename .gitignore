@@ -45,3 +45,5 @@
 .kamal/secrets
 
 vendor/bundle
+
+qa.md

@@ -73,3 +73,5 @@ gem "sidekiq-scheduler", "~> 5.0"
 gem "kaminari", "~> 1.2"
 
 gem "dotenv-rails", "~> 3.1"
+
+gem "foreman", "~> 0.88.1"

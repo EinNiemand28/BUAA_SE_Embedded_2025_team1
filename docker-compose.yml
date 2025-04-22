@@ -3,11 +3,15 @@ services:
     build:
       context: .
     entrypoint: ["/rails/bin/docker-entrypoint"]
-    command: bash -c "bundle install && bin/rails server -b 0.0.0.0"
+    command: bin/rails server -b 0.0.0.0
     ports:
       - "3000:3000"
     volumes:
       - .:/rails
+    stdin_open: true
+    tty: true
+    environment:
+      - TAILWIND_WATCH=1
     depends_on:
       # - postgres
       - redis
