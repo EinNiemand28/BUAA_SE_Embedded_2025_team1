@@ -68,6 +68,19 @@ env:
     - DATABASE_URL
     - REDIS_URL
 
+services:
+  web:
+    image: einniemand/library-robot
+    hosts:
+      - 137.184.33.51
+      - 146.190.115.105
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    external: true # Traefik
+
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal app logs -r job" will tail logs from the first server in the job section.
 #
