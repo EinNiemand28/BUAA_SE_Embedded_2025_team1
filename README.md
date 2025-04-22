@@ -33,6 +33,13 @@ graph RL
     %% 交互说明
 ```
 
+## 当前进度
+
+*   **核心通信 Demo 实现:** 已基本打通 Web 浏览器、Rails 后端 (Action Cable)、ROS 中间层节点 (`web_robot_bridge`) 之间的 WebSocket 双向通信。
+*   **前端界面:** 初步实现了机器人状态展示（位置、速度、电量、连接状态）和基本移动控制按钮。
+*   **后端逻辑:** 实现了 Action Cable 的 Channel 用于接收和广播机器人状态，以及处理前端发送的移动指令。
+*   **ROS 节点:** 提供了 `web_robot_bridge_node.py` 脚本，用于连接 Rails Action Cable，订阅/发布相关的 ROS Topic (如 `/odom`, `/cmd_vel`)，并将数据转发给 Web 端。
+
 ## 开发计划
 
 - 部署策略：先于本地开发，后期基于 Kamal + Docker 部署至云服务器
@@ -166,3 +173,51 @@ graph TD
 *   直接在本地运行对环境配置要求较高，如果遇到依赖问题，调试过程可能比使用 Docker 更复杂。
 *   上述系统依赖列表基于 `Dockerfile`，实际需要的包在不同系统上可能略有差异。
 *   确保本地的 Redis 服务已启动。
+
+## 测试通信 Demo
+
+此部分说明如何在本地运行 Rails 应用后，启动 ROS 中间层节点来测试端到端的通信功能。
+
+**前提条件:**
+
+1.  **Rails 应用已运行:** 按照上面的 "使用 Docker 运行" 或 "直接运行" 说明，确保 Rails Web 应用正在本地运行 (通常在 `http://localhost:3000`)。
+2.  **获取 `web_robot_bridge` 包:** 你需要将项目仓库中提供的 `web_robot_bridge` 文件夹复制到你的 ROS 工作空间 (catkin_ws 或 colcon_ws) 的 `src` 目录下。
+3.  **ROS 环境:** 确保你有一个配置好的 ROS Noetic (或兼容版本) 环境，并且已经安装了必要的 Python 依赖 (如 `websocket-client`)。
+    ```bash
+    pip install websocket-client
+    ```
+4.  **(重要) 构建 ROS 包:** 在你的 ROS 工作空间根目录下运行 `catkin_make` (或 `colcon build`) 来构建 `web_robot_bridge` 包。
+    ```bash
+    # 例如，在 catkin_ws 目录下
+    catkin_make 
+    ```
+5.  **配置 ROS 源:** 确保在将要运行节点的终端中已经 source 了 ROS 环境和你的工作空间。
+    ```bash
+    source /opt/ros/noetic/setup.bash
+    source ~/catkin_ws/devel/setup.bash  # 根据你的工作空间路径调整
+    ```
+
+**步骤:**
+
+1.  **配置 `web_robot_bridge_node.py`:**
+    *   打开 `web_robot_bridge/scripts/web_robot_bridge_node.py` 文件。
+    *   **修改 `WEBSOCKET_URL`:** 将 `WEBSOCKET_URL` 的值从示例 IP 地址改为指向你本地运行的 Rails 应用。通常是：
+        ```python
+        WEBSOCKET_URL = "ws://localhost:3000/cable"
+        ```
+    *   **(可选) 修改 `API_KEY`:** 默认情况下，开发环境的 Action Cable 连接可能不需要 API 密钥验证（取决于 `ApplicationCable::Connection` 的实现）。如果你的本地 Rails 应用配置了需要 `ROBOT_API_KEY` 环境变量来进行 WebSocket 认证，请确保此处的 `API_KEY` 与你的 `.env` 文件或环境变量中的 `ROBOT_API_KEY` 值**完全一致**。否则，请确保 `ApplicationCable::Connection` 中的 `find_verified_user` 逻辑允许没有 API Key 但有用户会话的连接，或者暂时允许匿名连接进行测试。
+    *   **(可选) 修改 Topic 名称:** 如果你的机器人使用了不同的 Topic 名称（如 `/odom`, `/cmd_vel`），请相应修改脚本顶部的 `ODOM_TOPIC`, `CMD_VEL_TOPIC` 等常量。
+
+2.  **运行 ROS 节点:**
+    在已经 source 好环境的终端中，使用 `roslaunch` 启动节点：
+    ```bash
+    roslaunch web_robot_bridge web_robot_bridge_node.py
+    ```
+
+**预期结果:**
+
+*   **ROS 节点日志:** 你应该在运行 `roslaunch` 的终端中看到类似 `WebSocket 连接成功` 以及订阅/发布 Topic 的日志信息。如果连接失败，会显示错误信息。
+*   **Web 界面:** 在浏览器中打开 `http://localhost:3000` 的机器人控制页面：
+    *   "连接状态"应该显示为"双向通信已连接"或类似状态。
+    *   机器人状态卡片（位置、速度、电量）应该会开始显示模拟数据或来自 `/odom` 的真实数据（如果你的 ROS 环境中有发布 `/odom` 的节点）。
+    *   点击移动控制按钮时，你应该能在 ROS 节点的日志中看到类似 `发布 /cmd_vel` 的信息，并且（如果你有模拟器或真实机器人运行）机器人应该会相应移动。

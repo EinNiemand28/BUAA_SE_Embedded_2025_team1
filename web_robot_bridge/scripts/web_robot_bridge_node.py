@@ -17,9 +17,9 @@ logger = logging.getLogger('rosout')
 logger.setLevel(logging.DEBUG)
 
 # 本地测试为localhost
-WEB_SERVER_URL = "http://24.199.78.71:3000"
+WEB_SERVER_URL = "http:/localhost:3000"
 # 添加API密钥到WebSocket URL
-WEBSOCKET_URL = "ws://24.199.78.71:3000/cable"
+WEBSOCKET_URL = "ws://localhost:3000/cable"
 API_KEY = "7ad0bbbdf00c5cbe87799355200f212ed329030028fd3ccd51524e461adf2c31"
 
 STATUS_CHANNEL = "RobotStatusChannel"
