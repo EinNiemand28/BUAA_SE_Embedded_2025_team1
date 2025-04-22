@@ -8,13 +8,13 @@ image: einniemand/library-robot
 servers:
   web:
     hosts:
-      - 137.184.81.212
-      - 164.92.93.178
+      - 64.23.139.3
+      - 64.23.166.245
     # options:
     #   health-cmd: bin/healthcheck web
   worker:
     hosts:
-      - 64.23.202.248
+      - 143.198.99.95
     cmd: bundle exec sidekiq
     options:
       health-cmd: exit 0 # worker

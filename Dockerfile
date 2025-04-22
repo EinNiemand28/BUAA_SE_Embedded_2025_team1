@@ -1,4 +1,4 @@
-FROM ruby:3.3.4 AS base
+FROM docker.1ms.run/library/ruby:3.3.4 AS base
 
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
