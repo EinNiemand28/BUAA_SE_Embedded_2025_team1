@@ -7,7 +7,7 @@
     <include file='$(find gazebosim_demo)/launch/world.launch'/>
 
     <!-- Robot -->
-    <include file='$(find gazebosim_demo)/launch/simple_robot.launch'/> 
+    <include file='$(find gazebosim_demo)/launch/robot.launch'/> 
 
     <!-- Gmapping -->
     <include file='$(find gazebosim_demo)/launch/gmapping.launch'/>

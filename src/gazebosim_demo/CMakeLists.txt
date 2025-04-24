@@ -159,6 +159,22 @@ target_link_libraries(lidar_filter
   ${catkin_LIBRARIES}
 )
 
+add_executable(demo_cv_image
+  src/demo_cv_image.cpp
+)
+add_dependencies(demo_cv_image ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(demo_cv_image
+  ${catkin_LIBRARIES} ${OpenCV_LIBS}
+)
+
+add_executable(wpb_home_sim
+  src/wpb_home_sim.cpp
+)
+add_dependencies(wpb_home_sim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_sim
+  ${catkin_LIBRARIES}
+)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

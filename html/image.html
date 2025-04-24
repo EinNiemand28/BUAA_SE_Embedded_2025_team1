@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/eventemitter2@6.4.9/lib/eventemitter2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image from Topic</title>
+</head>
+<body>
+    <h1>Image from Topic "/frontend_image"</h1>
+    <img id="image" alt="Image from /frontend_image" />
+
+    <script type="text/javascript">
+        // Connect to ROS
+        var ros = new ROSLIB.Ros({
+            url: 'ws://localhost:1991'
+        });
+
+        ros.on('connection', function () {
+            console.log('Connected to websocket server.');
+        });
+
+        ros.on('error', function (error) {
+            console.log('Error connecting to websocket server: ', error);
+        });
+
+        ros.on('close', function () {
+            console.log('Connection to websocket server closed.');
+        });
+
+        const imageTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/kinect2/hd/image_color_rect',
+                messageType: 'sensor_msgs/Image'
+            });
+
+        imageTopic.subscribe(function (message) {
+            console.log('Received message on ' + imageTopic.name + ': ' + message.data);
+            // Convert the image data to a base64 string
+            const base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(message.data)));
+            // Update the image source
+            // document.getElementById('image').src = "data:image/png;base64," + base64String;
+            console.log('data:image/png;base64,' + base64String);
+        });
+    </script>
+</body>
+</html>
+    </script>
+</body>
+</html>
