@@ -1,4 +1,5 @@
 build/*
 devel/*
-*.sh
 *.zip
+urdf2sdf.sh
+.gitignore

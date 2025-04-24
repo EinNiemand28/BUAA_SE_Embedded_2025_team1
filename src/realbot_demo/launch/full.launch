@@ -1,0 +1,15 @@
+<launch>
+    <!-- Robot -->
+    <include file='$(find realbot_demo)/launch/robot.launch'/> 
+
+    <!-- Navigation -->
+    <include file='$(find realbot_demo)/launch/navigation.launch'/>
+
+    <!-- Rviz -->
+    <include file="$(find realbot_demo)/launch/rviz.launch"/>
+
+    <!-- Ros Bridge -->
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+        <arg name='port' value='1993'/>
+    </include>
+</launch>
