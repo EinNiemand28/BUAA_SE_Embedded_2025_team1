@@ -11,6 +11,9 @@
 ## 协作开发规范
 
 *   **代码同步**: 请使用标准的 `git pull` 获取最新代码，使用 `git push` 推送你的本地提交。
+    *   提交信息应简洁明了，描述所做的更改。
+    *   提交信息格式建议为：`[功能/修复] 描述`，例如 `[修复] 修复导航中的一个bug`。
+    *   可以使用 `git fetch` 和 `git rebase` 来保持本地分支与远程分支的同步，但是使用之前请**确保你了解其工作原理**。
 *   **分支管理**: (可选，如果需要可以添加) 建议为新功能或修复创建单独的分支，完成后合并回主分支。
 *   **禁止上传生成文件**: 请确保不要将 ROS 编译生成的文件（如 `build/`, `devel/` 目录下的内容）、地图文件 (`.pgm`, `.yaml`) 或其他运行时产生的数据文件提交到 Git 仓库。
     *   项目根目录下的 `.gitignore` 文件已配置忽略常见生成文件，请勿修改。
@@ -52,7 +55,6 @@ source devel/setup.bash
 更方便的办法是，将**所有**`source devel/setup.sh`添加到`~/.bashrc`中：
 
 ```bash
-echo "source (pwd)/devel/setup.sh" >> ~/.bashrc
-echo "source ~/catkin_ws/devel/setup.sh" >> ~/.bashrc
+echo "source /path/to/your/ros_end_workspace/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
