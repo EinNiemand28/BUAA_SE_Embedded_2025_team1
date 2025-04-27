@@ -38,7 +38,7 @@ if __name__ == "__main__":
             goal_obj.pos.position.x = float(input("x = "))
             goal_obj.pos.position.y = float(input("y = "))
             goal_obj.pos.position.z = 0
-            goal_obj.pos.orientation.z = 2
+            goal_obj.pos.orientation.z = 0
             goal_obj.pos.orientation.w = 1.0
             client.wait_for_server()
             client.send_goal(goal_obj,done_cb,active_cb,fb_cb)

@@ -181,9 +181,3 @@ class SimpleGoalServer:
 rospy.init_node("simple_goal")  
 server = SimpleGoalServer()
 rospy.spin()
-
-
-
-
-
-
