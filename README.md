@@ -142,7 +142,7 @@ graph TD
     项目可能依赖环境变量。推荐使用 `dotenv-rails` gem (已包含在 `Gemfile` 中)。创建一个 `.env` 文件在项目根目录，并至少包含以下内容（根据需要调整）：
     ```dotenv
     # .env
-    REDIS_URL=redis://localhost:6379/1
+    REDIS_URL=redis://redis:6379/1
     # 如果需要连接 ROS 节点，确保设置 API Key
     ROBOT_API_KEY=<你的机器人API密钥>
     # 如果使用了加密的 credentials, 需要设置 RAILS_MASTER_KEY
@@ -199,11 +199,17 @@ graph TD
 
 **步骤:**
 
-1.  **配置 `web_robot_bridge_node.py`:**
+1.  **配置 `WebSocket`连接:**
     *   打开 `web_robot_bridge/scripts/web_robot_bridge_node.py` 文件。
     *   **修改 `WEBSOCKET_URL`:** 将 `WEBSOCKET_URL` 的值从示例 IP 地址改为指向你本地运行的 Rails 应用。通常是：
         ```python
         WEBSOCKET_URL = "ws://localhost:3000/cable"
+        ```
+    *   新建 `.env` 文件，添加以下内容：
+        ```dotenv
+        # .env
+        ROBOT_API_KEY: 7ad0bbbdf00c5cbe87799355200f212ed329030028fd3ccd51524e461adf2c31
+        REDIS_URL: redis://redis:6379/1 # 本地测试
         ```
     *   **(可选) 修改 `API_KEY`:** 默认情况下，开发环境的 Action Cable 连接可能不需要 API 密钥验证（取决于 `ApplicationCable::Connection` 的实现）。如果你的本地 Rails 应用配置了需要 `ROBOT_API_KEY` 环境变量来进行 WebSocket 认证，请确保此处的 `API_KEY` 与你的 `.env` 文件或环境变量中的 `ROBOT_API_KEY` 值**完全一致**。否则，请确保 `ApplicationCable::Connection` 中的 `find_verified_user` 逻辑允许没有 API Key 但有用户会话的连接，或者暂时允许匿名连接进行测试。
     *   **(可选) 修改 Topic 名称:** 如果你的机器人使用了不同的 Topic 名称（如 `/odom`, `/cmd_vel`），请相应修改脚本顶部的 `ODOM_TOPIC`, `CMD_VEL_TOPIC` 等常量。
