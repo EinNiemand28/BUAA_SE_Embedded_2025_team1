@@ -1,54 +1,118 @@
+# services:
+#   web:
+#     build:
+#       context: .
+#     entrypoint: ["/rails/bin/docker-entrypoint"]
+#     command: bin/rails server -b 0.0.0.0
+#     ports:
+#       - "3000:3000"
+#     volumes:
+#       - .:/rails
+#       - /rails/vendor/bundle
+#       - /rails/app/assets/builds
+#     environment:
+#       - REDIS_URL=redis://redis:6379/1
+#     depends_on:
+#       # - postgres
+#       - redis
+
+#   worker:
+#     build:
+#       context: .
+#     entrypoint: ["/rails/bin/docker-entrypoint"]
+#     command: bash -c "bundle install && bundle exec sidekiq"
+#     volumes:
+#       - .:/rails
+#       - /rails/vendor/bundle
+#       - /rails/app/assets/builds
+#     depends_on:
+#       # - postgres
+#       - redis
+#     environment:
+#       - REDIS_URL=redis://redis:6379/1
+
+#   # postgres:
+#   #   image: postgres:14
+#   #   ports:
+#   #     - "5432:5432"
+#   #   environment:
+#   #     - POSTGRES_PASSWORD=postgres
+#   #   volumes:
+#   #     - postgres_data:/var/lib/postgresql/data
+#   #   healthcheck:
+#   #     test: ["CMD", "pg_isready", "-U", "postgres"]
+#   #     interval: 5s
+#   #     retries: 5
+
+#   redis:
+#     image: redis:7-alpine
+#     ports:
+#       - "6379:6379"
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "ping"]
+#       interval: 5s
+#       retries: 5
+
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: myapp-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - myapp_network
+
   web:
     build:
       context: .
-    entrypoint: ["/rails/bin/docker-entrypoint"]
+      dockerfile: Dockerfile
+    container_name: myapp-web-dev
     command: bin/rails server -b 0.0.0.0
-    ports:
-      - "3000:3000"
     volumes:
       - .:/rails
-      - /rails/vendor/bundle
-      - /rails/app/assets/builds
-    environment:
-      - REDIS_URL=redis://redis:6379/1
+      - bundle_cache:/usr/local/bundle
+      - ./storage:/rails/storage
+    ports:
+      - "3000:3000"
     depends_on:
-      # - postgres
       - redis
+    environment:
+      - REDIS_URL
+      - RAILS_ENV=development
+      - RAILS_LOG_TO_STDOUT=true
+    networks:
+      - myapp_network
+    # env_file:
+    #   - .env.development
 
   worker:
     build:
       context: .
-    entrypoint: ["/rails/bin/docker-entrypoint"]
+      dockerfile: Dockerfile
+    container_name: myapp-worker-dev
     command: bash -c "bundle install && bundle exec sidekiq"
     volumes:
       - .:/rails
-      - /rails/vendor/bundle
-      - /rails/app/assets/builds
+      - bundle_cache:/usr/local/bundle
+      - ./storage:/rails/storage
     depends_on:
-      # - postgres
       - redis
     environment:
-      - REDIS_URL=redis://redis:6379/1
+      - REDIS_URL
+      - RAILS_ENV=development
+      - RAILS_LOG_TO_STDOUT=true
+    networks:
+      - myapp_network
+    # env_file:
+    #   - .env.development
 
-  # postgres:
-  #   image: postgres:14
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     - POSTGRES_PASSWORD=postgres
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD", "pg_isready", "-U", "postgres"]
-  #     interval: 5s
-  #     retries: 5
+volumes:
+  redis_data: # 持久化redis数据
+  bundle_cache: # bundle缓存
+  # sqlite_data: # sqlite数据库数据
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      retries: 5
+networks:
+  myapp_network:
+    driver: bridge

@@ -47,10 +47,8 @@
 /.dockerignore
 /Dockerfile*
 
+.env.*
 .env
-.env.*.local
-.env.local
-.env.development
 .kamal/secrets
 
 vendor/bundle

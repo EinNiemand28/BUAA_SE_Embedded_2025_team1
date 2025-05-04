@@ -17,9 +17,11 @@ logger = logging.getLogger('rosout')
 logger.setLevel(logging.DEBUG)
 
 # 本地测试为localhost
-WEB_SERVER_URL = "http:/localhost:3000"
+RAILS_APP_DOMAIN = "robot.einniemand.top"
+# RAILS_APP_DOMAIN = "localhost"  # 本地测试
+WEB_SERVER_URL = f"https://{RAILS_APP_DOMAIN}"
 # 添加API密钥到WebSocket URL
-WEBSOCKET_URL = "ws://localhost:3000/cable"
+WEBSOCKET_URL = f"wss://{RAILS_APP_DOMAIN}/cable" # 本地测试使用ws而非wss, 使用http, 并且需要指明端口为3000
 API_KEY = "7ad0bbbdf00c5cbe87799355200f212ed329030028fd3ccd51524e461adf2c31"
 
 STATUS_CHANNEL = "RobotStatusChannel"
@@ -124,7 +126,8 @@ class WebRobotBridgeNode:
             }
             
             self.ws = websocket.WebSocketApp(
-                WEBSOCKET_URL + "?api_key=" + API_KEY,
+                # WEBSOCKET_URL + "?api_key=" + API_KEY,
+                WEBSOCKET_URL,
                 header=headers,
                 on_message=lambda ws, msg: self.on_message(ws, msg),
                 on_error=lambda ws, err: self.on_error(ws, err),

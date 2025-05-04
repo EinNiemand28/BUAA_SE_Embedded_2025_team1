@@ -10,10 +10,10 @@ eagerLoadControllersFrom("controllers", application)
 // import { lazyLoadControllersFrom } from "@hotwired/stimulus-loading"
 // lazyLoadControllersFrom("controllers", application)
 
-import SidebarController from "./sidebar_controller"
-import RobotController from "./robot_controller"
-import DashboardRobotStatusController from "./dashboard_robot_status_controller"
+// import SidebarController from "./sidebar_controller"
+// import RobotController from "./robot_controller"
+// import DashboardRobotStatusController from "./dashboard_robot_status_controller"
 
-application.register("sidebar", SidebarController)
-application.register("robot", RobotController)
-application.register("dashboard-robot-status", DashboardRobotStatusController) 
+// application.register("sidebar", SidebarController)
+// application.register("robot", RobotController)
+// application.register("dashboard-robot-status", DashboardRobotStatusController) 

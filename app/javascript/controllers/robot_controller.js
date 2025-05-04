@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import consumer from "../channels/consumer"
+import consumer from "channels/consumer"
 
 export default class extends Controller {
   static targets = [
@@ -80,7 +80,7 @@ export default class extends Controller {
       
       // 更新电池电量
       if (data.battery_level !== undefined) {
-        const batteryLevel = data.battery_level
+        const batteryLevel = parseFloat(data.battery_level).toFixed(3)
         console.log(`[UpdateUI] Attempting to update battery: ${batteryLevel}%`)
         this.batteryTextTarget.textContent = `${batteryLevel}%`
         this.batteryBarTarget.style.width = `${batteryLevel}%`

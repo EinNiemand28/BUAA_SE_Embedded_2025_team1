@@ -38,12 +38,11 @@
 !/app/assets/builds/.keep
 
 # 排除环境变量文件
+.env.*
 .env
-.env.local
-.env.*.local
-.env.development
 .kamal/secrets
 
 vendor/bundle
 
 qa.md
+test.md

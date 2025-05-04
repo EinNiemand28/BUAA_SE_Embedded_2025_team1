@@ -37,13 +37,14 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = "X-Accel-Redirect" # for NGINX
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  config.active_storage.service = :local # TODO
 
   # Mount Action Cable outside main process or domain.
   config.action_cable.url = ENV.fetch("ACTION_CABLE_URL") { "wss://#{ENV["RAILS_APP_DOMAIN"] || 'localhost:3000'}/cable" }
   config.action_cable.allowed_request_origins = [ 
-    ENV.fetch("RAILS_APP_DOMAIN") { "http://localhost:3000" }, 
-    /http:\/\/localhost:.*/
+    "https://#{ENV["RAILS_APP_DOMAIN"] || 'localhost:3000'}",
+    "http://#{ENV["RAILS_APP_DOMAIN"] || 'localhost:3000'}",
+    nil
   ]
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
@@ -51,8 +52,8 @@ Rails.application.configure do
   # config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = false
-  # config.assume_ssl = true
+  config.force_ssl = true
+  config.assume_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
@@ -104,10 +105,11 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
+  config.hosts = [
+    ENV.fetch("RAILS_APP_DOMAIN") { "localhost" },
   #   "example.com",     # Allow requests from example.com
   #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
+  ]
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end

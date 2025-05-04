@@ -4,14 +4,15 @@ module ApplicationCable
 
     def connect
       # 恢复原始连接逻辑
-      api_key_provided = request.params[:api_key]
+      # api_key_provided = request.params[:api_key]
+      api_key_provided = request.headers['X-Robot-API-Key']
       expected_api_key = ENV['ROBOT_API_KEY']
       
       logger.debug "Attempting WebSocket connection..."
       logger.debug "API Key Provided: #{api_key_provided.present? ? 'Yes' : 'No'} ([FILTERED])"
       logger.debug "Expected API Key Loaded: #{expected_api_key.present? ? 'Yes' : 'No'}"
 
-      if api_key_provided.present? && api_key_provided == expected_api_key
+      if api_key_provided.present? && ActiveSupport::SecurityUtils.secure_compare(api_key_provided, expected_api_key)
         logger.info "API Key matches. Identifying as robot client."
         self.robot_client = true
         self.current_user = nil # 确保机器人连接时用户为nil
