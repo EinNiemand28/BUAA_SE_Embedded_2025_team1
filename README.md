@@ -33,18 +33,11 @@ graph RL
     %% 交互说明
 ```
 
-## 当前进度
-
-*   **核心通信 Demo 实现:** 已基本打通 Web 浏览器、Rails 后端 (Action Cable)、ROS 中间层节点 (`web_robot_bridge`) 之间的 WebSocket 双向通信。
-*   **前端界面:** 初步实现了机器人状态展示（位置、速度、电量、连接状态）和基本移动控制按钮。
-*   **后端逻辑:** 实现了 Action Cable 的 Channel 用于接收和广播机器人状态，以及处理前端发送的移动指令。
-*   **ROS 节点:** 提供了 `web_robot_bridge_node.py` 脚本，用于连接 Rails Action Cable，订阅/发布相关的 ROS Topic (如 `/odom`, `/cmd_vel`)，并将数据转发给 Web 端。
-
 ## 开发计划
 
 - 部署策略：先于本地开发，后期基于 Kamal + Docker 部署至云服务器
 
-- 数据库：本地开发使用 SQLite，（预计）后期部署使用 PostgreSQL + Redis
+- 数据库：本地开发使用 SQLite，部署使用 PostgreSQL + Redis
 
 ```mermaid
 graph TD
@@ -69,7 +62,13 @@ graph TD
     end
 ```
 
->目前部署策略仍在考虑尝试中，可能会有所调整。
+## 当前进度
+
+*   **云端部署成功:** 已使用 Kamal + Docker 成功将项目部署至云服务器，能够通过公网 IP 访问和控制。
+*   **核心通信 Demo 实现:** 已基本打通 Web 浏览器、Rails 后端 (Action Cable)、ROS 中间层节点 (`web_robot_bridge`) 之间的 WebSocket 双向通信。
+*   **前端界面:** 初步实现了机器人状态展示（位置、速度、电量、连接状态）和基本移动控制按钮。
+*   **后端逻辑:** 实现了 Action Cable 的 Channel 用于接收和广播机器人状态，以及处理前端发送的移动指令。
+*   **ROS 节点:** 提供了 `web_robot_bridge_node.py` 脚本，用于连接 Rails Action Cable，订阅/发布相关的 ROS Topic (如 `/odom`, `/cmd_vel`)，并将数据转发给 Web 端。
 
 ## 运行
 
@@ -145,7 +144,7 @@ graph TD
     REDIS_URL=redis://redis:6379/1
     # 如果需要连接 ROS 节点，确保设置 API Key
     ROBOT_API_KEY=<你的机器人API密钥>
-    # 如果使用了加密的 credentials, 需要设置 RAILS_MASTER_KEY
+    # 如果使用了加密的 credentials, 需要设置 RAILS_MASTER_KEY(在config/下)
     # RAILS_MASTER_KEY=<你的主密钥>
     ```
     *注意：*.env 文件应添加到 `.gitignore` 中，不应提交到版本库。
@@ -174,9 +173,9 @@ graph TD
 *   上述系统依赖列表基于 `Dockerfile`，实际需要的包在不同系统上可能略有差异。
 *   确保本地的 Redis 服务已启动。
 
-## 测试通信 Demo
+## 本地测试通信 Demo
 
-此部分说明如何在本地运行 Rails 应用后，启动 ROS 中间层节点来测试端到端的通信功能。
+此部分将说明如何在本地运行 Rails 应用后，启动 ROS 中间层节点来测试端到端的通信功能。
 
 **前提条件:**
 

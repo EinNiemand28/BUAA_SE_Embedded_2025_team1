@@ -1,0 +1,134 @@
+<div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8 space-y-6">
+  <%# 页面头部 %>
+  <div class="md:flex md:items-center md:justify-between">
+    <div class="flex-1 min-w-0">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        <%= @bookshelf.name.presence || @bookshelf.code %>
+      </h2>
+      <% if @bookshelf.is_transit_station? %>
+        <p class="mt-1 text-sm text-purple-600">这是一个中转站。</p>
+      <% end %>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+      <% if Current.session&.user&.admin? %>
+        <%= link_to "编辑", edit_bookshelf_path(@bookshelf), class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <%= button_to "删除", @bookshelf, method: :delete, form: { data: { turbo_confirm: "确定要删除书架 '#{@bookshelf.name.presence || @bookshelf.code}' 吗？" } }, class: "rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-100" %>
+      <% end %>
+      <%= link_to "返回列表", bookshelves_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    </div>
+  </div>
+
+  <%# 书架详细信息 %>
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        书架详情
+      </h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">
+        书架的物理属性和配置信息。
+      </p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+      <dl class="sm:divide-y sm:divide-gray-200">
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">书架编码</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.code %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">书架名称</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.name.presence || "--" %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">类型</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= @bookshelf.is_transit_station? ? "中转站" : "普通书架" %>
+          </dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">中心位置 (X, Y)</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">(<%= @bookshelf.center_x %>m, <%= @bookshelf.center_y %>m)</dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">朝向</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.orientation.present? ? "#{@bookshelf.orientation.round(2)} 弧度" : "未指定" %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">尺寸 (长x宽x高)</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.length %>m x <%= @bookshelf.width %>m x <%= @bookshelf.height %>m</dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">层数</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.levels %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">每层插槽数</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.slots_per_level %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">总插槽数</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.total_slots %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">底部间隙</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.bottom_clearance.present? ? "#{@bookshelf.bottom_clearance} m" : "未指定" %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">每层高度</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.level_height.present? ? "#{@bookshelf.level_height} m" : "未指定" %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">创建时间</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= l @bookshelf.created_at, format: :long %></dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">最后更新时间</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= l @bookshelf.updated_at, format: :long %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <%# 插槽和书籍区域 %>
+  <div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+        书架插槽 (<%= @bookshelf.slots.count %> / <%= @bookshelf.total_slots %>)
+      </h3>
+      <% if @bookshelf.slots.any? %>
+        <div class="space-y-4">
+          <% @bookshelf.slots.order(:level, :row).group_by(&:level).each do |level, slots_in_level| %>
+            <div>
+              <h4 class="text-sm font-medium text-gray-600 mb-2">第 <%= level + 1 %> 层</h4>
+              <div class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
+                <% slots_in_level.each do |slot| %>
+                  <div class="border rounded p-2 text-center <%= slot.is_occupied ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200' %>">
+                    <p class="text-xs font-mono text-gray-500">L<%= slot.level %>R<%= slot.row %></p>
+                    <div class="mt-1 h-8 flex items-center justify-center">
+                      <% if slot.current_book %>
+                        <%= link_to book_path(slot.current_book), class: "text-xs text-blue-600 hover:text-blue-800 truncate", title: slot.current_book.title do %>
+                          <svg class="w-4 h-4 inline-block mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M3.5 4.5a.75.75 0 00-1.5 0v11.5c0 .414.336.75.75.75h13.5a.75.75 0 000-1.5H3.5V4.5z" />
+                            <path d="M6.25 3.75a.75.75 0 00-1.5 0v11.5c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75V6.5a.75.75 0 00-.75-.75h-5.5a.75.75 0 01-.75-.75V3.75H6.25z" />
+                          </svg>
+                          <span class="truncate"><%= slot.current_book.title %></span>
+                        <% end %>
+                      <% elsif slot.intended_book %>
+                         <span class="text-xs text-yellow-600 italic" title="预定: <%= slot.intended_book.title %>">预定</span>
+                      <% else %>
+                        <span class="text-xs text-gray-400">空</span>
+                      <% end %>
+                    </div>
+                     <%# 可以在这里添加点击空槽分配书籍的按钮 %>
+                    <%# <button class="mt-1 text-xs ...">分配</button> %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500">尚未为此书架生成插槽。</p>
+      <% end %>
+    </div>
+  </div>
+</div>

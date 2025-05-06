@@ -1,0 +1,122 @@
+<div class="space-y-6">
+  <div class="md:flex md:items-center md:justify-between mb-4">
+    <div class="flex-1 min-w-0">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        <%= @query.present? ? t('books.index.search_results', query: @query) : t('books.index.title') %>
+      </h2>
+      <p class="mt-1 text-sm text-gray-500"><%= t('books.index.books_count', count: @books.count) %></p>
+    </div>
+    <% if Current.session&.user&.admin? %>
+      <div class="mt-4 flex md:mt-0 md:ml-4">
+        <%= link_to t('books.index.add_new'), new_book_path, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- 搜索表单 -->
+  <div class="bg-white shadow-sm rounded-lg p-4 mb-6">
+    <%= form_with(url: search_books_path, method: :get, class: "flex items-center") do |form| %>
+      <div class="relative flex-grow">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <%= form.text_field :query, value: @query, class: "block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6", placeholder: t('books.index.search_placeholder') %>
+      </div>
+      <%= form.submit t('books.index.search_button'), class: "ml-3 inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer" %>
+    <% end %>
+  </div>
+
+  <% if @books.any? %>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <% @books.each do |book| %>
+        <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200 hover:shadow-lg transition-shadow duration-200">
+          <div class="flex justify-center p-4 h-64 bg-gray-50">
+            <% if book.cover_image.attached? %>
+              <%= image_tag book.cover_image.variant(resize_to_limit: [200, 300]), class: "h-full w-auto object-contain" %>
+            <% else %>
+              <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 rounded-md">
+                <svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+            <% end %>
+          </div>
+          <div class="px-4 py-4 sm:px-6">
+            <h3 class="text-lg font-medium text-gray-900 truncate">
+              <%= link_to book.title, book, class: "hover:text-blue-600" %>
+            </h3>
+            <p class="mt-1 text-sm text-gray-500 truncate">
+              <%= book.author %>
+            </p>
+            <p class="mt-1 text-sm text-gray-500">
+              <%= Book.human_attribute_name(:isbn) %>: <%= book.isbn %>
+            </p>
+            <div class="mt-2">
+              <% case book.status %>
+              <% when "available", "在架" %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <%= t('activerecord.attributes.book.statuses.available') %>
+                </span>
+              <% when "borrowed", "借出" %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  <%= t('activerecord.attributes.book.statuses.borrowed') %>
+                </span>
+              <% when "unavailable", "异常" %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  <%= t('activerecord.attributes.book.statuses.unavailable') %>
+                </span>
+              <% else %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <%= book.status %>
+                </span>
+              <% end %>
+            </div>
+          </div>
+          <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 flex justify-between items-center">
+            <%= link_to book_path(book), class: "text-sm text-blue-600 hover:text-blue-900 font-medium" do %>
+              查看详情 <span aria-hidden="true">→</span>
+            <% end %>
+            
+            <% if Current.session&.user&.admin? %>
+              <div class="flex items-center space-x-3">
+                <%= link_to edit_book_path(book), class: "flex items-center text-sm text-gray-600 hover:text-blue-600 transition-colors" do %>
+                  <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                  </svg>
+                  编辑
+                <% end %>
+                
+                <%= button_to book_path(book), method: :delete, form: { data: { turbo_confirm: t('books.show.confirm_delete') } }, class: "flex items-center text-sm text-red-600 hover:text-red-700 transition-colors bg-transparent border-none" do %>
+                  <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  删除
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('books.index.no_books') %></h3>
+        <p class="mt-1 text-sm text-gray-500">
+          <%= @query.present? ? t('books.index.no_books_for_query', query: @query) : t('books.index.no_books_yet') %>
+        </p>
+        <% if Current.session&.user&.admin? %>
+          <div class="mt-6">
+            <%= link_to t('books.index.add_new'), new_book_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

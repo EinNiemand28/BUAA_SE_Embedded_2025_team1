@@ -43,13 +43,16 @@ zh-CN:
     sidebar:
       main_menu: "主菜单"
       dashboard: "仪表盘"
-      robot_control: "机器人控制"
-      task_management: "任务管理"
+      robot_control: "图书机器人"
+      task_management: "借阅任务"
       statistical_analysis: "统计分析"
-      system_management: "系统管理"
+      system_management: "系统功能"
       system_settings: "系统设置"
       user_management: "用户管理"
       system_logs: "系统日志"
+      book_catalog: "图书目录"
+      bookshelf_map: "书架导航"
+      command_history: "借阅历史"
 
   helpers:
     submit:
@@ -64,12 +67,38 @@ zh-CN:
       session:
         login: "邮箱或用户名"
         password: "密码"
+      bookshelf:
+        code: "书架编码"
+        name: "书架名称"
+        is_transit_station: "是否为中转站?"
+        is_transit_station_options:
+          "true": "是"
+          "false": "否"
+        center_x: "中心X坐标 (m)"
+        center_y: "中心Y坐标 (m)"
+        orientation: "朝向 (弧度)"
+        length: "长度 (m)"
+        width: "宽度 (m)"
+        height: "高度 (m)"
+        levels: "层数"
+        slots_per_level: "每层槽数"
+        bottom_clearance: "底部间隙 (m)"
+        level_height: "每层高度 (m)"
 
   activerecord:
     models:
       user:
         one: "用户"
         other: "用户"
+      book:
+        one: "书籍"
+        other: "书籍"
+      bookshelf:
+        one: "书架"
+        other: "书架"
+      slot:
+        one: "插槽"
+        other: "插槽"
     attributes:
       user:
         email: "邮箱"
@@ -82,6 +111,45 @@ zh-CN:
           user: "普通用户"
           admin: "管理员"
         verified: "已验证"
+        created_at: "创建时间"
+        updated_at: "更新时间"
+      book:
+        isbn: "ISBN"
+        title: "书名"
+        author: "作者"
+        publisher: "出版社"
+        publication_year: "出版年份"
+        status: "状态"
+        statuses:
+          available: "在架"
+          borrowed: "借出"
+          unavailable: "异常"
+        cover_image: "封面图片"
+        current_slot: "当前位置"
+        intended_slot: "预定位置"
+        current_slot_id: "当前插槽ID"
+        intended_slot_id: "预定插槽ID"
+        created_at: "添加时间"
+        updated_at: "更新时间"
+      bookshelf:
+        code: "书架编号"
+        name: "书架名称"
+        description: "书架描述"
+        location: "书架位置"
+        shelf_type: "书架类型"
+        shelf_types:
+          normal: "普通书架"
+          special: "特殊书架"
+        levels: "层数"
+        rows_per_level: "每层行数"
+        is_active: "是否激活"
+        created_at: "创建时间"
+        updated_at: "更新时间"
+      slot:
+        bookshelf: "所属书架"
+        level: "层级"
+        row: "行号"
+        is_available: "是否可用"
         created_at: "创建时间"
         updated_at: "更新时间"
     errors:
@@ -176,4 +244,108 @@ zh-CN:
   actions: # 通用操作
     edit: "编辑"
     delete: "删除"
-    show: "查看" 
+    show: "查看"
+
+  books:
+    index:
+      title: "图书管理"
+      description: "浏览和管理所有图书"
+      add_new: "添加新书籍"
+      search_placeholder: "输入书名、作者或ISBN搜索..."
+      search_button: "搜索"
+      no_books: "没有找到书籍"
+      search_results: "搜索结果: %{query}"
+      books_count: "共有 %{count} 本书籍"
+      no_books_for_query: "没有找到与 '%{query}' 相关的书籍。"
+      no_books_yet: "目前还没有书籍，请先添加。"
+    show:
+      back_to_list: "返回列表"
+      edit_book: "编辑书籍"
+      delete_book: "删除书籍"
+      confirm_delete: "确定要删除这本书吗？"
+      book_details: "书籍详情"
+      current_location: "当前位置"
+      intended_location: "预定位置"
+      not_placed: "未放置"
+      not_specified: "未指定"
+      assign_move: "分配/移动位置"
+      robot_fetch: "让机器人取书"
+      location_info: "位置信息"
+      location_details: "该书籍的详细位置信息和相关操作"
+    new:
+      title: "添加新书籍"
+      back_to_list: "返回列表"
+    edit:
+      title: "编辑书籍"
+      back_to_list: "返回列表"
+    create:
+      success: "书籍创建成功！"
+    update:
+      success: "书籍更新成功！"
+    destroy:
+      success: "书籍已删除！"
+    form:
+      submit: "保存书籍"
+      select_cover: "选择封面图片"
+      change_cover: "更换封面图片"
+      cancel: "取消"
+      errors_count: "%{count}个错误导致无法保存："
+      upload_cover: "上传封面"
+      drag_and_drop: "或拖拽文件到此处"
+      image_formats: "PNG, JPG, GIF 格式, 最大 2MB"
+    placement_modal:
+      title: "分配书籍位置"
+      close: "关闭"
+      placement_type: "分配类型"
+      current_location: "实际位置 (Current)"
+      intended_location: "预定位置 (Intended)"
+      select_bookshelf: "选择书架"
+      select_bookshelf_placeholder: "-- 请选择书架 --"
+      select_slot: "选择插槽"
+      select_slot_placeholder: "-- 请先选择书架 --"
+      loading: "加载插槽中..."
+      assign: "分配位置"
+      clear: "清除位置"
+      cancel: "取消"
+
+  bookshelves:
+    index:
+      title: "书架管理"
+      description: "浏览和管理所有书架"
+      add_new: "添加新书架"
+      no_bookshelves: "没有找到书架"
+    show:
+      back_to_list: "返回列表"
+      edit_bookshelf: "编辑书架"
+      delete_bookshelf: "删除书架"
+      confirm_delete: "确定要删除这个书架吗？"
+      bookshelf_details: "书架详情"
+      location: "位置"
+      type: "类型"
+      dimensions: "尺寸"
+      status: "状态"
+      active: "已启用"
+      inactive: "已禁用"
+      slot_management: "插槽管理"
+      books_on_shelf: "书架上的书籍"
+      no_books: "此书架上没有书籍"
+    new:
+      title: "添加新书架"
+      back_to_list: "返回列表"
+    edit:
+      title: "编辑书架"
+      back_to_list: "返回列表"
+    create:
+      success: "书架创建成功！"
+    update:
+      success: "书架更新成功！"
+    destroy:
+      success: "书架已删除！"
+    form:
+      submit: "保存书架"
+      basic_info: "基本信息"
+      configuration: "配置"
+      levels_count: "层数"
+      rows_per_level: "每层行数"
+      cancel: "取消"
+      errors_count: "%{count}个错误导致无法保存此书架：" 

@@ -48,6 +48,7 @@ export default class extends Controller {
         }
       }
     }
+    this.searchQuery = ""
   }
 
   toggleMobileMenu() {
@@ -185,9 +186,9 @@ export default class extends Controller {
     })
     
     // 调整搜索框
-    const searchBox = this.element.querySelector('.relative.rounded-md.shadow-sm')
-    if (searchBox) {
-      searchBox.classList.add('hidden')
+    const searchForm = this.element.querySelector('form[action="/books/search"]')
+    if (searchForm) {
+      searchForm.classList.add('hidden')
     }
   }
   
@@ -275,9 +276,25 @@ export default class extends Controller {
     })
     
     // 恢复搜索框
-    const searchBox = this.element.querySelector('.relative.rounded-md.shadow-sm')
-    if (searchBox) {
-      searchBox.classList.remove('hidden')
+    const searchForm = this.element.querySelector('form[action="/books/search"]')
+    if (searchForm) {
+      searchForm.classList.remove('hidden')
+    }
+  }
+
+  updateSearchQuery(event) {
+    this.searchQuery = event.target.value
+  }
+
+  submitSearchOnEnter(event) {
+    if (event.key === "Enter") {
+      event.preventDefault()
+      const form = event.target.closest("form")
+      if (form) {
+        // 如果需要，可以在此处修改表单的 query 参数值
+        // 例如：form.querySelector("input[name=query]").value = this.searchQuery;
+        form.requestSubmit()
+      }
     }
   }
 } 

@@ -1,6 +1,18 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
+  # 书架资源路由
+  resources :bookshelves do
+    resources :slots, only: [:index]
+  end
+
+  # 书籍资源路由
+  resources :books do
+    collection do
+      get :search
+    end
+  end
+
   get  "sign_in", to: "sessions#new"
   post "sign_in", to: "sessions#create"
   get  "sign_up", to: "registrations#new"
@@ -46,5 +58,5 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   root "home#index"
-  match '*path', via: :all, to: proc { [404, {}, ['Not Found']] }
+  # match '*path', via: :all, to: proc { [404, {}, ['Not Found']] } # 暂时注释掉，以便测试新路由
 end

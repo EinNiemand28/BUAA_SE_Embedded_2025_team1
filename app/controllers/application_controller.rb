@@ -3,13 +3,21 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   before_action :set_current_request_details
+  before_action :set_current_session
   before_action :authenticate
 
   private
-    def authenticate
+
+    def set_current_session
       if session_record = Session.find_by_id(cookies.signed[:session_token])
         Current.session = session_record
       else
+        Current.session = nil
+      end
+    end
+
+    def authenticate
+      unless Current.session
         redirect_to sign_in_path, alert: t('application.authenticate.require_login', default: "请先登录")
       end
     end
