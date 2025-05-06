@@ -28,7 +28,7 @@ export default class extends Controller {
       this.resetForm()
     } catch (error) {
       console.error("Error opening modal:", error)
-    }
+  }
   }
 
   // 关闭模态框
@@ -51,9 +51,9 @@ export default class extends Controller {
   resetForm() {
     try {
       // 重置选择器
-      this.bookshelfSelectTarget.value = ""
-      this.slotSelectTarget.innerHTML = '<option value="">-- 请先选择书架 --</option>'
-      this.slotSelectTarget.disabled = true
+    this.bookshelfSelectTarget.value = ""
+    this.slotSelectTarget.innerHTML = '<option value="">-- 请先选择书架 --</option>'
+    this.slotSelectTarget.disabled = true
       
       // 隐藏加载和错误提示
       this.loadingIndicatorTarget.classList.add("hidden")
@@ -77,12 +77,12 @@ export default class extends Controller {
     
     // 隐藏错误信息
     this.errorMessageTarget.classList.add("hidden")
-    
+
     if (!bookshelfId) return
-    
+
     // 显示加载指示器
-    this.loadingIndicatorTarget.classList.remove("hidden")
-    
+      this.loadingIndicatorTarget.classList.remove("hidden")
+
     try {
       const response = await fetch(`/bookshelves/${bookshelfId}/slots`)
       if (!response.ok) {
@@ -90,9 +90,9 @@ export default class extends Controller {
       }
       
       const slots = await response.json()
-      
+
       if (slots.length === 0) {
-        this.slotSelectTarget.innerHTML = '<option value="">该书架无可用插槽</option>'
+         this.slotSelectTarget.innerHTML = '<option value="">该书架无可用插槽</option>'
       } else {
         this.slotSelectTarget.innerHTML = '<option value="">-- 请选择插槽 --</option>'
         
@@ -113,7 +113,7 @@ export default class extends Controller {
       this.errorMessageTarget.textContent = `加载插槽失败: ${error.message}`
       this.errorMessageTarget.classList.remove("hidden")
     } finally {
-      this.loadingIndicatorTarget.classList.add("hidden")
+        this.loadingIndicatorTarget.classList.add("hidden")
     }
   }
 
@@ -128,9 +128,9 @@ export default class extends Controller {
       alert("请选择一个插槽！")
       return
     }
-    
+
     this.errorMessageTarget.classList.add("hidden")
-    
+
     try {
       const body = {}
       if (placementType === 'current') {
@@ -152,15 +152,15 @@ export default class extends Controller {
       if (!response.ok) {
         let errorMessage = `服务器错误: ${response.status}`
         try {
-          const errorData = await response.json()
-          if (errorData.errors) {
+           const errorData = await response.json()
+           if (errorData.errors) {
             errorMessage = Object.entries(errorData.errors)
               .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
               .join('; ')
-          } else if (errorData.error) {
+           } else if (errorData.error) {
             errorMessage = errorData.error
-          }
-        } catch (e) {
+           }
+        } catch (e) { 
           // 如果响应体不是 JSON 或解析失败，则使用状态文本
           errorMessage = `服务器错误: ${response.statusText || response.status}`
         }
@@ -174,8 +174,8 @@ export default class extends Controller {
       console.error("分配插槽失败:", error)
       this.errorMessageTarget.textContent = `分配失败: ${error.message}`
       this.errorMessageTarget.classList.remove("hidden")
+      }
     }
-  }
   
   // 清除插槽分配
   async clearPlacement(event) {
@@ -195,7 +195,7 @@ export default class extends Controller {
     
     try {
       const body = { book: { [fieldToClear]: null } }
-      
+            
       const response = await fetch(`/books/${this.bookIdValue}`, {
         method: 'PATCH',
         headers: {
@@ -208,15 +208,15 @@ export default class extends Controller {
 
       if (!response.ok) {
         let errorMessage = `服务器错误: ${response.status}`
-        try {
-          const errorData = await response.json()
-          if (errorData.errors) {
+         try {
+           const errorData = await response.json()
+            if (errorData.errors) {
             errorMessage = Object.entries(errorData.errors)
               .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
               .join('; ')
-          } else if (errorData.error) {
+           } else if (errorData.error) {
             errorMessage = errorData.error
-          }
+           }
         } catch (e) {
           errorMessage = `服务器错误: ${response.statusText || response.status}`
         }

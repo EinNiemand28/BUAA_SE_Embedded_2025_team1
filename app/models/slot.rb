@@ -53,4 +53,20 @@ class Slot < ApplicationRecord
 
     { x: abs_x.round(4), y: abs_y.round(4), z: abs_z.round(4) }
   end
+
+  scope :available_or_occupied_by, ->(book) {
+    if book.persisted?
+      where("slots.is_occupied = ? OR slots.id = ?", false, book.current_slot_id)
+    else
+      where(is_occupied: false)
+    end
+  }
+
+  scope :available_or_intended_for, ->(book) {
+    if book.persisted?
+      where("slots.is_occupied = ? OR slots.id = ?", false, book.intended_slot_id)
+    else
+      where(is_occupied: false)
+    end
+  }
 end

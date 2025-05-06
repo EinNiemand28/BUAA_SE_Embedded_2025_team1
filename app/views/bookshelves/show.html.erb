@@ -6,128 +6,324 @@
         <%= @bookshelf.name.presence || @bookshelf.code %>
       </h2>
       <% if @bookshelf.is_transit_station? %>
-        <p class="mt-1 text-sm text-purple-600">这是一个中转站。</p>
+        <p class="mt-1 text-sm text-purple-600"><%= t('bookshelves.show.transit_station_notice') %></p>
       <% end %>
     </div>
     <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
       <% if Current.session&.user&.admin? %>
-        <%= link_to "编辑", edit_bookshelf_path(@bookshelf), class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
-        <%= button_to "删除", @bookshelf, method: :delete, form: { data: { turbo_confirm: "确定要删除书架 '#{@bookshelf.name.presence || @bookshelf.code}' 吗？" } }, class: "rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-100" %>
+        <%= link_to t('actions.edit'), edit_bookshelf_path(@bookshelf), class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <%= button_to t('actions.delete'), @bookshelf, method: :delete, form: { data: { turbo_confirm: t('bookshelves.show.confirm_delete') } }, class: "rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-100" %>
       <% end %>
-      <%= link_to "返回列表", bookshelves_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+      <%= link_to t('bookshelves.show.back_to_list'), bookshelves_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
     </div>
   </div>
 
-  <%# 书架详细信息 %>
-  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <div class="px-4 py-5 sm:px-6">
-      <h3 class="text-lg leading-6 font-medium text-gray-900">
-        书架详情
-      </h3>
-      <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        书架的物理属性和配置信息。
-      </p>
+  <%# 书架信息卡片 - 简化显示关键信息 %>
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+      <div class="flex items-center">
+        <div class="<%= @bookshelf.is_transit_station? ? 'bg-purple-100' : 'bg-blue-100' %> p-3 rounded-lg mr-4">
+          <% if @bookshelf.is_transit_station? %>
+            <svg class="h-6 w-6 text-purple-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H4.5a3 3 0 00-3 3v9a3 3 0 003 3h9a3 3 0 003-3V9.75m-9 4.5v4.5m0-4.5l4.5-4.5m-4.5 4.5L4.5 9m6 4.5l4.5 4.5m-4.5-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          <% else %>
+            <svg class="h-6 w-6 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          <% end %>
+        </div>
+        <div>
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            <%= t('bookshelves.show.bookshelf_details') %>
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            <%= @bookshelf.is_transit_station? ? t('bookshelves.show.transit_station') : t('bookshelves.show.normal_shelf') %> | <%= t('bookshelves.show.shelf_stats', levels: @bookshelf.levels, slots: @bookshelf.total_slots) %>
+          </p>
+        </div>
+      </div>
     </div>
-    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-      <dl class="sm:divide-y sm:divide-gray-200">
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">书架编码</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.code %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">书架名称</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.name.presence || "--" %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">类型</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <%= @bookshelf.is_transit_station? ? "中转站" : "普通书架" %>
-          </dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">中心位置 (X, Y)</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">(<%= @bookshelf.center_x %>m, <%= @bookshelf.center_y %>m)</dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">朝向</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.orientation.present? ? "#{@bookshelf.orientation.round(2)} 弧度" : "未指定" %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">尺寸 (长x宽x高)</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.length %>m x <%= @bookshelf.width %>m x <%= @bookshelf.height %>m</dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">层数</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.levels %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">每层插槽数</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.slots_per_level %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">总插槽数</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.total_slots %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">底部间隙</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.bottom_clearance.present? ? "#{@bookshelf.bottom_clearance} m" : "未指定" %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">每层高度</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @bookshelf.level_height.present? ? "#{@bookshelf.level_height} m" : "未指定" %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">创建时间</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= l @bookshelf.created_at, format: :long %></dd>
-        </div>
-        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">最后更新时间</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= l @bookshelf.updated_at, format: :long %></dd>
-        </div>
-      </dl>
-    </div>
-  </div>
-
-  <%# 插槽和书籍区域 %>
-  <div class="bg-white shadow sm:rounded-lg">
+    
+    <%# 关键信息卡片 %>
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-        书架插槽 (<%= @bookshelf.slots.count %> / <%= @bookshelf.total_slots %>)
-      </h3>
-      <% if @bookshelf.slots.any? %>
-        <div class="space-y-4">
-          <% @bookshelf.slots.order(:level, :row).group_by(&:level).each do |level, slots_in_level| %>
-            <div>
-              <h4 class="text-sm font-medium text-gray-600 mb-2">第 <%= level + 1 %> 层</h4>
-              <div class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
-                <% slots_in_level.each do |slot| %>
-                  <div class="border rounded p-2 text-center <%= slot.is_occupied ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200' %>">
-                    <p class="text-xs font-mono text-gray-500">L<%= slot.level %>R<%= slot.row %></p>
-                    <div class="mt-1 h-8 flex items-center justify-center">
-                      <% if slot.current_book %>
-                        <%= link_to book_path(slot.current_book), class: "text-xs text-blue-600 hover:text-blue-800 truncate", title: slot.current_book.title do %>
-                          <svg class="w-4 h-4 inline-block mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path d="M3.5 4.5a.75.75 0 00-1.5 0v11.5c0 .414.336.75.75.75h13.5a.75.75 0 000-1.5H3.5V4.5z" />
-                            <path d="M6.25 3.75a.75.75 0 00-1.5 0v11.5c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75V6.5a.75.75 0 00-.75-.75h-5.5a.75.75 0 01-.75-.75V3.75H6.25z" />
-                          </svg>
-                          <span class="truncate"><%= slot.current_book.title %></span>
-                        <% end %>
-                      <% elsif slot.intended_book %>
-                         <span class="text-xs text-yellow-600 italic" title="预定: <%= slot.intended_book.title %>">预定</span>
-                      <% else %>
-                        <span class="text-xs text-gray-400">空</span>
-                      <% end %>
-                    </div>
-                     <%# 可以在这里添加点击空槽分配书籍的按钮 %>
-                    <%# <button class="mt-1 text-xs ...">分配</button> %>
-                  </div>
-                <% end %>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <%# 位置信息卡片 %>
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div class="flex items-center">
+            <div class="bg-blue-50 p-2 rounded-md mr-3">
+              <svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+            </div>
+            <h4 class="text-sm font-medium text-gray-500"><%= t('bookshelves.show.location') %></h4>
+          </div>
+          <p class="mt-2 text-sm text-gray-900">(<%= @bookshelf.center_x %>m, <%= @bookshelf.center_y %>m)</p>
+        </div>
+        
+        <%# 尺寸信息卡片 %>
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div class="flex items-center">
+            <div class="bg-green-50 p-2 rounded-md mr-3">
+              <svg class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
+              </svg>
+            </div>
+            <h4 class="text-sm font-medium text-gray-500"><%= t('bookshelves.show.dimensions') %></h4>
+          </div>
+          <p class="mt-2 text-sm text-gray-900"><%= @bookshelf.length %>m x <%= @bookshelf.width %>m x <%= @bookshelf.height %>m</p>
+        </div>
+        
+        <%# 层数信息卡片 %>
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div class="flex items-center">
+            <div class="bg-yellow-50 p-2 rounded-md mr-3">
+              <svg class="h-5 w-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122" />
+              </svg>
+            </div>
+            <h4 class="text-sm font-medium text-gray-500"><%= t('activerecord.attributes.bookshelf.levels') %></h4>
+          </div>
+          <p class="mt-2 text-sm text-gray-900"><%= @bookshelf.levels %></p>
+        </div>
+        
+        <%# 状态信息卡片 %>
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div class="flex items-center">
+            <div class="bg-indigo-50 p-2 rounded-md mr-3">
+              <svg class="h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
+              </svg>
+            </div>
+            <h4 class="text-sm font-medium text-gray-500"><%= t('bookshelves.show.occupancy') %></h4>
+          </div>
+          <p class="mt-2 text-sm text-gray-900">
+            <% occupied_count = @bookshelf.slots.where(is_occupied: true).count %>
+            <% occupancy_rate = @bookshelf.total_slots > 0 ? (occupied_count.to_f / @bookshelf.total_slots * 100).round : 0 %>
+            <%= occupied_count %> / <%= @bookshelf.total_slots %> (<%= occupancy_rate %>%)
+          </p>
+        </div>
+      </div>
+      
+      <%# 管理员可见的"更多详情"折叠区域 %>
+      <% if Current.session&.user&.admin? %>
+        <details class="mt-4">
+          <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700 transition-colors">
+            <%= t('bookshelves.show.more_details') %>
+          </summary>
+          <div class="mt-4 border-t border-gray-200 pt-4">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+              <div class="sm:col-span-1">
+                <dt class="text-sm font-medium text-gray-500"><%= t('bookshelves.show.orientation') %></dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= @bookshelf.orientation.present? ? "#{@bookshelf.orientation.round(2)} #{t('bookshelves.show.radians')}" : t('common.unspecified') %></dd>
               </div>
+              <div class="sm:col-span-1">
+                <dt class="text-sm font-medium text-gray-500"><%= t('bookshelves.show.slots_per_level') %></dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= @bookshelf.slots_per_level %></dd>
+              </div>
+              <div class="sm:col-span-1">
+                <dt class="text-sm font-medium text-gray-500"><%= t('bookshelves.show.bottom_clearance') %></dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= @bookshelf.bottom_clearance.present? ? "#{@bookshelf.bottom_clearance} m" : t('common.unspecified') %></dd>
+              </div>
+              <div class="sm:col-span-1">
+                <dt class="text-sm font-medium text-gray-500"><%= t('bookshelves.show.level_height') %></dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= @bookshelf.level_height.present? ? "#{@bookshelf.level_height} m" : t('common.unspecified') %></dd>
+              </div>
+            </dl>
+          </div>
+        </details>
+      <% end %>
+    </div>
+  </div>
+
+  <%# 书架插槽可视化区域 - 优化展示 %>
+  <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          <%= t('bookshelves.show.shelf_visualization') %>
+        </h3>
+        <div class="flex space-x-3">
+          <span class="flex items-center text-xs">
+            <span class="w-3 h-3 bg-green-400 rounded-full mr-1.5"></span>
+            <%= t('bookshelves.show.available') %>
+          </span>
+          <span class="flex items-center text-xs">
+            <span class="w-3 h-3 bg-blue-400 rounded-full mr-1.5"></span>
+            <%= t('bookshelves.show.occupied') %>
+          </span>
+          <span class="flex items-center text-xs">
+            <span class="w-3 h-3 bg-yellow-400 rounded-full mr-1.5"></span>
+            <%= t('bookshelves.show.reserved') %>
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="px-4 py-5 sm:p-6">
+      <% if @bookshelf.slots.any? %>
+        <%# 书架可视化区域 %>
+        <div class="mb-6 p-4 bg-gray-50 rounded-md border border-gray-200">
+          <div class="flex items-center mb-2">
+            <svg class="h-5 w-5 text-gray-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+            </svg>
+            <span class="text-sm font-medium text-gray-700"><%= t('bookshelves.show.bookshelf_front_view') %></span>
+          </div>
+          
+          <%# 书架层级图 %>
+          <div class="mt-1 space-y-2">
+            <% @bookshelf.slots.order(:level, :row).group_by(&:level).each do |level, slots_in_level| %>
+              <div class="flex flex-col">
+                <div class="flex items-center mb-1">
+                  <span class="text-xs font-semibold text-gray-600 w-8"><%= t('bookshelves.show.level_short', number: level + 1) %></span>
+                  <div class="h-px bg-gray-300 flex-grow"></div>
+                </div>
+                
+                <div class="flex">
+                  <span class="text-xs text-gray-400 w-8"></span>
+                  <div class="flex flex-wrap gap-1.5">
+                    <% slots_in_level.each do |slot| %>
+                      <% 
+                        if slot.current_book
+                          bg_color = "bg-blue-100 border-blue-300 hover:bg-blue-200"
+                          tooltip = slot.current_book.title
+                        elsif slot.intended_book
+                          bg_color = "bg-yellow-100 border-yellow-300 hover:bg-yellow-200"
+                          tooltip = t('bookshelves.show.reserved_for', title: slot.intended_book.title)
+                        else
+                          bg_color = "bg-green-100 border-green-300 hover:bg-green-200"
+                          tooltip = t('bookshelves.show.empty')
+                        end
+                      %>
+                      
+                      <div class="w-10 h-10 <%= bg_color %> border rounded flex items-center justify-center text-xs transition-colors duration-150 group relative cursor-help">
+                        <%= slot.row + 1 %>
+                        
+                        <% if slot.current_book || slot.intended_book %>
+                          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                            <% if slot.current_book %>
+                              <svg class="h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M5.5 3.5A1.5 1.5 0 0 1 7 2h6a1.5 1.5 0 0 1 1.5 1.5v9l-3-2-3 2V3.5Z" />
+                              </svg>
+                            <% else %>
+                              <svg class="h-4 w-4 text-yellow-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 1c-1.828 0-3.623.149-5.371.435a.75.75 0 00-.629.74v.387c-.827.157-1.642.345-2.445.564a.75.75 0 00-.552.698V5c0 3.937 2.695 7.434 6.5 8.54v3.71a.75.75 0 001.5 0v-3.71a9.996 9.996 0 006.5-8.54V3.824a.75.75 0 00-.552-.698 45.591 45.591 0 00-2.445-.564v-.387a.75.75 0 00-.629-.74A44.074 44.074 0 0010 1zm.483 5.728a.75.75 0 10-1.5 0v2.5c0 .414.336.75.75.75h2.5a.75.75 0 000-1.5h-1.75v-1.75z" clip-rule="evenodd" />
+                              </svg>
+                            <% end %>
+                          </div>
+                        <% end %>
+                        
+                        <%# 工具提示 %>
+                        <div class="absolute left-1/2 bottom-full mb-2 w-max max-w-xs -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150">
+                          <%= tooltip %>
+                          <div class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <%# 书籍列表 %>
+        <% if @bookshelf.slots.exists?(is_occupied: true) %>
+          <div class="mt-8">
+            <h4 class="text-base font-medium text-gray-700 mb-3"><%= t('bookshelves.show.books_on_shelf') %></h4>
+            <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"><%= Book.human_attribute_name(:title) %></th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= Book.human_attribute_name(:author) %></th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('bookshelves.show.location') %></th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= Book.human_attribute_name(:status) %></th>
+                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                      <span class="sr-only"><%= t('actions.show') %></span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  <% @bookshelf.slots.includes(current_book: [cover_image_attachment: :blob]).where(is_occupied: true).each do |slot| %>
+                    <% book = slot.current_book %>
+                    <% if book %>
+                      <tr>
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                          <div class="flex items-center">
+                            <div class="h-10 w-10 flex-shrink-0">
+                              <% if book.cover_image.attached? %>
+                                <%= image_tag book.cover_image.variant(resize_to_limit: [40, 40]), class: "h-10 w-10 object-cover rounded" %>
+                              <% else %>
+                                <div class="h-10 w-10 rounded bg-gray-100 flex items-center justify-center text-gray-400">
+                                  <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                  </svg>
+                                </div>
+                              <% end %>
+                            </div>
+                            <div class="ml-4">
+                              <div class="font-medium text-gray-900 truncate max-w-xs"><%= book.title %></div>
+                              <div class="text-gray-500"><%= book.isbn %></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= book.author %></td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          L<%= slot.level + 1 %>-R<%= slot.row + 1 %>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                          <% case book.status %>
+                          <% when "available" %>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              <%= t('activerecord.attributes.book.statuses.available') %>
+                            </span>
+                          <% when "borrowed" %>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                              <%= t('activerecord.attributes.book.statuses.borrowed') %>
+                            </span>
+                          <% when "unavailable" %>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              <%= t('activerecord.attributes.book.statuses.unavailable') %>
+                            </span>
+                          <% when "transit" %>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <%= t('activerecord.attributes.book.statuses.transit') %>
+                            </span>
+                          <% end %>
+                        </td>
+                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                          <%= link_to t('actions.show'), book_path(book), class: "text-blue-600 hover:text-blue-900" %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('bookshelves.show.no_books') %></h3>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center py-8">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('bookshelves.show.no_slots_generated') %></h3>
+          <% if Current.session&.user&.admin? %>
+            <p class="mt-1 text-sm text-gray-500"><%= t('bookshelves.show.admin_can_generate_slots') %></p>
+            <div class="mt-6">
+              <%= button_to t('bookshelves.show.generate_slots'), generate_slots_bookshelf_path(@bookshelf), method: :post, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
             </div>
           <% end %>
         </div>
-      <% else %>
-        <p class="text-sm text-gray-500">尚未为此书架生成插槽。</p>
       <% end %>
     </div>
   </div>

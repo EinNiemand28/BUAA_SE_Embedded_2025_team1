@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_06_093308) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_06_201014) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -45,11 +45,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_06_093308) do
     t.string "author", limit: 255, null: false
     t.string "publisher", limit: 255
     t.integer "publication_year"
-    t.string "status", default: "在架", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "current_slot_id"
     t.integer "intended_slot_id"
+    t.integer "status", default: 0, null: false
     t.index ["author"], name: "index_books_on_author"
     t.index ["current_slot_id"], name: "index_books_on_current_slot_id"
     t.index ["intended_slot_id"], name: "index_books_on_intended_slot_id"

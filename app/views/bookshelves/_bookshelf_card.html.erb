@@ -16,14 +16,14 @@
           <%= link_to bookshelf.name.presence || bookshelf.code, bookshelf_path(bookshelf), class: "hover:text-blue-600" %>
         </h3>
         <p class="mt-1 text-xs text-gray-500">
-          <%= bookshelf.code %> <%= bookshelf.is_transit_station? ? '(中转站)' : '' %>
+          <%= bookshelf.code %> <%= bookshelf.is_transit_station? ? t('bookshelves.card.transit_station') : '' %>
         </p>
       </div>
     </div>
     <%# 状态/标签 %>
     <div class="flex-shrink-0 ml-4">
        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= bookshelf.is_transit_station? ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800' %>">
-        <%= bookshelf.is_transit_station? ? '中转' : '正常' %>
+        <%= bookshelf.is_transit_station? ? t('bookshelves.card.transit') : t('bookshelves.card.normal') %>
       </span>
     </div>
   </div>
@@ -32,19 +32,19 @@
   <div class="px-4 py-4 sm:px-5">
     <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
       <div class="sm:col-span-1">
-        <dt class="font-medium text-gray-500">位置 (X, Y)</dt>
+        <dt class="font-medium text-gray-500"><%= t('bookshelves.card.location') %> (X, Y)</dt>
         <dd class="mt-0.5 text-gray-900">(<%= bookshelf.center_x %>, <%= bookshelf.center_y %>) m</dd>
       </div>
       <div class="sm:col-span-1">
-        <dt class="font-medium text-gray-500">朝向</dt>
-        <dd class="mt-0.5 text-gray-900"><%= bookshelf.orientation.present? ? "#{bookshelf.orientation.round(2)} rad" : "未指定" %></dd>
+        <dt class="font-medium text-gray-500"><%= t('bookshelves.card.orientation') %></dt>
+        <dd class="mt-0.5 text-gray-900"><%= bookshelf.orientation.present? ? "#{bookshelf.orientation.round(2)} rad" : t('common.unspecified') %></dd>
       </div>
       <div class="sm:col-span-1">
-        <dt class="font-medium text-gray-500">尺寸 (LxW)</dt>
+        <dt class="font-medium text-gray-500"><%= t('bookshelves.card.dimensions') %> (LxW)</dt>
         <dd class="mt-0.5 text-gray-900"><%= bookshelf.length %>m x <%= bookshelf.width %>m</dd>
       </div>
        <div class="sm:col-span-1">
-        <dt class="font-medium text-gray-500">层数/总槽数</dt>
+        <dt class="font-medium text-gray-500"><%= t('bookshelves.card.levels_slots') %></dt>
         <dd class="mt-0.5 text-gray-900"><%= bookshelf.levels %> / <%= bookshelf.total_slots %></dd>
       </div>
     </dl>
@@ -53,7 +53,7 @@
   <%# 卡片底部操作 %>
   <div class="px-4 py-3 bg-gray-50 sm:px-5 flex justify-between items-center">
     <%= link_to bookshelf_path(bookshelf), class: "text-sm text-blue-600 hover:text-blue-900 font-medium" do %>
-      查看详情 <span aria-hidden="true">→</span>
+      <%= t('bookshelves.card.view_details') %> <span aria-hidden="true">→</span>
     <% end %>
     
     <% if Current.session&.user&.admin? %>
@@ -63,14 +63,14 @@
             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
             <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
           </svg>
-          编辑
+          <%= t('actions.edit') %>
         <% end %>
         
-        <%= button_to bookshelf_path(bookshelf), method: :delete, form: { data: { turbo_confirm: "确定要删除书架 '#{bookshelf.name.presence || bookshelf.code}' 吗？" } }, class: "flex items-center text-sm text-red-600 hover:text-red-700 transition-colors bg-transparent border-none" do %>
+        <%= button_to bookshelf_path(bookshelf), method: :delete, form: { data: { turbo_confirm: t('bookshelves.card.confirm_delete', name: bookshelf.name.presence || bookshelf.code) } }, class: "flex items-center text-sm text-red-600 hover:text-red-700 transition-colors bg-transparent border-none" do %>
           <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
           </svg>
-          删除
+          <%= t('actions.delete') %>
         <% end %>
       </div>
     <% end %>

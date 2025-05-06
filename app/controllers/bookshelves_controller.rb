@@ -19,7 +19,7 @@ class BookshelvesController < ApplicationController
   def create
     @bookshelf = Bookshelf.new(bookshelf_params)
     if @bookshelf.save
-      redirect_to @bookshelf, notice: '书架创建成功！'
+      redirect_to @bookshelf, notice: t('bookshelves.create.success')
     else
       render :new, status: :unprocessable_entity
     end
@@ -30,7 +30,7 @@ class BookshelvesController < ApplicationController
 
   def update
     if @bookshelf.update(bookshelf_params)
-      redirect_to @bookshelf, notice: '书架更新成功！'
+      redirect_to @bookshelf, notice: t('bookshelves.update.success')
     else
       render :edit, status: :unprocessable_entity
     end
@@ -38,7 +38,7 @@ class BookshelvesController < ApplicationController
 
   def destroy
     @bookshelf.destroy
-    redirect_to bookshelves_url, notice: '书架已删除！', status: :see_other
+    redirect_to bookshelves_url, notice: t('bookshelves.destroy.success'), status: :see_other
   end
 
   private

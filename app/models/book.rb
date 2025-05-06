@@ -10,8 +10,8 @@ class Book < ApplicationRecord
   delegate :bookshelf, to: :current_slot, allow_nil: true, prefix: :current
   delegate :bookshelf, to: :intended_slot, allow_nil: true, prefix: :intended
 
-  # 枚举定义书籍状态
-  enum status: { available: "在架", borrowed: "借出", unavailable: "异常", transit: "中转" }
+  # 枚举定义书籍状态 - 使用整数值
+  enum status: { available: 0, borrowed: 1, unavailable: 2, transit: 3 }
   
   # 验证
   validates :isbn, presence: true, uniqueness: true
