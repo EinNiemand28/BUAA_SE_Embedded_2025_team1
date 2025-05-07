@@ -47,7 +47,7 @@ class Bookshelf < ApplicationRecord
         slot_height_center = (self.bottom_clearance || 0) + (self.level_height || (self.height - (self.bottom_clearance || 0)) / levels) * (level_index + 0.5)
         
         relative_x = -self.length / 2.0 + slot_width * (row_index + 0.5)
-        relative_y = 0 # 假设插槽中心在书架宽度方向的中心线上
+        relative_y = slot_depth_center # 假设插槽中心在书架宽度方向的中心线上
         relative_z = slot_height_center
 
         slot_list << { 
