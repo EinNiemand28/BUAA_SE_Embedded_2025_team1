@@ -52,9 +52,16 @@ source devel/setup.bash
 # roslaunch realbot_demo realbot.launch
 ```
 
-更方便的办法是，将**所有**`source devel/setup.sh`添加到`~/.bashrc`中：
-
+如果你已经将其他workspace的setup.bash文件添加到你的.bashrc中，可以采用如下的办法避免每次都要source或者覆盖了之前的source：
+1. 给第一个工作空间生成install空间，作为`Underlay`
 ```bash
-echo "source /path/to/your/ros_end_workspace/devel/setup.bash" >> ~/.bashrc
-source ~/.bashrc
+cd ~/catkin_ws
+catkin_make install
+```
+
+2. 修改`~/.bashrc`
+```bash
+source /opt/ros/noetic/setup.bash
+source ~/catkin_ws/install/setup.bash
+source /path/to/your/ros_end_workspace/devel/setup.bash
 ```
