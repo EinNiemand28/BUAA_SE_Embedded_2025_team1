@@ -58,5 +58,5 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   root "home#index"
-  # match '*path', via: :all, to: proc { [404, {}, ['Not Found']] } # 暂时注释掉，以便测试新路由
+  # match '*path', via: :all, to: proc { [404, {}, ['Not Found']] }
 end

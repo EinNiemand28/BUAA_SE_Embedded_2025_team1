@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-- 目标：本项目是一个使用 Ruby on Rails 构建的 Web 应用，作为控制 ROS Noetic 机器人的前端界面。旨在提供一个用户友好的界面来管理图书馆藏资源（书籍、书架、库位）、展示机器人状态、控制机器人执行书籍取放、书架巡检等任务，并通过 WebSocket 与机器人进行实时通信。
+- 目标：本项目是一个使用 Ruby on Rails 构建的 Web 应用，作为控制 ROS Noetic 机器人的前端界面。旨在提供一个用户友好的界面来管理图书馆藏资源（书籍、书架、库位）、展示机器人状态，控制机器人执行导航建图、书籍取放、书架巡检等任务，并通过 WebSocket 与机器人进行实时通信。
 
 - 技术栈：Rails 7.2.2.1、Tailwind CSS、Stimulus JS、Action Cable、WebSocket、PostgreSQL (生产环境)、SQLite (开发环境)
 
@@ -98,7 +98,7 @@ graph TD
 
 ## 当前进度 (详细)
 
-*   **云端部署成功:** 已使用 Kamal + Docker 成功将项目部署至云服务器，能够通过公网 IP 访问和控制。
+*   **云端部署成功:** 已使用 Kamal + Docker 成功测试了将项目部署至云服务器的可行性，目前能够通过域名（通过Cloudflare实现 dns 解析和证书分发）访问和控制已有 Demo。
 *   **核心通信 Demo 实现:** 已基本打通 Web 浏览器、Rails 后端 (Action Cable)、ROS 中间层节点 (`web_robot_bridge`) 之间的 WebSocket 双向通信。
 *   **前端界面:**
     *   初步实现了机器人状态展示（位置、速度、电量、连接状态）和基本移动控制按钮。
