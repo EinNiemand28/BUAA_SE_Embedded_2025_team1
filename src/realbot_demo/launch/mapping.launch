@@ -21,12 +21,12 @@
     </node>
 
     <!-- Exploration -->
-    <node pkg="explore_lite" type="explore" name="explore_lite" output="screen">
+    <!-- <node pkg="explore_lite" type="explore" name="explore_lite" output="screen">
         <param name="map_topic" value="/map"/>
         <param name="scan_topic" value="/scan"/>
         <param name="base_frame_id" value="/base_footprint"/>
         <param name="robot_radius" value="0.5"/>
         <param name="goal_distance" value="0.5"/>
         <param name="exploration_timeout" value="300"/>
-    </node>
+    </node> -->
 </launch>

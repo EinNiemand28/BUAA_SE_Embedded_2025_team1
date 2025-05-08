@@ -18,6 +18,8 @@ if __name__ == "__main__":
     # 延时三秒，让后台的话题发布操作能够完成
     rospy.sleep(3.0)
 
+    
+
     rospy.loginfo("[mani_ctrl] UP -> DOWN")
     msg.position[0] = 0.5   # 升降高度(单位:米)
     msg.velocity[0] = 0.5   #升降速度(单位:米/秒)

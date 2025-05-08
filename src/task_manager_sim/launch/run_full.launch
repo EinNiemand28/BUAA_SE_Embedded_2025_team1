@@ -1,0 +1,7 @@
+<launch>
+    <!-- Navigation -->
+    <include file='$(find gazebosim_demo)/launch/navigation.launch'/>
+
+    <!-- Rviz -->
+    <include file="$(find gazebosim_demo)/launch/rviz.launch"/>
+</launch>

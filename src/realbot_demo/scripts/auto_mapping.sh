@@ -1,5 +1,5 @@
-rosparam set /move_base/global_costmap/width 10.0
-rosparam set /move_base/global_costmap/length 10.0
+rosparam set /move_base/global_costmap/width 5.0
+rosparam set /move_base/global_costmap/height 5.0
 
 rosrun explore_lite explore _robot_base_frame:=base_link \
                           _costmap_topic:=/map \
