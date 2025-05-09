@@ -16,7 +16,7 @@
     <include file="$(find gazebosim_demo)/launch/rviz.launch"/>
 
     <!-- Ros Bridge -->
-    <!-- <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
         <arg name='port' value='1991'/>
-    </include> -->
+    </include>
 </launch>

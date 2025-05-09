@@ -3,10 +3,6 @@
     <node name="map_server" pkg="map_server" type="map_server"
         args="$(find gazebosim_demo)/maps/map.yaml" />
 
-    <!-- Ensure the map and odometry to be equivalent -->
-    <!-- <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 map
-    odom 100" /> -->
-
     <!-- Run the AMCL node -->
     <include file="$(find wpb_home_tutorials)/nav_lidar/amcl_omni.launch" />
 
@@ -27,4 +23,7 @@
         <param name="base_local_planner" value="wpbh_local_planner/WpbhLocalPlanner" />
         <param name="controller_frequency" value="10" type="double" />
     </node>
+
+    <!-- Run Simple Goal Server -->
+    <node pkg="navigation" type="simple_goal" name="simple_goal" output="screen" />
 </launch>

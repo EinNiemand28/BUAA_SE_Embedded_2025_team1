@@ -13,13 +13,6 @@ from sensor_msgs.msg import LaserScan
 
 from navigation.msg import *
 
-# 设置速度阈值  
-LINEAR_THRESHOLD = 0.00001  # 例如，0.1 m/s  
-ANGULAR_THRESHOLD = 0.00001  
-
-# 记录上次进度
-last_percentage = 0
-
 # 状态转移: 
 #           planning -> normal
 #           normal   -> barrier
@@ -117,7 +110,7 @@ class SimpleGoalServer:
         self.server.publish_feedback(self.feedback) 
         
     # server的回调函数
-    def simple_goal_cb(self,goal):
+    def simple_goal_cb(self, goal):
         # simple_goal作为move_base的client的回调函数
         
         # 初始化状态
@@ -173,9 +166,10 @@ class SimpleGoalServer:
 
     # 监听进度，实现动态避障
     def obstacle_detect(self, msg):
-        if (self.reach_flag == False and msg.ranges[180] < 0.5):
-            self.renavigate()
-            rospy.sleep(1)
+        for i in range(0,360):
+            if (self.reach_flag == False and msg.ranges[i] < 0.5):
+                self.renavigate()
+                rospy.sleep(1)
     
 
 rospy.init_node("simple_goal")  

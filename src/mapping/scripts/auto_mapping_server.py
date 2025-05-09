@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import rospy
-from std_srvs.srv import Trigger, TriggerResponse
 from mapping.srv import Start, StartResponse, Halt, HaltResponse
 from geometry_msgs.msg import Twist
 import subprocess

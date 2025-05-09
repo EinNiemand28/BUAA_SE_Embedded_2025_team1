@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/eventemitter2@6.4.9/lib/eventemitter2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+
+    <script type="text/javascript">
+        // Connect to ROS
+        var ros = new ROSLIB.Ros({
+            url: 'ws://localhost:1991'
+        });
+
+        ros.on('connection', function () {
+            console.log('Connected to websocket server.');
+        });
+
+        ros.on('error', function (error) {
+            console.log('Error connecting to websocket server: ', error);
+        });
+
+        ros.on('close', function () {
+            console.log('Connection to websocket server closed.');
+        });
+
+        // Calling navigation service
+        var service = new ROSLIB.Service({
+            ros: ros,
+            name: '/navigation_service',
+            serviceType: '/navigation_service'
+        });
+
+        var request = new ROSLIB.ServiceRequest({
+            px: 0,
+            py: 2,
+            oz: 0,
+        });
+
+        service.callService(request, function (result) {
+            console.log('Result for service call on ' + service.name + ': ' + result.message);
+        }, function (error) {
+            console.log('Error calling service: ', error);
+        });
+    </script>
+
+</html>

@@ -6,26 +6,24 @@ from navigation.msg import *
 
 from geometry_msgs.msg import Pose
 
+client = actionlib.SimpleActionClient("/navigation/navigate",NavigateAction)
+
 def done_cb(state,result):
     if state == actionlib.GoalStatus.SUCCEEDED:
         rospy.loginfo("响应结果:result = {}".format(result.result))
-        a = 1
+        rospy.loginfo("当前状态：{}".format(str(client.get_state())))
 
 def active_cb():
     rospy.loginfo("服务被激活....")
-    a = 1
-
 
 def fb_cb(fb):
     rospy.loginfo("{}".format(fb.percentage))
     rospy.loginfo("当前进度：{}".format(fb.cur_state))
-
-    
+    rospy.loginfo("当前状态：{}".format(str(client.get_state())))
 
 if __name__ == "__main__":
     rospy.init_node("target")
     # 创建 action Client 对象
-    client = actionlib.SimpleActionClient("/navigation/navigate",NavigateAction)
     print("op = 0:navigate")
     print("op = 1:cancel")
     print("op = -1:exit")
