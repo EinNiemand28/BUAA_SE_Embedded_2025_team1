@@ -1,0 +1,7 @@
+<launch>
+  <!-- 启动机器人场景 -->
+  <include file="$(find wpr_simulation)/launch/wpb_scene_1.launch" />
+  
+  <!-- 启动桥接节点 -->
+  <node name="web_robot_bridge" pkg="web_robot_bridge" type="web_robot_bridge_node.py" output="screen" />
+</launch>
