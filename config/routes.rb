@@ -1,12 +1,10 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
-  # 书架资源路由
   resources :bookshelves do
     resources :slots, only: [:index]
   end
 
-  # 书籍资源路由
   resources :books do
     collection do
       get :search
