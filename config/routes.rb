@@ -1,8 +1,21 @@
-require 'sidekiq/web'
+require "sidekiq/web"
 
 Rails.application.routes.draw do
+  resources :maps do
+    member do
+      post :activate
+    end
+  end
+
+  resources :tasks do
+    member do
+      post "cancel"
+      post "test_update"  # 添加测试更新路由
+    end
+  end
+
   resources :bookshelves do
-    resources :slots, only: [:index]
+    resources :slots, only: [ :index ]
   end
 
   resources :books do
@@ -11,43 +24,54 @@ Rails.application.routes.draw do
     end
   end
 
+  # 语言切换路由
+  get "switch_locale/:locale", to: "locales#switch", as: :switch_locale
+
   get  "sign_in", to: "sessions#new"
   post "sign_in", to: "sessions#create"
   get  "sign_up", to: "registrations#new"
   post "sign_up", to: "registrations#create"
-  resources :sessions, only: [:index, :show, :destroy]
-  resource  :password, only: [:edit, :update]
+  resources :sessions, only: [ :index, :show, :destroy ]
+  resource  :password, only: [ :edit, :update ]
 
   # 添加个人资料路由
-  resource :profile, only: [:show]
+  resource :profile, only: [ :show ]
 
   # 更新用户管理路由，添加 edit, update, destroy
-  resources :users, only: [:index, :edit, :update, :destroy]
+  resources :users, only: [ :index, :edit, :update, :destroy ]
 
   namespace :identity do
-    resource :email,              only: [:edit, :update]
-    resource :email_verification, only: [:show, :create]
+    resource :email,              only: [ :edit, :update ]
+    resource :email_verification, only: [ :show, :create ]
   end
 
-  # 机器人控制路由
-  resources :robots, only: [:index] do
+  # 系统日志路由
+  resources :system_logs, only: [ :index, :show ]
+
+  # 机器人管理路由
+  resources :robots, only: [ :index, :show ] do
     collection do
-      get :control
-      post :update_status
-      get :simulate_status
+      get "control"
+      get "status"
+      post "update_status"
+      get "simulate_status"
+      post "emergency_stop"
+      post "resume"
+      post "reset_status"
+      post "set_active_map"
+      post "start_work"
     end
   end
 
-  get "home/index"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # Action Cable Mount
+  mount ActionCable.server => "/cable"
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  # get "up" => "rails/health#show", as: :rails_health_check
-  # get "up" => "up#index"
-  get '/up', to: proc { [200, {}, ['OK']] }
-
-  mount Sidekiq::Web => '/sidekiq'
+  # Sidekiq Web UI (仅对管理员开放)
+  constraints lambda { |request|
+      Current.user && Current.user.admin?
+    } do
+    mount Sidekiq::Web => "/sidekiq"
+  end
 
   # Render dynamic PWA files from app/views/pwa/*
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
@@ -55,6 +79,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
-  root "home#index"
+  root "robots#index"
   # match '*path', via: :all, to: proc { [404, {}, ['Not Found']] }
 end

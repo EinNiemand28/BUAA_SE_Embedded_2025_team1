@@ -1,0 +1,153 @@
+<%# app/views/robots/index.html.erb %>
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-900"><%= t('robots.titles.dashboard') %></h1>
+    <div class="mt-4 sm:mt-0 flex space-x-3">
+      <%= link_to t('robots.buttons.control_panel_link'), control_robots_path, class: "btn btn-primary" %>
+      <% if Current.user.admin? %>
+        <%= link_to t('robots.buttons.task_list_link'), tasks_path, class: "btn btn-outline" %>
+        <%= link_to t('robots.buttons.map_list_link'), maps_path, class: "btn btn-outline" %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# 机器人状态概览卡片 %>
+  <div class="bg-white shadow-lg rounded-xl mb-8 p-6 border border-gray-200">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4"><%= t('robots.status.overview_title') %></h2>
+    <dl class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+      <%# 当前状态 %>
+      <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+        <dt class="text-sm font-medium text-gray-500 w-28 flex-shrink-0"><%= t('robots.status.current_status') %></dt>
+        <dd class="ml-2 flex items-center">
+          <% status_color_class = status_badge_class(@robot_status.status.to_s) %>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold <%= status_color_class %>">
+            <%= t("robots.status.#{@robot_status.status}", default: @robot_status.status.to_s.humanize) %>
+          </span>
+        </dd>
+      </div>
+
+      <%# 当前任务 %>
+      <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+        <dt class="text-sm font-medium text-gray-500 w-28 flex-shrink-0"><%= t('robots.status.current_task') %></dt>
+        <dd class="ml-2">
+          <% if @robot_status.current_task %>
+            <%= link_to "##{@robot_status.current_task.id} - #{t("tasks.types.#{@robot_status.current_task.task_type}", default: @robot_status.current_task.task_type.humanize)}",
+                   task_path(@robot_status.current_task),
+                   class: "text-sm font-medium text-blue-600 hover:text-blue-800 truncate" %>
+          <% else %>
+            <span class="text-sm text-gray-400"><%= t('robots.status.no_task') %></span>
+          <% end %>
+        </dd>
+      </div>
+
+      <%# 活动地图 %>
+      <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+        <dt class="text-sm font-medium text-gray-500 w-28 flex-shrink-0"><%= t('robots.status.active_map') %></dt>
+        <dd class="ml-2">
+          <% if @robot_status.active_map %>
+            <%= link_to @robot_status.active_map.name,
+                   map_path(@robot_status.active_map),
+                   class: "text-sm font-medium text-blue-600 hover:text-blue-800 truncate" %>
+          <% else %>
+            <span class="text-sm text-gray-400"><%= t('robots.status.no_active_map_set') %></span>
+          <% end %>
+        </dd>
+      </div>
+
+      <%# 急停状态 %>
+      <div class="flex items-center p-3 <%= @robot_status.is_emergency_stopped ? 'bg-red-50' : 'bg-gray-50' %> rounded-lg">
+        <dt class="text-sm font-medium <%= @robot_status.is_emergency_stopped ? 'text-red-700' : 'text-gray-500' %> w-28 flex-shrink-0"><%= t('robots.status.emergency_stop_status') %></dt>
+        <dd class="ml-2">
+          <span class="text-sm font-medium <%= @robot_status.is_emergency_stopped ? 'text-red-700 font-bold' : 'text-green-700' %>">
+            <%= @robot_status.is_emergency_stopped ? t('common.yes').upcase : t('common.no') %>
+          </span>
+        </dd>
+      </div>
+      
+      <%# 错误信息 (如果有) %>
+      <% if @robot_status.error_message.present? %>
+        <div class="md:col-span-2 lg:col-span-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <dt class="text-sm font-medium text-yellow-700 flex items-center">
+            <%= heroicon "exclamation-triangle", class: "h-5 w-5 mr-1 text-yellow-500", variant: :solid %>
+            <%= t('robots.status.error_message') %>
+          </dt>
+          <dd class="mt-1 ml-6 text-sm text-yellow-800 break-words">
+            <%= @robot_status.error_message %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+
+  <%# 最近任务列表 %>
+  <div class="bg-white shadow-lg rounded-xl border border-gray-200">
+    <div class="px-6 py-5 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-800"><%= t('robots.recent_tasks.title') %></h2>
+    </div>
+    <div class="p-6">
+      <% if @recent_tasks.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="table-header"><%= t('common.id') %></th>
+                <th class="table-header"><%= t('common.type') %></th>
+                <th class="table-header"><%= t('common.status') %></th>
+                <th class="table-header"><%= t('common.created_by') %></th>
+                <th class="table-header"><%= t('common.created_at') %></th>
+                <th class="table-header"><%= t('common.actions') %></th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @recent_tasks.each do |task| %>
+                <tr>
+                  <td class="table-cell font-medium">
+                    <%= link_to task.id, task_path(task), class: "text-blue-600 hover:text-blue-800" %>
+                  </td>
+                  <td class="table-cell"><%= t("tasks.types.#{task.task_type}", default: task.task_type&.humanize || t('common.unknown')) %></td>
+                  <td class="table-cell">
+                    <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full <%= status_badge_class(task.status) %>">
+                      <%= t("tasks.statuses.#{task.status}", default: task.status&.humanize || t('common.unknown')) %>
+                    </span>
+                  </td>
+                  <td class="table-cell"><%= task.user&.username || t('common.unknown_user') %></td>
+                  <td class="table-cell"><%= l task.created_at, format: :short %></td>
+                  <td class="table-cell space-x-2">
+                    <%= link_to t('common.view'), task_path(task), class: "text-indigo-600 hover:text-indigo-900" %>
+                    <% if (Current.user.admin? || task.user == Current.user) && task.can_be_cancelled? %>
+                      <%= button_to t('tasks.actions.request_cancel'), cancel_task_path(task), method: :post,
+                                    class: "text-red-600 hover:text-red-800 font-normal bg-transparent p-0 border-0",
+                                    data: { confirm: t('tasks.actions.confirm_cancel') } %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <% if Task.count > @recent_tasks.size %>
+          <div class="mt-4 text-right">
+            <%= link_to t('robots.recent_tasks.view_all_tasks'), tasks_path, class: "text-sm font-medium text-blue-600 hover:text-blue-800" %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center py-10">
+          <%= heroicon "document-magnifying-glass", class:"mx-auto h-12 w-12 text-gray-400" %>
+          <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('robots.recent_tasks.no_tasks_found') %></h3>
+          <p class="mt-1 text-sm text-gray-500"><%= t('robots.recent_tasks.create_one_prompt') %></p>
+          <div class="mt-6">
+            <%= link_to t('robots.recent_tasks.create_task_button'), new_task_path, class: "btn btn-primary" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%# 定义一些辅助样式，如果它们不在你的全局CSS中 %>
+<% content_for :page_specific_styles do %>
+  <style>
+    .table-header { @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider; }
+    .table-cell { @apply px-4 py-3 whitespace-nowrap text-sm text-gray-700; }
+  </style>
+<% end %>

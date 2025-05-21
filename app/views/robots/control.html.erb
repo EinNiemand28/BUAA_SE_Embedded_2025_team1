@@ -1,56 +1,57 @@
-<div class="space-y-6" data-controller="robot">
-  <!-- 页面标题 -->
+<%# app/views/robots/control.html.erb %>
+<div class="space-y-6" data-controller="robot"
+     data-robot-initial-mapping-task-id-value="<%= @current_mapping_task_for_view&.id %>"
+     data-robot-initial-mapping-task-status-value="<%= @current_mapping_task_for_view&.status %>"
+     data-robot-initial-robot-status-value="<%= @robot_status.status %>" <%# 传递初始机器人状态 %>
+     data-robot-initial-robot-is-estopped-value="<%= @robot_status.is_emergency_stopped.to_s %>" <%# 传递初始急停状态 %>
+>
   <div>
-    <h1 class="text-2xl font-bold text-gray-900">机器人控制</h1>
+    <h1 class="text-2xl font-bold text-gray-900"><%= t('robots.titles.control_panel') %></h1>
     <p class="mt-1 text-sm text-gray-500">
-      控制图书馆机器人移动和查看状态
+      <%= t('robots.descriptions.control_panel') %>
     </p>
   </div>
 
-  <!-- 主内容 Flex 容器：定义左右两栏 -->
-  <div class="flex">
-    
-    <!-- ==================== 左侧栏：状态卡片 (使用 Flexbox 控制) ==================== -->
-    <div class="flex-1">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- 机器人状态卡片 -->
+  <div class="flex flex-col lg:flex-row lg:space-x-6">
+    <%# ==================== 左侧栏：状态卡片、模式控制、移动控制 ==================== %>
+    <div class="lg:w-1/2 space-y-6">
+      <%# --- 状态卡片网格 (保持不变) --- %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <%# 机器人连接与模型状态卡片 %>
         <div class="bg-white overflow-hidden shadow rounded-lg">
           <div class="p-5">
             <div class="flex items-center">
-              <div class="flex-shrink-0"><!-- Robot Icon -->
-                <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dt class="text-sm font-medium text-gray-500 truncate">机器人状态</dt>
+              <div class="flex-shrink-0"><%= heroicon "signal", class: "h-8 w-8 text-blue-500" %></div>
+              <div class="ml-4 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate"><%= t('robots.status.connection_and_model') %></dt>
                 <dd class="mt-1">
+                  <div class="mb-1"><span data-robot-target="connectionStatus" class="text-xs font-medium text-gray-500">...</span></div>
                   <div class="flex items-baseline">
-                    <div id="robot-status-indicator" class="h-2.5 w-2.5 rounded-full bg-gray-400 mr-2 flex-shrink-0" data-robot-target="statusIndicator"></div>
-                    <span id="robot-status-text" class="text-2xl font-semibold text-gray-900" data-robot-target="statusText">未连接</span>
+                    <div data-robot-target="statusIndicator" class="h-2.5 w-2.5 rounded-full bg-gray-300 mr-2"></div>
+                    <span data-robot-target="statusText" class="text-xl font-semibold text-gray-900">未知</span>
                   </div>
-                  <div class="mt-1">
-                    <span id="connection-status" class="text-xs font-medium text-gray-500" data-robot-target="connectionStatus">正在连接...</span>
-                  </div>
+                  <div class="mt-0.5"><span data-robot-target="robotModelStatusText" class="text-xs text-gray-500">模型状态: N/A</span></div>
                 </dd>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 电池状态卡片 -->
+        <%# 电池状态卡片 (修改HTML以支持前景条) %>
         <div class="bg-white overflow-hidden shadow rounded-lg">
           <div class="p-5">
             <div class="flex items-center">
-              <div class="flex-shrink-0"><!-- Battery Icon -->
-                <svg class="h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dt class="text-sm font-medium text-gray-500 truncate">电池电量</dt>
+              <div class="flex-shrink-0"><%= heroicon "battery-100", class: "h-8 w-8 text-green-500" %></div>
+              <div class="ml-4 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate"><%= t('robots.status.battery_level') %></dt>
                 <dd>
                   <div class="flex items-center">
-                    <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
-                      <div id="battery-level-bar" class="bg-gray-400 h-2.5 rounded-full" style="width: 0%" data-robot-target="batteryBar"></div>
+                    <%# 外部容器作为背景/轨道 %>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2 dark:bg-gray-700">
+                      <%# 内部条作为前景，由JS更新宽度和颜色 %>
+                      <div data-robot-target="batteryBar" class="h-2.5 rounded-full transition-all duration-300" style="width: 0%;"></div>
                     </div>
-                    <span id="battery-level-text" class="text-2xl font-semibold text-gray-900" data-robot-target="batteryText">--</span>
+                    <span data-robot-target="batteryText" class="text-xl font-semibold text-gray-900">--%</span>
                   </div>
                 </dd>
               </div>
@@ -58,155 +59,240 @@
           </div>
         </div>
 
-        <!-- 位置信息卡片 -->
+        <%# 实时位置信息卡片 (保持不变) %>
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+             <div class="flex items-center">
+                <div class="flex-shrink-0"><%= heroicon "map-pin", class: "h-8 w-8 text-red-500" %></div>
+                <div class="ml-4 w-0 flex-1">
+                  <dt class="text-sm font-medium text-gray-500 truncate"><%= t('robots.status.current_position_sensor') %></dt>
+                  <dd class="mt-1">
+                    <span class="block text-gray-700">X: <span data-robot-target="positionX">--</span> m</span>
+                    <span class="block text-gray-700">Y: <span data-robot-target="positionY">--</span> m</span>
+                  </dd>
+                </div>
+              </div>
+          </div>
+        </div>
+
+        <%# 实时速度信息卡片 (保持不变) %>
         <div class="bg-white overflow-hidden shadow rounded-lg">
           <div class="p-5">
             <div class="flex items-center">
-              <div class="flex-shrink-0"><!-- Location Icon -->
-                 <svg class="h-8 w-8 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <div class="flex-shrink-0"><%= heroicon "bolt", class: "h-8 w-8 text-purple-500" %></div>
+                <div class="ml-4 w-0 flex-1">
+                  <dt class="text-sm font-medium text-gray-500 truncate"><%= t('robots.status.current_velocity_sensor') %></dt>
+                  <dd class="mt-1">
+                    <span class="block text-gray-700"><%= t('robots.status.linear') %>: <span data-robot-target="linearVelocity">--</span> m/s</span>
+                    <span class="block text-gray-700"><%= t('robots.status.angular') %>: <span data-robot-target="angularVelocity">--</span> rad/s</span>
+                  </dd>
+                </div>
               </div>
-              <div class="ml-5 w-0 flex-1">
-                <dt class="text-sm font-medium text-gray-500 truncate">当前位置</dt>
-                <dd class="mt-1">
-                  <div class="flex flex-col">
-                    <span class="text-md font-medium text-gray-700">X: <span id="position-x" data-robot-target="positionX">--</span></span>
-                    <span class="text-md font-medium text-gray-700">Y: <span id="position-y" data-robot-target="positionY">--</span></span>
-                  </div>
-                </dd>
-              </div>
-            </div>
           </div>
-        </div>
-
-        <!-- 速度信息卡片 -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0"><!-- Speed Icon -->
-                <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dt class="text-sm font-medium text-gray-500 truncate">当前速度</dt>
-                <dd class="mt-1">
-                  <div class="flex flex-col">
-                    <span class="text-md font-medium text-gray-700">线速度: <span id="linear-velocity" data-robot-target="linearVelocity">--</span> m/s</span>
-                    <span class="text-md font-medium text-gray-700">角速度: <span id="angular-velocity" data-robot-target="angularVelocity">--</span> rad/s</span>
-                  </div>
-                </dd>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> <!-- // 状态卡片 2x2 网格结束 -->
-    </div> <!-- // 左侧 flex-1 包裹层结束 -->
-    <!-- ==================== 左侧栏结束 ==================== -->
-
-    <!-- ==================== 右侧栏：控制按钮面板 (使用 Flexbox 控制 + Margin) ==================== -->
-    <div class="bg-white shadow overflow-hidden rounded-lg flex-1 ml-6">
-      <div class="px-4 py-5 sm:p-6 flex flex-col items-center justify-center h-full">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">
-          移动控制
-        </h3>
-        
-        <input type="hidden" data-robot-target="speedSlider" value="0.5">
-        <input type="hidden" data-robot-target="speedValue" value="0.5">
-
-        <!-- 方向控制按钮 (现代化设计) -->
-        <div class="flex flex-col items-center space-y-5 w-full max-w-xs">
-          <!-- 向前按钮 -->
-          <button type="button" data-action="robot#moveForward" class="control-button-direction">
-            <div class="flex justify-center items-center relative">
-              <span class="absolute -top-5 text-xs font-medium text-gray-500">前进</span>
-              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-            </div>
-          </button>
-          
-          <!-- 中间按钮组 (左、停止、右) -->
-          <div class="flex space-x-5 w-full justify-center">
-            <!-- 左转按钮 -->
-            <button type="button" data-action="robot#moveLeft" class="control-button-direction">
-              <div class="flex justify-center items-center relative">
-                <span class="absolute -top-5 text-xs font-medium text-gray-500">左转</span>
-                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </div>
-            </button>
-            
-            <!-- 停止按钮 -->
-            <button type="button" data-action="robot#stop" class="control-button-stop">
-              <div class="flex justify-center items-center relative">
-                <span class="absolute -top-5 text-xs font-medium text-gray-500">停止</span>
-                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                  <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z" clip-rule="evenodd" />
-                </svg>
-              </div>
-            </button>
-            
-            <!-- 右转按钮 -->
-            <button type="button" data-action="robot#moveRight" class="control-button-direction">
-              <div class="flex justify-center items-center relative">
-                <span class="absolute -top-5 text-xs font-medium text-gray-500">右转</span>
-                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </div>
-            </button>
-          </div>
-
-          <!-- 向后按钮 -->
-          <button type="button" data-action="robot#moveBackward" class="control-button-direction">
-            <div class="flex justify-center items-center relative">
-              <span class="absolute -top-5 text-xs font-medium text-gray-500">后退</span>
-              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            </div>
-          </button>
         </div>
       </div>
-    </div> 
-    <!-- ==================== 右侧栏结束 ==================== -->
 
-  </div> 
-  <!-- 主内容 Flex 容器结束 -->
+      <%# --- 模式与操作控制面板 --- %>
+      <div class="bg-white shadow overflow-hidden rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4"><%= t('robots.controls.mode_and_actions') %></h3>
+          <div class="space-y-3">
+            <%# 急停按钮 - 总是可见，但基于权限和状态启用/禁用由JS处理或Channel拒绝 %>
+            <button type="button" data-robot-target="emergencyStopBtn" data-action="robot#emergencyStop"
+                    class="w-full btn btn-danger">
+              <%= heroicon "exclamation-triangle", class: "h-5 w-5 mr-2" %>
+              <%= t('robots.controls.emergency_stop_trigger') %>
+            </button>
 
-  <!-- ==================== 下方预留区域 ==================== -->
-  <div class="bg-white shadow overflow-hidden rounded-lg mt-6">
-     <div class="px-4 py-5 sm:p-6 h-96 flex items-center justify-center">
-        <div class="text-center">
-           <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-           <h3 class="mt-2 text-sm font-medium text-gray-900">未来区域</h3>
-           <p class="mt-1 text-sm text-gray-500">
-             此处可用于显示摄像头视频流或地图。
-           </p>
+            <%# 从急停恢复到空闲按钮 (JS会根据状态控制显隐/禁用) %>
+            <button type="button" data-robot-target="resumeOperationBtn" data-action="robot#resumeOperation"
+                    class="w-full btn btn-success hidden"> <%# 初始隐藏 %>
+              <%= heroicon "play-circle", class: "h-5 w-5 mr-2" %>
+              <%= t('robots.controls.resume_operation_button') %>
+            </button>
+
+            <%# 启用手动控制模式按钮 (JS会根据状态控制显隐/禁用) %>
+            <button type="button" data-robot-target="enableManualBtn" data-action="robot#enableManualControl"
+                    class="w-full btn btn-info hidden"> <%# 初始隐藏 %>
+              <%= heroicon "cursor-arrow-rays", class: "h-5 w-5 mr-2" %>
+              <%= t('robots.controls.enable_manual_button') %>
+            </button>
+
+            <%# 禁用手动控制模式按钮 (JS会根据状态控制显隐/禁用) %>
+            <button type="button" data-robot-target="disableManualBtn" data-action="robot#disableManualControl"
+                    class="w-full btn btn-warning hidden"> <%# 初始隐藏 %>
+              <%= heroicon "academic-cap", class: "h-5 w-5 mr-2" %> <%# 示例图标，意指返回自主模式 %>
+              <%= t('robots.controls.disable_manual_button') %>
+            </button>
+          </div>
         </div>
-     </div>
-  </div>
-  <!-- ==================== 下方预留区域结束 ==================== -->
+      </div>
 
+      <%# --- 手动移动控制面板 (JS会根据是否处于manual_control状态控制其整体显隐或内部按钮的禁用) --- %>
+      <div data-robot-target="manualMoveControlsPanel" class="bg-white shadow overflow-hidden rounded-lg hidden"> <%# 初始隐藏 %>
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-3"><%= t('robots.controls.manual_control_title') %></h3>
+          <div class="mb-3">
+            <label for="speed-slider" class="block text-sm font-medium text-gray-700"><%= t('robots.controls.speed') %>: <span data-robot-target="speedValue">0.5</span> m/s</label>
+            <input type="range" id="speed-slider" data-robot-target="speedSlider" data-action="input->robot#_updateSpeedDisplay"
+                   min="0.1" max="1.0" step="0.1" value="0.5"
+                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+          </div>
+          <div class="grid grid-cols-3 gap-2 justify-items-center">
+            <div></div>
+            <button type="button" data-action="robot#moveForward" class="control-button group"><%= heroicon "arrow-up", class: "h-6 w-6 text-gray-600 group-hover:text-blue-700" %><span class="text-xs"><%= t('robots.controls.forward') %></span></button>
+            <div></div>
+            <button type="button" data-action="robot#moveLeft" class="control-button group"><%= heroicon "arrow-left", class: "h-6 w-6 text-gray-600 group-hover:text-blue-700" %><span class="text-xs"><%= t('robots.controls.left') %></span></button>
+            <button type="button" data-action="robot#stopMotion" class="control-button group bg-red-100 hover:bg-red-200 border-red-300 hover:border-red-400"><%= heroicon "stop-circle", class: "h-6 w-6 text-red-600 group-hover:text-red-700" %><span class="text-xs text-red-700"><%= t('robots.controls.stop') %></span></button>
+            <button type="button" data-action="robot#moveRight" class="control-button group"><%= heroicon "arrow-right", class: "h-6 w-6 text-gray-600 group-hover:text-blue-700" %><span class="text-xs"><%= t('robots.controls.right') %></span></button>
+            <div></div>
+            <button type="button" data-action="robot#moveBackward" class="control-button group"><%= heroicon "arrow-down", class: "h-6 w-6 text-gray-600 group-hover:text-blue-700" %><span class="text-xs"><%= t('robots.controls.backward') %></span></button>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </div> <%# --- 左侧栏结束 --- %>
+
+    <%# ==================== 右侧栏：建图功能 (保持不变) ==================== %>
+    <div class="lg:w-1/2 space-y-6 mt-6 lg:mt-0">
+      <%# --- 自动建图面板 --- %>
+      <div class="bg-white shadow overflow-hidden rounded-lg" data-robot-target="mappingContainer">
+        <%# ... (建图表单、状态、进度、预览等，与之前版本相同) ... %>
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4"><%= t('robots.mapping.title') %></h3>
+          <div class="space-y-4 mb-6">
+            <div>
+              <label for="map-name-input" class="block text-sm font-medium text-gray-700"><%= t('robots.mapping.map_name_label') %></label>
+              <input type="text" id="map-name-input" data-robot-target="mapName" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="<%= t('robots.mapping.map_name_placeholder') %>">
+            </div>
+            <div>
+              <label for="map-description-input" class="block text-sm font-medium text-gray-700"><%= t('robots.mapping.map_description_label') %></label>
+              <textarea id="map-description-input" data-robot-target="mapDescription" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="<%= t('robots.mapping.map_description_placeholder') %>"></textarea>
+            </div>
+            <div class="flex justify-between items-center pt-2">
+              <button type="button" data-robot-target="startMappingBtn" data-action="robot#startMapping" class="btn btn-success"><%= heroicon "play", class:"h-5 w-5 mr-1" %> <%= t('robots.mapping.start_button') %></button>
+              <button type="button" data-robot-target="cancelMappingBtn" data-action="robot#cancelMapping" class="btn btn-warning" disabled><%= heroicon "x-circle", class:"h-5 w-5 mr-1" %> <%= t('robots.mapping.cancel_button') %></button>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <h4 class="text-sm font-medium text-gray-500"><%= t('robots.mapping.current_status_label') %></h4>
+              <div class="mt-1 p-2 bg-gray-50 rounded-md min-h-[40px]"><p data-robot-target="taskStatus" class="text-sm text-gray-700 break-all"><%= t('robots.mapping.status_idle') %></p></div>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-500"><%= t('robots.mapping.progress_label') %></h4>
+              <div class="mt-1">
+                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700"><div data-robot-target="progressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div></div>
+                <div class="mt-1 text-right text-xs text-gray-500"><span data-robot-target="progressText">0%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <%# --- 地图预览面板 --- %>
+      <div class="bg-white shadow overflow-hidden rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4"><%= t('robots.mapping.preview_title') %></h3>
+          <div class="border border-gray-200 rounded-lg p-1 flex items-center justify-center min-h-[200px] bg-gray-100 relative overflow-hidden">
+            <img data-robot-target="mapPreview" src="" alt="<%= t('robots.mapping.preview_alt') %>" class="max-h-full max-w-full object-contain hidden transition-opacity duration-500">
+            <p data-robot-target="mapPreviewPlaceholder" class="text-gray-400 text-center p-4"><%= t('robots.mapping.preview_placeholder') %></p>
+          </div>
+        </div>
+      </div>
+    </div> <%# --- 右侧栏结束 --- %>
+  </div>
+
+  <%# 通知容器 (保持不变) %>
+  <div id="notifications-container" class="fixed bottom-4 right-4 z-[100] w-full max-w-xs sm:max-w-sm space-y-2"></div>
 </div>
 
+<%# 添加一些基本的按钮样式，如果你的项目中没有全局按钮类 %>
 <style>
-  .control-button-direction {
-    @apply inline-flex items-center justify-center p-4 border-2 border-blue-400 rounded-xl 
-           shadow-lg text-blue-600 bg-gradient-to-b from-blue-50 to-blue-100 
-           hover:from-blue-100 hover:to-blue-200 hover:border-blue-500 hover:text-blue-700
-           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-           active:shadow-inner active:from-blue-200 active:to-blue-300 active:border-blue-600
-           active:transform active:scale-95 active:text-blue-800
-           transition-all duration-150 ease-in-out w-20 h-20;
+  .control-button {
+    @apply inline-flex flex-col items-center justify-center p-3 w-24 h-20
+           border border-gray-300 rounded-lg shadow-sm
+           bg-white text-gray-700
+           hover:bg-gray-50 hover:border-gray-400
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+           transition-colors duration-150 ease-in-out;
   }
-  
-  .control-button-stop {
-    @apply inline-flex items-center justify-center p-4 border-2 border-red-400 rounded-xl 
-           shadow-lg text-red-600 bg-gradient-to-b from-red-50 to-red-100 
-           hover:from-red-100 hover:to-red-200 hover:border-red-500 hover:text-red-700
-           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-           active:shadow-inner active:from-red-200 active:to-red-300 active:border-red-600
-           active:transform active:scale-95 active:text-red-800
-           transition-all duration-150 ease-in-out w-20 h-20;
+  .control-button svg {
+    @apply mb-1;
   }
-</style> 
+  .control-button span {
+    @apply leading-tight;
+  }
+
+  /* 全局通知样式 (之前在<script>标签内，现在移到<style>) */
+  .notification {
+    @apply px-4 py-3 rounded-lg shadow-lg max-w-md transform transition-all duration-300;
+    animation: slide-in-notification 0.3s ease-out forwards;
+  }
+  .notification-info    { @apply bg-blue-50 border border-blue-200 text-blue-800; }
+  .notification-success { @apply bg-green-50 border border-green-200 text-green-800; }
+  .notification-error   { @apply bg-red-50 border border-red-200 text-red-800; }
+  .notification-warning { @apply bg-yellow-50 border border-yellow-200 text-yellow-800; }
+
+  @keyframes slide-in-notification {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+  }
+  .notification-exit { animation: fade-out-notification 0.3s ease-in forwards; }
+  @keyframes fade-out-notification {
+    from { transform: translateX(0); opacity: 1; }
+    to   { transform: translateX(100%); opacity: 0; }
+  }
+</style>
+
+<%# JavaScript for notifications (之前在<script>标签内，现在移到JS文件或保持在这里以便简单) %>
+<%# 最好是将这个 showNotification 函数放到一个全局可访问的JS模块中，然后在 robot_controller.js 中导入并使用 %>
+<% content_for :page_specific_javascript do %>
+  <script type="text/javascript">
+    // 确保只定义一次
+    if (typeof window.showNotification !== 'function') {
+      window.showNotification = function(message, type = 'info', duration = 5000) {
+        const container = document.getElementById('notifications-container');
+        if (!container) {
+          console.warn('Notification container not found. Cannot show notification:', message);
+          alert(`[${type.toUpperCase()}] ${message}`); // Fallback
+          return;
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        let iconSvg = '';
+        switch(type) {
+          case 'success': iconSvg = `<%= heroicon "check-circle", class: "h-5 w-5 mr-3 flex-shrink-0", variant: :solid %>`; break;
+          case 'error':   iconSvg = `<%= heroicon "x-circle", class: "h-5 w-5 mr-3 flex-shrink-0", variant: :solid %>`; break;
+          case 'warning': iconSvg = `<%= heroicon "exclamation-triangle", class: "h-5 w-5 mr-3 flex-shrink-0", variant: :solid %>`; break;
+          default:        iconSvg = `<%= heroicon "information-circle", class: "h-5 w-5 mr-3 flex-shrink-0", variant: :solid %>`; break;
+        }
+
+        notification.innerHTML = `
+          <div class="flex items-start">
+            <div class="flex-shrink-0">${iconSvg}</div>
+            <div class="ml-0 flex-1 pt-0.5">
+              <p class="text-sm font-medium">${message}</p>
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+              <button type="button" class="inline-flex rounded-md bg-inherit text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="this.closest('.notification').remove()">
+                <span class="sr-only">Close</span>
+                <%= heroicon "x-mark", class: "h-5 w-5", variant: :solid %>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(notification);
+        setTimeout(() => {
+          notification.classList.add('notification-exit');
+          setTimeout(() => {
+            if (notification.parentNode === container) {
+              container.removeChild(notification);
+            }
+          }, 300);
+        }, duration);
+      };
+    }
+  </script>
+<% end %>

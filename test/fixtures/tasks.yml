@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  task_type: 1
+  status: 1
+  priority: 1
+  book: one
+  user: one
+  parent_task: one
+  scheduled_at: 2025-05-16 19:29:43
+  started_at: 2025-05-16 19:29:43
+  completed_at: 2025-05-16 19:29:43
+  progress_details: MyText
+  result_data: MyText
+
+two:
+  task_type: 1
+  status: 1
+  priority: 1
+  book: two
+  user: two
+  parent_task: two
+  scheduled_at: 2025-05-16 19:29:43
+  started_at: 2025-05-16 19:29:43
+  completed_at: 2025-05-16 19:29:43
+  progress_details: MyText
+  result_data: MyText

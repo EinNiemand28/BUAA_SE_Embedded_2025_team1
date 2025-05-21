@@ -25,7 +25,7 @@ module LibraryRobotControl
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Set default locale to Simplified Chinese and available locales
-    config.i18n.available_locales = [:en, :'zh-CN']
+    config.i18n.available_locales = [ :en, :'zh-CN' ]
     config.i18n.default_locale = :'zh-CN'
   end
 end

@@ -2,11 +2,20 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
+  before_action :set_locale
   before_action :set_current_request_details
   before_action :set_current_session
   before_action :authenticate
 
   private
+
+    def set_locale
+      I18n.locale = if cookies[:locale] && I18n.available_locales.include?(cookies[:locale].to_sym)
+                      cookies[:locale].to_sym
+      else
+                      I18n.default_locale
+      end
+    end
 
     def set_current_session
       if session_record = Session.find_by_id(cookies.signed[:session_token])
@@ -18,13 +27,13 @@ class ApplicationController < ActionController::Base
 
     def authenticate
       unless Current.session
-        redirect_to sign_in_path, alert: t('application.authenticate.require_login', default: "请先登录")
+        redirect_to sign_in_path, alert: t("application.authenticate.require_login", default: "请先登录")
       end
     end
 
     def require_admin
       unless Current.session&.user&.admin?
-        redirect_to root_path, alert: t('application.require_admin.unauthorized', default: "您没有权限访问此页面")
+        redirect_to root_path, alert: t("application.require_admin.unauthorized", default: "您没有权限访问此页面")
       end
     end
 

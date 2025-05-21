@@ -17,3 +17,5 @@ eagerLoadControllersFrom("controllers", application)
 // application.register("sidebar", SidebarController)
 // application.register("robot", RobotController)
 // application.register("dashboard-robot-status", DashboardRobotStatusController) 
+
+console.log("[Stimulus Index] Controllers loaded.");

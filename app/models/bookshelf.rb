@@ -12,7 +12,7 @@ class Bookshelf < ApplicationRecord
   validates :height, presence: true, numericality: { greater_than: 0 }
   validates :levels, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :slots_per_level, presence: true, numericality: { only_integer: true, greater_than: 0 }
-  validates :is_transit_station, inclusion: { in: [true, false] }
+  validates :is_transit_station, inclusion: { in: [ true, false ] }
 
   # 回调
   after_create :generate_slots # 在创建书架后自动生成插槽
@@ -45,15 +45,15 @@ class Bookshelf < ApplicationRecord
         slot_width = self.length / slots_per_level
         slot_depth_center = 0 # 假设书放在书架中线
         slot_height_center = (self.bottom_clearance || 0) + (self.level_height || (self.height - (self.bottom_clearance || 0)) / levels) * (level_index + 0.5)
-        
+
         relative_x = -self.length / 2.0 + slot_width * (row_index + 0.5)
         relative_y = slot_depth_center # 假设插槽中心在书架宽度方向的中心线上
         relative_z = slot_height_center
 
-        slot_list << { 
-          bookshelf_id: self.id, 
-          level: level_index, 
-          row: row_index, 
+        slot_list << {
+          bookshelf_id: self.id,
+          level: level_index,
+          row: row_index,
           relative_x: relative_x.round(4),
           relative_y: relative_y.round(4),
           relative_z: relative_z.round(4),

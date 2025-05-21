@@ -1,0 +1,174 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold"><%= t('maps.titles.show') %>: <%= @map.name %></h1>
+    <div class="flex space-x-3">
+      <%= link_to t('common.back'), maps_path, class: "btn btn-outline" %>
+      <%= link_to t('common.edit'), edit_map_path(@map), class: "btn btn-secondary" %>
+      <% if !@map.is_active? %>
+        <%= button_to t('maps.buttons.activate'), activate_map_path(@map), method: :post, class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+      <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-semibold"><%= t('maps.details.title') %></h2>
+          <% if @map.is_active? %>
+            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+              <%= t('maps.status.active') %>
+            </span>
+          <% else %>
+            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">
+              <%= t('maps.status.inactive') %>
+            </span>
+          <% end %>
+        </div>
+        
+        <div class="border-t border-gray-200 pt-4">
+          <dl class="divide-y divide-gray-200">
+            <div class="py-3 flex justify-between">
+              <dt class="text-sm font-medium text-gray-500"><%= t('common.name') %></dt>
+              <dd class="text-sm text-gray-900"><%= @map.name %></dd>
+            </div>
+            <div class="py-3 flex justify-between">
+              <dt class="text-sm font-medium text-gray-500"><%= t('common.description') %></dt>
+              <dd class="text-sm text-gray-900"><%= @map.description.present? ? @map.description : t('common.not_available') %></dd>
+            </div>
+            <div class="py-3 flex justify-between">
+              <dt class="text-sm font-medium text-gray-500"><%= t('common.created_by') %></dt>
+              <dd class="text-sm text-gray-900"><%= @map.created_by_user.username %></dd>
+            </div>
+            <div class="py-3 flex justify-between">
+              <dt class="text-sm font-medium text-gray-500"><%= t('common.created_at') %></dt>
+              <dd class="text-sm text-gray-900"><%= l @map.created_at, format: :long %></dd>
+            </div>
+            <div class="py-3 flex justify-between">
+              <dt class="text-sm font-medium text-gray-500"><%= t('common.updated_at') %></dt>
+              <dd class="text-sm text-gray-900"><%= l @map.updated_at, format: :long %></dd>
+            </div>
+            <% if @map.map_config.attached? %>
+              <div class="py-3 flex justify-between">
+                <dt class="text-sm font-medium text-gray-500"><%= t('maps.details.config_file') %></dt>
+                <dd class="text-sm">
+                  <%= link_to @map.map_config.filename, rails_blob_path(@map.map_config, disposition: "attachment"), class: "text-blue-600 hover:text-blue-800" %>
+                </dd>
+              </div>
+            <% end %>
+            <% if @map.map_data_url.present? %>
+              <div class="py-3 flex justify-between">
+                <dt class="text-sm font-medium text-gray-500"><%= t('maps.details.data_url') %></dt>
+                <dd class="text-sm text-blue-600 break-words"><%= @map.map_data_url %></dd>
+              </div>
+            <% end %>
+          </dl>
+        </div>
+      </div>
+
+      <div class="bg-white shadow rounded-lg p-6 mt-6">
+        <h2 class="text-2xl font-semibold mb-4"><%= t('maps.preview.title') %></h2>
+        <div class="border border-gray-200 rounded-lg p-4 flex items-center justify-center h-64 bg-gray-50">
+          <% if @map.map_image.attached? %>
+            <%= image_tag @map.map_image_url, class: "max-h-full object-contain", alt: @map.name %>
+          <% elsif @map.map_data_url.present? && @map.map_data_url.ends_with?('.png', '.jpg', '.jpeg', '.gif', '.pgm') %>
+            <%= image_tag @map.map_data_url, class: "max-h-full object-contain", alt: @map.name %>
+          <% else %>
+            <p class="text-gray-500"><%= t('maps.preview.not_available') %></p>
+          <% end %>
+        </div>
+      </div>
+      
+      <% if @map.map_image.attached? || @map.map_config.attached? %>
+        <div class="bg-white shadow rounded-lg p-6 mt-6">
+          <h2 class="text-2xl font-semibold mb-4"><%= t('maps.files.title') %></h2>
+          <div class="space-y-4">
+            <% if @map.map_config.attached? %>
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="ml-4">
+                      <h3 class="text-sm font-medium text-gray-900"><%= t('maps.files.config_file') %></h3>
+                      <p class="text-sm text-gray-500"><%= @map.map_config.filename %> (<%= number_to_human_size(@map.map_config.byte_size) %>)</p>
+                    </div>
+                  </div>
+                  <div>
+                    <%= link_to t('maps.files.download'), rails_blob_path(@map.map_config, disposition: "attachment"), class: "btn btn-sm btn-outline" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            
+            <% if @map.map_image.attached? %>
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 bg-gray-100 rounded overflow-hidden">
+                      <%= image_tag @map.thumbnail_url, class: "h-10 w-10 object-cover", alt: @map.name %>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="text-sm font-medium text-gray-900"><%= t('maps.files.image_file') %></h3>
+                      <p class="text-sm text-gray-500"><%= @map.map_image.filename %> (<%= number_to_human_size(@map.map_image.byte_size) %>)</p>
+                    </div>
+                  </div>
+                  <div>
+                    <%= link_to t('maps.files.view'), rails_blob_path(@map.map_image), class: "btn btn-sm btn-outline mr-2", target: "_blank" %>
+                    <%= link_to t('maps.files.download'), rails_blob_path(@map.map_image, disposition: "attachment"), class: "btn btn-sm btn-outline" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="lg:col-span-1">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4"><%= t('maps.related_tasks.title') %></h2>
+        <% if @related_tasks.present? %>
+          <ul class="divide-y divide-gray-200">
+            <% @related_tasks.each do |task| %>
+              <li class="py-3">
+                <div class="flex items-center justify-between">
+<div>
+                    <%= link_to t('tasks.task_number', id: task.id), task_path(task), class: "text-blue-600 font-medium" %>
+                    <p class="text-sm text-gray-500"><%= t("tasks.types.#{task.task_type}") %></p>
+                    <p class="text-xs text-gray-400"><%= l task.created_at, format: :short %></p>
+                  </div>
+                  <span class="px-2 py-1 text-xs rounded-full <%= task_status_class(task) %>">
+                    <%= t("tasks.statuses.#{task.status}") %>
+                  </span>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+          
+          <div class="mt-4 text-center">
+            <%= link_to t('maps.related_tasks.view_all'), tasks_path(map_id: @map.id), class: "text-blue-600 text-sm" %>
+          </div>
+        <% else %>
+          <div class="text-center py-4 text-gray-500">
+            <p><%= t('maps.related_tasks.none') %></p>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6 mt-6">
+        <h2 class="text-xl font-semibold mb-4"><%= t('maps.actions.title') %></h2>
+        <div class="space-y-3">
+          <%= link_to t('maps.actions.create_navigation_task'), new_task_path(task_type: :navigation_to_point, map_id: @map.id), class: "btn btn-blue w-full" %>
+          <%= link_to t('maps.actions.create_mapping_task'), new_task_path(task_type: :map_build_auto, map_id: @map.id), class: "btn btn-green w-full" %>
+          <% if !@map.is_active? %>
+            <%= button_to t('maps.buttons.activate'), activate_map_path(@map), method: :post, class: "btn btn-yellow w-full" %>
+          <% end %>
+          <% if !@map.tasks.exists? %>
+            <%= button_to t('maps.actions.delete'), map_path(@map), method: :delete, data: { confirm: t('common.confirm_delete') }, class: "btn btn-red w-full" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

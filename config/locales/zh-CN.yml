@@ -4,6 +4,33 @@ zh-CN:
   common:
     unknown: "未知"
     unspecified: "未指定"
+    view: "查看"
+    edit: "编辑"
+    delete: "删除"
+    cancel: "取消"
+    error: "错误"
+    name: "名称"
+    description: "描述"
+    preview: "预览"
+    created_by: "创建者"
+    created_at: "创建时间"
+    updated_at: "更新时间"
+    status: "状态"
+    actions: "操作"
+    not_available: "暂无"
+    submit: "提交"
+    update: "更新"
+    back: "返回"
+    confirm_delete: "确定要删除吗？此操作不可撤销。"
+    errors:
+      one: "有 1 个错误阻止保存"
+      other: "有 %{count} 个错误阻止保存"
+    not_authorized: "您没有权限执行此操作"
+    details: "详情"
+
+  slot:
+    level: "层"
+    row: "行"
 
   application:
     authenticate:
@@ -61,6 +88,11 @@ zh-CN:
       book_catalog: "图书目录"
       bookshelf_map: "书架导航"
       command_history: "借阅历史"
+      search_placeholder: "搜索书名、作者或ISBN..."
+      map_management: "地图管理"
+    footer:
+      version: "版本: %{version}"
+      copyright: "© %{year} 图书馆机器人"
 
   helpers:
     submit:
@@ -107,6 +139,15 @@ zh-CN:
       slot:
         one: "插槽"
         other: "插槽"
+      task:
+        one: "任务"
+        other: "任务"
+      system_log:
+        one: "系统日志"
+        other: "系统日志"
+      robot_status:
+        one: "机器人状态"
+        other: "机器人状态"
     attributes:
       user:
         email: "邮箱"
@@ -161,6 +202,45 @@ zh-CN:
         is_available: "是否可用"
         created_at: "创建时间"
         updated_at: "更新时间"
+      system_log:
+        log_type: "日志类型"
+        log_types:
+          system: "系统"
+          robot: "机器人"
+          user: "用户"
+          task: "任务"
+          error: "错误"
+        severity: "严重程度"
+        severities:
+          info: "信息"
+          warning: "警告"
+          error_level: "错误"
+          critical: "严重错误"
+        message: "消息内容"
+        source: "来源"
+        created_at: "创建时间"
+        user_id: "用户ID"
+        task_id: "任务ID"
+        book_id: "书籍ID"
+      robot_status:
+        status: "状态"
+        statuses:
+          offline: "离线"
+          idle: "空闲"
+          mapping: "建图中"
+          navigating: "导航中"
+          fetching_book: "取书中"
+          returning_book: "归还书中"
+          scanning: "扫描中"
+          error: "错误"
+          paused: "暂停"
+          emergency_stopped: "紧急停止"
+        error_message: "错误信息"
+        is_emergency_stopped: "是否紧急停止"
+        is_mapping: "是否建图中"
+        is_navigating: "是否导航中"
+        current_task: "当前任务"
+        active_map: "活动地图"
     errors:
       models:
         user:
@@ -168,6 +248,24 @@ zh-CN:
             password_challenge:
               blank: "当前密码不能为空"
               invalid: "当前密码不正确"
+    enums:
+      task:
+        task_type:
+          map_build_auto: "自动建图"
+          navigation_to_point: "导航到指定点"
+          fetch_book_to_transfer: "取书到中转站"
+          return_book_from_transfer: "从中转站归还书籍"
+          inventory_scan_and_relocate: "扫描并重定位书籍"
+          inventory_full_inspection: "完整库存检查"
+          load_map: "加载地图"
+          system_command: "系统命令"
+        status:
+          pending: "待处理"
+          processing: "处理中"
+          completed: "已完成"
+          failed: "失败"
+          cancelled: "已取消"
+          cancelling: "取消中"
 
   errors:
     messages:
@@ -204,6 +302,7 @@ zh-CN:
       other_than: "必须与 %{count} 不同"
       # 添加密码特定错误
       password_challenge_failed: "当前密码不正确"
+      error: "错误"
 
   passwords:
     edit:
@@ -405,4 +504,450 @@ zh-CN:
       levels_count: "层数"
       rows_per_level: "每层行数"
       cancel: "取消"
-      errors_count: "%{count}个错误导致无法保存此书架：" 
+      errors_count: "%{count}个错误导致无法保存此书架："
+
+  # 任务相关翻译
+  tasks:
+    index:
+      title: "任务列表"
+      create_task: "创建新任务"
+      tasks_count: "共有 %{count} 个任务"
+      id: "ID"
+      type: "类型"
+      status: "状态"
+      created_at: "创建时间"
+      actions: "操作"
+      no_tasks: "暂无任务"
+      create_your_first_task: "现在创建您的第一个任务吧"
+    new:
+      title: "新建任务"
+      description: "为机器人创建新任务。"
+      back_to_list: "返回任务列表"
+      create_form_title: "创建新任务"
+      select_task_type_instruction: "选择您要创建的任务类型。"
+      task_type: "任务类型"
+      select_task_type: "选择任务类型"
+      priority: "优先级"
+      priority_levels:
+        low: "低"
+        medium: "中"
+        high: "高"
+      priority_value_hint: "优先级高的任务将优先执行。"
+      map_selection: "地图选择"
+      map: "地图"
+      select_map: "选择地图"
+      map_hint: "为此任务选择一个地图或创建新地图。"
+      create_new_map: "创建新地图"
+      common_parameters: "通用参数"
+      parent_task: "父任务"
+      select_parent_task: "选择父任务（可选）"
+    show:
+      title: "任务详情"
+      back_to_list: "返回列表"
+      edit_task: "编辑任务"
+      cancel_task: "取消任务"
+      delete_task: "删除任务"
+      confirm_cancel: "确认要取消此任务吗？"
+      confirm_delete: "确认要删除此任务吗？"
+      # 基本信息部分
+      basic_info: "基本信息"
+      task_id: "任务ID"
+      task_type: "任务类型"
+      status: "状态"
+      creator: "创建用户"
+      priority: "优先级"
+      created_at: "创建时间"
+      started_at: "开始时间"
+      completed_at: "完成时间"
+      # 关联信息部分
+      related_info: "关联信息"
+      related_book: "相关书籍"
+      source_slot: "源插槽"
+      target_slot: "目标插槽"
+      target_coordinates: "目标坐标"
+      parent_task: "父任务"
+      sub_tasks: "子任务"
+      # 进度和结果部分
+      progress_details: "进度详情"
+      task_progress_info: "显示任务的实时进度和参数信息"
+      invalid_progress_data: "无效的进度数据格式"
+      result_data: "结果数据"
+      # 系统日志部分
+      system_logs: "系统日志"
+      log_count: "系统日志 (%{count})"
+      no_logs: "暂无日志记录"
+      log_source: "来源"
+      level_row: "层: %{level}, 行: %{row}"
+      updates:
+        status_updated: "任务状态已更新"
+        progress_updated: "任务进度已更新"
+      notifications:
+        task_status_update: "任务 #%{id} 状态更新"
+        status_changed_to: "任务状态已更新为: %{status}"
+        task_details: "任务详细信息"
+        related_entities: "任务关联的实体信息"
+        no_logs_info: "该任务还没有产生任何系统日志记录"
+        real_time_updates: "实时更新"
+        connecting: "正在连接..."
+        connection_status: "连接状态"
+        waiting_to_start: "等待开始"
+        task_progress: "任务进度"
+        overall_progress: "总体进度"
+        task_in_progress: "任务正在处理中"
+        task_completed: "任务已完成"
+        task_failed: "任务失败"
+        task_cancelled: "任务已取消"
+        task_cancelling: "正在取消任务"
+        task_pending: "任务等待中"
+        status_update: "状态更新"
+        no_updates_yet: "暂无更新"
+        reconnecting: "正在重新连接..."
+        connection_lost: "连接已断开"
+        connection_established: "连接已建立"
+        connection_rejected: "连接被拒绝"
+        test_actions: "测试操作"
+        test_pending: "设为等待中"
+        test_processing: "设为处理中"
+        test_completed: "设为已完成"
+        test_failed: "设为失败"
+        test_cancelled: "设为已取消"
+        test_with_progress: "添加进度更新"
+      form:
+        errors_count: "导致无法保存："
+        submit: "保存任务"
+    edit:
+      title: "编辑任务"
+      back_to_details: "返回详情"
+      back_to_list: "返回列表"
+      update_task: "更新任务"
+    navigation_params:
+      title: "导航参数"
+      target_point_x: "目标点X坐标"
+      target_point_y: "目标点Y坐标"
+      target_point_z: "目标点Z坐标"
+    book_transfer_params:
+      title: "书籍搬运参数"
+      select_book: "选择书籍"
+      select_book_placeholder: "-- 选择书籍 --"
+      source_slot: "源插槽"
+      select_source_slot: "-- 选择源插槽 --"
+      target_slot: "目标插槽"
+      select_target_slot: "-- 选择目标插槽 --"
+    map_params:
+      title: "建图参数"
+      map_name: "地图名称"
+      time_limit: "时间限制(分钟)"
+      minutes: "分钟"
+      time_limit_hint: "建图任务的最长执行时间，超时将自动结束"
+    load_map_params:
+      title: "加载地图参数"
+      map_id: "地图ID"
+    inventory_params:
+      title: "库存扫描参数"
+      select_bookshelf: "选择书架"
+      all_bookshelves: "-- 所有书架 --"
+      auto_relocate: "自动重定位错位书籍"
+      auto_relocate_hint: "如果选中，系统将自动处理扫描到的错位图书"
+      bookshelf_hint: "如果不选择，将扫描所有书架"
+    notices:
+      created: "任务已成功创建"
+      updated: "任务已成功更新"
+      deleted: "任务已成功删除"
+      cannot_delete: "无法删除进行中的任务"
+      cancel_requested: "任务取消请求已发送"
+      cannot_cancel: "只能取消等待中或进行中的任务"
+      invalid_robot_status: "机器人当前状态(%{status})不允许执行此任务"
+      missing_map_id: "加载地图任务缺少map_id参数"
+      invalid_parameters: "任务参数无效"
+    task_number: "任务 #%{id}"
+    statuses:
+      pending: "待处理"
+      processing: "处理中"
+      completed: "已完成"
+      failed: "失败"
+      cancelled: "已取消"
+      cancelling: "取消中"
+    types:
+      map_build_auto: "自动建图"
+      navigation_to_point: "导航到点"
+      fetch_book_to_transfer: "取书到中转站"
+      return_book_from_transfer: "归还图书"
+      inventory_scan_and_relocate: "扫描并重定位图书"
+      inventory_full_inspection: "完整库存检查"
+      load_map: "加载地图"
+      system_command: "系统命令"
+
+    map_building:
+      monitoring_title: "实时建图监控"
+      preview_title: "地图预览"
+      status_title: "状态与控制"
+      details_title: "构建详情"
+      status_info: "状态信息"
+      progress: "进度"
+      waiting_for_preview: "等待地图预览..."
+      waiting_to_start: "等待建图开始..."
+      stop_mapping: "停止建图"
+      emergency_stop: "紧急停止"
+      confirm_stop: "确定要停止建图过程吗？当前地图将被保存。"
+      confirm_emergency: "确定要触发紧急停止吗？这将立即停止所有机器人操作。"
+      stopping: "正在停止建图过程..."
+      stop_failed: "停止建图过程失败。"
+      emergency_sent: "紧急停止命令已发送。"
+      emergency_failed: "发送紧急停止命令失败。"
+      task_id: "任务ID"
+      map_name: "地图名称"
+      started_at: "开始时间"
+    
+    status_waiting: "等待中"
+
+  # 系统日志相关翻译
+  system_logs:
+    title: "系统日志"
+    no_logs: "暂无日志记录"
+    filter:
+      all_types: "所有类型"
+      all_severities: "所有级别"
+      date_range: "日期范围"
+      apply_filters: "应用筛选"
+      reset_filters: "重置筛选"
+    log_types:
+      system: "系统"
+      robot: "机器人"
+      user: "用户"
+      task: "任务"
+      error: "错误"
+    severities:
+      info: "信息"
+      warning: "警告"
+      error_level: "错误"
+      critical: "严重错误" 
+
+  maps:
+    titles:
+      index: "地图列表"
+      show: "地图详情"
+      new: "新建地图"
+      edit: "编辑地图"
+    no_maps: "系统中没有任何地图"
+    no_image: "无图片"
+    form:
+      name: "地图名称"
+      name_placeholder: "输入一个简短且有描述性的名称"
+      description: "地图描述"
+      description_placeholder: "输入详细描述"
+      description_help: "添加关于这张地图的详细信息，如覆盖区域、用途等"
+      map_data_url: "地图数据URL"
+      map_data_url_placeholder: "地图数据文件的URL"
+      map_data_url_help: "一般情况下不需要手动填写，自动建图任务会自动设置此字段"
+      files: "地图文件"
+      map_config: "地图配置文件(.yaml)"
+      map_config_help: "上传ROS格式的地图配置文件(.yaml)"
+      map_image: "地图图像文件(.pgm)"
+      map_image_help: "上传ROS格式的地图图像文件(.pgm)"
+      view_file: "查看文件"
+      view_image: "查看图片"
+      active_map_notice: "此地图当前是活动状态"
+      active_map_info: "机器人将使用此地图进行导航和其他操作"
+      auto_mapping_title: "自动建图"
+      auto_mapping_info: "您也可以通过创建自动建图任务来生成新地图"
+      create_mapping_task: "创建建图任务"
+    details:
+      title: "地图详情"
+      data_url: "数据URL"
+      config_file: "配置文件"
+    preview:
+      title: "地图预览"
+      not_available: "预览不可用"
+    files:
+      title: "地图文件"
+      config_file: "配置文件"
+      image_file: "图像文件"
+      download: "下载"
+      view: "查看"
+    status:
+      active: "活动"
+      inactive: "非活动"
+    related_tasks:
+      title: "相关任务"
+      none: "没有相关任务"
+      view_all: "查看所有相关任务"
+    actions:
+      title: "操作"
+      create_navigation_task: "创建导航任务"
+      create_mapping_task: "创建建图任务"
+      delete: "删除地图"
+    buttons:
+      create: "新建地图"
+      create_first: "创建第一张地图"
+      activate: "激活地图"
+    notices:
+      created: "地图创建成功"
+      updated: "地图更新成功"
+      deleted: "地图删除成功"
+      cannot_delete_with_tasks: "无法删除有关联任务的地图"
+      activated: "地图已设置为活动状态"
+      already_active: "此地图已经是活动状态"
+    active_map: "当前活动地图"
+    no_active_map: "当前没有激活的地图，请从列表中激活一张地图"
+    building_tasks:
+      title: "建图任务"
+      description: "创建自动建图任务，让机器人为您生成新地图"
+      create: "创建建图任务"
+
+  robots:
+    titles:
+      index: "机器人管理"
+      control: "机器人控制"
+      status: "机器人状态"
+    status:
+      title: "机器人状态"
+      current_status: "当前状态"
+      offline: "离线"
+      idle: "空闲"
+      mapping: "建图中"
+      navigating: "导航中"
+      fetching_book: "取书中"
+      returning_book: "归还书中"
+      scanning: "扫描中"
+      error: "错误"
+      paused: "暂停"
+      emergency_stopped: "紧急停止"
+      emergency_stopped_state: "已紧急停止"
+      normal_operation: "正常运行"
+      current_task: "当前任务"
+      no_task: "无任务"
+      active_map: "活动地图"
+      no_map: "未设置地图"
+      error_message: "错误信息"
+    controls:
+      title: "机器人控制"
+      basic_controls: "基本控制"
+      emergency_stop: "紧急停止"
+      resume: "恢复操作"
+      reset_status: "重置状态"
+      map_management: "地图管理"
+      set_active_map: "设置活动地图"
+      select_map: "选择地图"
+      choose_map: "-- 选择地图 --"
+      work_mode: "工作模式"
+      start_work: "开始工作"
+      tasks: "任务管理"
+      create_navigation_task: "创建导航任务"
+      view_tasks: "查看所有任务"
+      no_active_map_warning: "机器人还没有加载地图，无法开始工作。"
+      select_map: "选择一张地图"
+      ready_to_work_with_map: "机器人已准备好使用地图%{map}开始工作"
+      already_in_work_mode: "机器人已处于工作模式，可以执行任务"
+      currently_mapping: "机器人正在执行建图任务，无法切换状态"
+      busy_with_task: "机器人正在执行%{task_type}任务，无法切换状态"
+      cannot_start_work: "当前状态%{status}不允许开始工作"
+      no_maps_available: "系统中没有可用地图，请先创建地图"
+      create_map: "创建新地图"
+      view_maps: "查看所有地图"
+      create_mapping_task: "创建建图任务"
+      confirm_emergency_stop: "确定要紧急停止机器人吗？这将中断所有正在执行的任务！"
+      confirm_reset: "确定要重置机器人状态吗？这应当仅在诊断问题时使用。"
+      current_map: "当前地图：%{map}"
+      ready_for_tasks: "机器人已准备好执行任务"
+    recent_tasks:
+      title: "最近任务"
+      view_all: "查看所有任务"
+      no_tasks: "暂无任务记录"
+    buttons:
+      control: "控制面板"
+    notices:
+      no_active_map: "未设置活动地图，请先设置一个地图"
+      cannot_start_work: "当前状态%{status}不允许开始工作"
+      work_started: "机器人已开始工作模式"
+      error_starting_work: "启动工作模式时出错"
+      emergency_stopped: "已发送紧急停止指令"
+      not_emergency_stopped: "机器人当前不处于紧急停止状态"
+      resumed: "机器人已恢复运行"
+      map_id_required: "请选择一个地图"
+      map_not_found: "找不到指定的地图"
+      active_map_set: "已将%{name}设为活动地图"
+      status_reset: "机器人状态已重置"
+      map_files_missing: "活动地图缺少必需的文件"
+
+  robot_status:
+    title: "机器人状态"
+    current_status: "当前状态"
+    emergency_stopped: "紧急停止"
+    active_map: "当前活动地图"
+    battery_level: "电池电量"
+    current_task: "当前任务"
+    error_message: "错误信息"
+    last_update: "最后更新"
+    connection_status: "连接状态"
+    connected: "已连接"
+    disconnected: "未连接"
+
+  # 添加密码特定错误
+  passwords:
+    edit:
+      errors:
+        password_challenge_failed: "当前密码不正确"
+        error: "错误"
+
+  # 添加任务相关翻译
+  tasks:
+    notices:
+      created: "任务已成功创建"
+      updated: "任务已成功更新"
+      deleted: "任务已成功删除"
+      cannot_delete: "无法删除进行中的任务"
+      cancel_requested: "任务取消请求已发送"
+      cannot_cancel: "只能取消等待中或进行中的任务"
+      invalid_robot_status: "机器人当前状态(%{status})不允许执行此任务"
+      missing_map_id: "加载地图任务缺少map_id参数"
+      invalid_parameters: "任务参数无效"
+
+  # 添加地图相关翻译
+  maps:
+    notices:
+      created: "地图创建成功。"
+      updated: "地图更新成功。"
+      deleted: "地图删除成功。"
+      activated: "地图激活成功。"
+      already_active: "此地图已处于激活状态。"
+      cannot_delete_with_tasks: "无法删除有关联任务的地图。"
+    no_maps: "暂无可用地图。请创建一个地图来开始使用。"
+    active_map: "当前激活的地图"
+    no_active_map: "没有激活的地图。请激活一个地图以用于导航任务。"
+    status:
+      active: "已激活"
+      inactive: "未激活"
+    details:
+      title: "地图详情"
+      data_url: "地图数据URL"
+    preview:
+      title: "地图预览"
+      not_available: "此地图格式不支持预览。"
+    related_tasks:
+      title: "相关任务"
+      view_all: "查看所有使用此地图的任务"
+      none: "暂无使用此地图的任务。"
+    actions:
+      title: "地图操作"
+      create_navigation_task: "创建导航任务"
+      create_mapping_task: "创建建图任务"
+      delete: "删除地图"
+    form:
+      title: "地图信息"
+      name: "名称"
+      name_placeholder: "请输入地图名称"
+      description: "描述"
+      description_placeholder: "请输入地图描述"
+      description_help: "请提供此地图覆盖区域的详情、创建时间或其他相关信息。"
+      map_data_url: "地图数据URL"
+      map_data_url_placeholder: "请输入地图数据URL"
+      map_data_url_help: "ROS地图文件或图像表示的URL。"
+      auto_mapping_title: "自动创建地图"
+      auto_mapping_info: "您可以使用机器人扫描环境自动创建地图。"
+      create_mapping_task: "创建建图任务"
+      active_map_notice: "这是当前活动的地图"
+      active_map_info: "此地图正用于导航任务。如果要使用其他地图，请先停用它。"
+    building_tasks:
+      title: "构建新地图"
+      description: "使用机器人通过探索环境自动创建新地图。"
+      create: "开始构建新地图" 

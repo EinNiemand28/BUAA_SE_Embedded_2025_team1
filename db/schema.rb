@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_06_201014) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_18_035324) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -77,18 +77,33 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_06_201014) do
     t.index ["name"], name: "index_bookshelves_on_name"
   end
 
-  create_table "robot_commands", force: :cascade do |t|
-    t.string "command_type", null: false
-    t.text "parameters"
-    t.integer "user_id"
-    t.string "status", default: "pending"
-    t.text "result"
-    t.datetime "executed_at"
+  create_table "maps", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "map_data_url"
+    t.integer "created_by_user_id", null: false
+    t.boolean "is_active", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["command_type"], name: "index_robot_commands_on_command_type"
-    t.index ["status"], name: "index_robot_commands_on_status"
-    t.index ["user_id"], name: "index_robot_commands_on_user_id"
+    t.index ["created_by_user_id"], name: "index_maps_on_created_by_user_id"
+    t.index ["is_active"], name: "index_maps_on_is_active"
+    t.index ["name"], name: "index_maps_on_name"
+  end
+
+  create_table "robot_statuses", force: :cascade do |t|
+    t.integer "status", default: 0, null: false
+    t.text "error_message"
+    t.boolean "is_emergency_stopped", default: false
+    t.boolean "is_mapping", default: false
+    t.boolean "is_navigating", default: false
+    t.integer "current_task_id"
+    t.integer "active_map_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active_map_id"], name: "index_robot_statuses_on_active_map_id"
+    t.index ["current_task_id"], name: "index_robot_statuses_on_current_task_id"
+    t.index ["is_emergency_stopped"], name: "index_robot_statuses_on_is_emergency_stopped"
+    t.index ["status"], name: "index_robot_statuses_on_status"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -114,6 +129,54 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_06_201014) do
     t.index ["bookshelf_id"], name: "index_slots_on_bookshelf_id"
   end
 
+  create_table "system_logs", force: :cascade do |t|
+    t.integer "log_type"
+    t.integer "severity"
+    t.text "message"
+    t.string "source"
+    t.integer "user_id"
+    t.integer "task_id"
+    t.integer "book_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id"], name: "index_system_logs_on_book_id"
+    t.index ["log_type"], name: "index_system_logs_on_log_type"
+    t.index ["severity"], name: "index_system_logs_on_severity"
+    t.index ["source"], name: "index_system_logs_on_source"
+    t.index ["task_id"], name: "index_system_logs_on_task_id"
+    t.index ["user_id"], name: "index_system_logs_on_user_id"
+  end
+
+  create_table "tasks", force: :cascade do |t|
+    t.integer "task_type"
+    t.integer "status"
+    t.integer "priority"
+    t.integer "book_id"
+    t.integer "source_slot_id"
+    t.integer "target_slot_id"
+    t.float "target_point_x"
+    t.float "target_point_y"
+    t.float "target_point_z"
+    t.integer "user_id", null: false
+    t.integer "parent_task_id"
+    t.datetime "scheduled_at"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.text "progress_details"
+    t.text "result_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "map_id"
+    t.index ["book_id"], name: "index_tasks_on_book_id"
+    t.index ["map_id"], name: "index_tasks_on_map_id"
+    t.index ["parent_task_id"], name: "index_tasks_on_parent_task_id"
+    t.index ["source_slot_id"], name: "index_tasks_on_source_slot_id"
+    t.index ["status"], name: "index_tasks_on_status"
+    t.index ["target_slot_id"], name: "index_tasks_on_target_slot_id"
+    t.index ["task_type"], name: "index_tasks_on_task_type"
+    t.index ["user_id"], name: "index_tasks_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", limit: 50, null: false
     t.string "username", limit: 50, null: false
@@ -130,7 +193,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_06_201014) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "books", "slots", column: "current_slot_id"
   add_foreign_key "books", "slots", column: "intended_slot_id"
-  add_foreign_key "robot_commands", "users"
+  add_foreign_key "robot_statuses", "maps", column: "active_map_id"
+  add_foreign_key "robot_statuses", "tasks", column: "current_task_id"
   add_foreign_key "sessions", "users"
   add_foreign_key "slots", "bookshelves"
+  add_foreign_key "system_logs", "books"
+  add_foreign_key "system_logs", "tasks"
+  add_foreign_key "system_logs", "users"
+  add_foreign_key "tasks", "books"
+  add_foreign_key "tasks", "maps"
+  add_foreign_key "tasks", "slots", column: "source_slot_id"
+  add_foreign_key "tasks", "slots", column: "target_slot_id"
+  add_foreign_key "tasks", "tasks", column: "parent_task_id"
+  add_foreign_key "tasks", "users"
 end

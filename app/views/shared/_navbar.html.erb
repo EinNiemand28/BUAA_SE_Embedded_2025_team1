@@ -14,6 +14,19 @@
 
       <!-- 右侧用户菜单 -->
       <div class="flex items-center">
+        <!-- 语言切换选项 -->
+        <div class="md:ml-4 flex items-center">
+          <div class="flex space-x-2">
+            <%= link_to switch_locale_path(locale: 'zh-CN'), class: "flex items-center p-1 #{I18n.locale == :'zh-CN' ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'}" do %>
+              <span>中文</span>
+            <% end %>
+            <span class="text-gray-300">|</span>
+            <%= link_to switch_locale_path(locale: 'en'), class: "flex items-center p-1 #{I18n.locale == :en ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'}" do %>
+              <span>English</span>
+            <% end %>
+          </div>
+        </div>
+        
         <!-- 手机端菜单按钮 -->
         <button type="button" class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500" aria-controls="mobile-menu" aria-expanded="false" data-action="click->sidebar#toggleMobileMenu">
           <span class="sr-only"><%= t('shared.navbar.open_menu') %></span>
@@ -115,6 +128,11 @@
       <a href="<%= bookshelves_path %>" class="<%= current_page?(bookshelves_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-3 pr-4 py-2 text-base font-medium">
         <%= t('shared.sidebar.bookshelf_map') %>
       </a>
+      <% if Current.session&.user&.admin? %>
+        <a href="<%= maps_path %>" class="<%= current_page?(maps_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-3 pr-4 py-2 text-base font-medium">
+          <%= t('shared.sidebar.map_management') %>
+        </a>
+      <% end %>
     </div>
   </div>
 </nav> 
