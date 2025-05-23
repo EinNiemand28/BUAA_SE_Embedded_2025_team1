@@ -14,11 +14,14 @@
         <arg name='port' value='1991'/>
     </include>
 
+    <!-- Vizanti node(s) -->
+    <include file='$(find vizanti)/launch/webviz.launch'/> 
+
     <!-- Node prepared for mapping -->
     <node pkg="mapping" type="auto_mapping_server.py" name="auto_mapping_server" output="screen" />
 
     <!-- Node prepared for navigation -->
-    <node pkg="navigation" type="goal_server.py" name="goal_server" output="screen" /> <!-- TODO: 这里应该启动用于“准备启动导航模块的”-->
+    <node pkg="navigation" type="navigation_server.py" name="navigation_server" output="screen" />
 
     <!-- Node prepared for book fetch -->
 

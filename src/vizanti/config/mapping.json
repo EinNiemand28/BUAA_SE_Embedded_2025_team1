@@ -1,0 +1,46 @@
+{
+  "navbar": [
+    {
+      "type": "settings",
+      "id": "settings_default"
+    },
+    {
+      "type": "rosbridge",
+      "id": "rosbridge_default"
+    },
+    {
+      "type": "map",
+      "id": "map_autoID_0",
+      "container_id": "icon_container"
+    },
+    {
+      "type": "robotmodel",
+      "id": "robotmodel_autoID_1",
+      "container_id": "icon_container"
+    }
+  ],
+  "view": {
+    "center": {
+      "x": 0.017744712783264394,
+      "y": -0.5488880227684678
+    },
+    "scale": 120.33096168455431
+  },
+  "settings_default": {
+    "fixed_frame": "map",
+    "background_color": "#273444"
+  },
+  "uid": 2,
+  "map_autoID_0": {
+    "topic": "/map",
+    "opacity": "0.7",
+    "colour_scheme": 0,
+    "throttle": "1000",
+    "use_timestamp": false
+  },
+  "robotmodel_autoID_1": {
+    "frame": "base_link",
+    "sprite": "tortoise",
+    "length": "0.5"
+  }
+}

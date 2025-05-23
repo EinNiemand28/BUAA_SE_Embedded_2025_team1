@@ -1,7 +1,7 @@
 <launch>
     <!-- Navigation -->
-    <include file='$(find gazebosim_demo)/launch/navigation.launch'/>
+    <include file='$(find task_manager_sim)/launch/navigation.launch'/>
 
     <!-- Rviz -->
-    <include file="$(find gazebosim_demo)/launch/rviz.launch"/>
+    <include file="$(find task_manager_sim)/launch/rviz.launch"/>
 </launch>
