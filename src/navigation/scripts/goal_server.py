@@ -91,7 +91,7 @@ class NavigationCore:
         # 状态
         self.reach_flag = True
         self.fail = False
-        self.radar_obstacle_detect = None # 雷达检测动态避障
+        self.obstacle_detect = None # 雷达检测动态避障
         self.cur_pos_id = 0 # 存当前进度
         self.plan_init = False # 全局路径是否规划完成
 
@@ -107,6 +107,9 @@ class NavigationCore:
         self.gp_sub = None
         rospy.loginfo("导航启动")
         self.gp_sub = rospy.Subscriber('/move_base/GlobalPlanner/plan',Path, self.updata_global_plan)
+
+        # 检测前方障碍，实现动态避障：由于move_base已经实现了动态避障，所以这里的代码仅作为一个示例
+        # self.obstacle_detect = rospy.Subscriber("scan", LaserScan, self.obstacle_detect, queue_size=1)
 
     def clear_state(self):
         self.cur_goal = None
@@ -184,9 +187,7 @@ class NavigationCore:
         self.ac.send_goal(self.cur_goal,self.move_base_done_cb,self.move_base_active_cb,self.move_base_fb_cb)  
         self.reach_flag = False
         self.ac.wait_for_server()         
-        rospy.loginfo("开始导航……")    
-        # 检测前方障碍，实现动态避障
-        self.radar_obstacle_detect = rospy.Subscriber("scan", LaserScan, self.obstacle_detect)
+        rospy.loginfo("开始导航……")
 
         # 开始监听cancel消息和move_base action的result
         r = rospy.Rate(1)  
@@ -220,7 +221,8 @@ class NavigationCore:
         self.ac.cancel_goal()  # 取消当前目标
         self.ac.send_goal(self.cur_goal, self.move_base_done_cb, self.move_base_active_cb, self.move_base_fb_cb)
 
-    # 监听进度，实现动态避障
+    # 监听进度，实现动态避障（由于move_base的规划器已经实现了动态避障，所以这里的代码仅作为一个示例）
+    @DeprecationWarning
     def obstacle_detect(self, msg):
         for i in range(0,360):
             if (self.reach_flag == False and msg.ranges[i] < 0.5):

@@ -10,14 +10,18 @@
     <node pkg="wpb_home_behaviors" type="wpb_home_grab_server" name="wpb_home_grab_server" />
 
     <!-- wpb_home_objects_3d -->
-    <!-- <node pkg="wpb_home_behaviors" type="wpb_home_objects_3d" name="wpb_home_objects_3d"
-        output="screen">
+    <node pkg="wpb_home_behaviors" type="wpb_home_objects_3d" name="wpb_home_objects_3d" launch-prefix="bash -c 'exec $0 $@ > /dev/null 2>&amp;1'"><!-- launch-prefix is to silent the logerr output -->
         <param name="topic" type="string" value="/kinect2/sd/points" />
         <param name="start" type="bool" value="true" />
-    </node> -->
+    </node>
 
     <!-- wpb_home_grab_action -->
     <node pkg="wpb_home_behaviors" type="wpb_home_grab_action" name="wpb_home_grab_action">
+        <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+    </node>
+
+    <!-- wpb_home_place_action -->
+    <node pkg="wpb_home_behaviors" type="wpb_home_place_action" name="wpb_home_place_action">
         <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
     </node>
 </launch>

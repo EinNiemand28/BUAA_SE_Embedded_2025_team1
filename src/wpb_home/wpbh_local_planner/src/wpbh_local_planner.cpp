@@ -93,6 +93,7 @@ namespace wpbh_local_planner
 
             m_pub_target = nh_planner.advertise<geometry_msgs::PoseStamped>("local_planner_target", 10);
             m_scan_sub = nh_planner.subscribe<sensor_msgs::LaserScan>(m_scan_topic,1,&WpbhLocalPlanner::lidarCallback,this);
+            m_obstacle_detect = nh_planner.subscribe<sensor_msgs::LaserScan>("obstacle_detect", 1, &WpbhLocalPlanner::obstacleDetect, this); // support for obstacle detection and avoidance
             
             m_bInitialized = true;
 
@@ -131,6 +132,7 @@ namespace wpbh_local_planner
 
             m_pub_target = nh_planner.advertise<geometry_msgs::PoseStamped>("local_planner_target", 10);
             m_scan_sub = nh_planner.subscribe<sensor_msgs::LaserScan>(m_scan_topic,1,&WpbhLocalPlanner::lidarCallback,this);
+            m_obstacle_detect = nh_planner.subscribe<sensor_msgs::LaserScan>(m_scan_topic, 1, &WpbhLocalPlanner::obstacleDetect, this); // support for obstacle detection and avoidance
             
             m_bInitialized = true;
 
@@ -148,6 +150,21 @@ namespace wpbh_local_planner
         for(int i=0;i<360;i++)
         {
             ranges[i] = scan->ranges[i];
+        }
+    }
+
+    void WpbhLocalPlanner::obstacleDetect(const sensor_msgs::LaserScan::ConstPtr& scan)
+    {
+        int nSize = scan->ranges.size();
+        for (int i = 0; i < nSize; i++)
+        {
+            if(scan->ranges[i] < 0.5)
+            {
+                ROS_WARN("[WPBH-OBSTACLE-DETECT] obstacle detected at angle: %.2f, distance: %.2f; now renavigating...", scan->angle_min + i * scan->angle_increment, scan->ranges[i]);
+                this->setPlan(m_global_plan);
+                ros::Duration(1).sleep(); // wait for a while to avoid repeated detection
+                return;
+            }
         }
     }
 

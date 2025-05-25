@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>发送导航目标</title>
+    <title>机械臂复位</title>
 
     <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/eventemitter2@6.4.9/lib/eventemitter2.min.js"></script>
@@ -27,21 +27,14 @@
             console.log('Connection to websocket server closed.');
         });
 
-        // Calling navigation service
+        // Calling goal service
         var service = new ROSLIB.Service({
             ros: ros,
-            name: '/goal_service',
-            serviceType: '/goal_service'
+            name: '/arm_zero_service',
+            serviceType: '/arm_zero_service'
         });
 
-        var request = new ROSLIB.ServiceRequest({
-            px: 3.77,
-            // py: 2,
-            py: 4,
-            oz: 0
-        });
-
-        service.callService(request, function (result) {
+        service.callService(function (result) {
             console.log('Result for service call on ' + service.name + ': ' + result.message);
         }, function (error) {
             console.log('Error calling service: ', error);

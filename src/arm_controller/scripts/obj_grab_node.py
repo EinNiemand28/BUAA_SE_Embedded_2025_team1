@@ -2,12 +2,20 @@
 
 # coding=utf-8
 import rospy
+import threading
 from wpb_home_behaviors.msg import Coord
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 
 # 标记变量，是否处于抓取过程当中
 grabbing = False
+
+# 标记变量，确定是否已经抓取成功
+success = False
+
+# 标记变量，确定是否仍在抓取
+global_flag = 0
+local_flag = 0
 
 # 物品检测回调函数
 def cbObject(msg):
@@ -33,6 +41,38 @@ def cbObject(msg):
 def cbGrabResult(msg):
     rospy.logwarn("抓取执行结果 = %s",msg.data)
 
+    if str(msg.data) == "done":
+        global success
+        success = True
+    else:
+        global global_flag
+        global_flag = global_flag + 1
+
+class grabPauseErrorDetect(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.daemon = True  # 设置为守护线程
+        self.start()  # 启动线程
+    def run(self):
+        global grabbing
+        global global_flag
+        global local_flag
+        while True:
+            rospy.sleep(15)
+            if success:
+                break
+            elif global_flag == local_flag:
+                rospy.logwarn("抓取错误，重新激活物品检测")
+                grabbing = False
+
+                # 发送消息，重新激活物品检测
+                behavior_msg = String()
+                behavior_msg.data = "object_detect start"
+                behaviors_pub.publish(behavior_msg)
+            else:
+                local_flag = global_flag
+                # 更新全局标记变量
+
 # 主函数
 if __name__ == "__main__":
     rospy.init_node("grab_node")
@@ -50,4 +90,8 @@ if __name__ == "__main__":
     msg = String()
     msg.data = "object_detect start"
     behaviors_pub.publish(msg)
+    
+    # 启动抓取错误检测线程
+    grab_error_detect_thread = grabPauseErrorDetect()
+
     rospy.spin()

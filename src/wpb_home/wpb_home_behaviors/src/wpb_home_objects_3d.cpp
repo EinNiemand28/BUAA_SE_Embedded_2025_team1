@@ -172,7 +172,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     segmentation.setEpsAngle(  10.0f * (M_PI/180.0f) );
     pcl::PointIndices::Ptr planeIndices(new pcl::PointIndices);
     segmentation.segment(*planeIndices, *coefficients);
-    // ROS_INFO_STREAM("Planes: " << planeIndices->indices.size());
+    ROS_INFO_STREAM("Planes: " << planeIndices->indices.size());
     pcl::ExtractIndices<pcl::PointXYZRGB> extract;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -212,8 +212,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     
 
     if (planeIndices->indices.size() == 0)
-        // std::cout << "Could not find a plane in the scene." << std::endl;
-        ;
+        std::cout << "Could not find a plane in the scene." << std::endl;
     else
     {
         // Copy the points of the plane to a new cloud.

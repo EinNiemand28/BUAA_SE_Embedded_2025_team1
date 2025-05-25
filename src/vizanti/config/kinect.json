@@ -1,0 +1,38 @@
+{
+  "navbar": [
+    {
+      "type": "settings",
+      "id": "settings_default"
+    },
+    {
+      "type": "rosbridge",
+      "id": "rosbridge_default"
+    },
+    {
+      "type": "compressedimage",
+      "id": "compressedimage_autoID_2",
+      "container_id": "icon_container"
+    }
+  ],
+  "view": {
+    "center": {
+      "x": -0.8572762852874782,
+      "y": 4.333592784103466
+    },
+    "scale": 153.5761877958906
+  },
+  "settings_default": {
+    "fixed_frame": "map",
+    "background_color": "#273444"
+  },
+  "uid": 3,
+  "compressedimage_autoID_2": {
+    "topic": "/kinect2/hd/image_color_rect/compressed",
+    "opacity": "1",
+    "throttle": "500",
+    "width": "100",
+    "img_offset_x": 49.98144712430427,
+    "img_offset_y": 52.41935483870967,
+    "rotation": "0"
+  }
+}

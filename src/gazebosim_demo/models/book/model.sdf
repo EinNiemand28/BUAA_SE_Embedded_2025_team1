@@ -14,14 +14,14 @@ to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
       <collision name='collision'>
         <geometry>
           <box>
-            <size>0.2 0.2 0.02</size>
+            <size>0.1 0.2 0.03</size>
           </box>
         </geometry>
       </collision>
       <visual name="book_visual">
         <geometry>
           <box>
-            <size>0.2 0.2 0.02</size>
+            <size>0.1 0.2 0.03</size>
           </box>
         </geometry>
         <material>

@@ -24,6 +24,7 @@
     <node pkg="navigation" type="navigation_server.py" name="navigation_server" output="screen" />
 
     <!-- Node prepared for book fetch -->
+    <node pkg="arm_controller" type="arm_controller_server.py" name="arm_controller_server" output="screen" />
 
-    <!-- Node prepared for routing inspection -->
+    <!-- Node prepared for routing inspection: May not be necessary -->
 </launch>

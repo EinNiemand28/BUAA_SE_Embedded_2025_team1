@@ -168,7 +168,7 @@ int main(int argc, char **argv)
     mani_ctrl_msg.position[0] = 0;
     mani_ctrl_msg.velocity[0] = 0.5;     //升降速度(单位:米/秒)
     mani_ctrl_msg.position[1] = 0.032;
-    mani_ctrl_msg.velocity[1] = 5;       //手爪开合角速度(单位:度/秒)
+    mani_ctrl_msg.velocity[1] = 0;       //手爪开合角速度(单位:度/秒)
 
     ros::Rate r(30);
     while(nh.ok())
@@ -199,7 +199,9 @@ int main(int argc, char **argv)
                 VelCmd(vx,vy,0);
             }
 
+            mani_ctrl_msg.velocity[1] = 0;      //手爪开合角速度先设定为0，避免手爪在抬起时开合
             mani_ctrl_msg.position[0] = fPlaceZ + 0.03 + place_lift_offset;
+            mani_ctrl_msg.velocity[1] = 5;       //恢复手爪开合角速度
             mani_ctrl_pub.publish(mani_ctrl_msg);
             nTimeDelayCounter ++;
 

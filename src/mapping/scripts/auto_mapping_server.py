@@ -37,16 +37,6 @@ class AutoMappingServer:
             LAUNCH_FILE=\"run_mapping.launch\"\n \
             ROSLAUNCH_PID=$(ps aux | grep roslaunch | grep \"$LAUNCH_FILE\" | grep -v grep | awk '{print $2}')\n\
             [ -z \"$ROSLAUNCH_PID\" ] || kill -INT $ROSLAUNCH_PID"
-        
-        # 尝试在建图结束后回到起点
-        ## action client对象
-        self.action_client = actionlib.SimpleActionClient("/navigation/navigate", NavigateAction)
-
-        self.return_to_init = NavigateGoal()
-        self.return_to_init.pos.position.x = 0
-        self.return_to_init.pos.position.y = 0
-        self.return_to_init.pos.orientation.z = 0
-        self.return_to_init.pos.orientation.w = 1.0
 
         # 存储建图服务器进程
         self.server_process = None
@@ -129,7 +119,7 @@ class AutoMappingServer:
             self.kill_process = subprocess.Popen(self.stop_command, shell=True)
             rospy.loginfo(f"建图服务已终止: {self.server_command}")
 
-            # 首先让机器人原地静止
+            # 让机器人原地静止
             movement_topic = rospy.Publisher('cmd_vel', Twist, queue_size=10)
             twist = Twist()
             twist.linear.x = 0
@@ -141,10 +131,6 @@ class AutoMappingServer:
             while self.is_mapping_now():
                 rospy.sleep(1)
             movement_topic.publish(twist)
-
-            # 让机器人回到原点
-            self.action_client.wait_for_server()
-            self.action_client.send_goal_and_wait(self.return_to_init)
 
             return HaltResponse(
                 success=True,

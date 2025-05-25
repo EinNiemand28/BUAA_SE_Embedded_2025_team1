@@ -74,6 +74,7 @@ namespace wpbh_local_planner
   protected:
     void getTransformedPosition(geometry_msgs::PoseStamped& pose, std::string& frame_id, double& x, double& y, double& theta);
     void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan);
+    void obstacleDetect(const sensor_msgs::LaserScan::ConstPtr& scan);
     
   private:
     bool m_bInitialized;
@@ -97,6 +98,7 @@ namespace wpbh_local_planner
     double m_robot_circumscribed_radius;
 
     ros::Subscriber m_scan_sub;
+    ros::Subscriber m_obstacle_detect;
     ros::Publisher m_pub_target;
     double m_max_vel_trans;
     double m_max_vel_rot;
