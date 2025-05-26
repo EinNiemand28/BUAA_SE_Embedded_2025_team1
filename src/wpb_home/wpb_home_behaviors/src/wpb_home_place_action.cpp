@@ -199,9 +199,7 @@ int main(int argc, char **argv)
                 VelCmd(vx,vy,0);
             }
 
-            mani_ctrl_msg.velocity[1] = 0;      //手爪开合角速度先设定为0，避免手爪在抬起时开合
             mani_ctrl_msg.position[0] = fPlaceZ + 0.03 + place_lift_offset;
-            mani_ctrl_msg.velocity[1] = 5;       //恢复手爪开合角速度
             mani_ctrl_pub.publish(mani_ctrl_msg);
             nTimeDelayCounter ++;
 
@@ -236,6 +234,7 @@ int main(int argc, char **argv)
         //3、释放物品
         if(nStep == STEP_RELEASE)
         {
+            mani_ctrl_msg.velocity[1] = 5;       //恢复手爪开合角速度
             if(nTimeDelayCounter == 0)
             {
                 result_msg.data = "release";
@@ -255,6 +254,7 @@ int main(int argc, char **argv)
                 fMoveTargetY = -(fPlaceY + place_y_offset);
                 ROS_WARN("[STEP_BACKWARD] x= %.2f y= %.2f " ,fMoveTargetX, fMoveTargetY);
                 nStep = STEP_BACKWARD;
+                mani_ctrl_msg.velocity[1] = 0;      //手爪开合角速度先设定为0，避免手爪在抬起时开合
             }
         }
 

@@ -4,7 +4,7 @@
 import rospy
 import threading
 from wpb_home_behaviors.msg import Coord
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from geometry_msgs.msg import Pose
 
 # 标记变量，是否处于抓取过程当中
@@ -36,6 +36,15 @@ def cbObject(msg):
             behavior_msg = String()
             behavior_msg.data = "object_detect stop"
             behaviors_pub.publish(behavior_msg)
+
+def publish_grab_over():
+    """
+    发布抓取是否结束的话题
+    """
+    grab_over_msg = Bool()
+    grab_over_msg.data = success
+    grab_over_pub.publish(grab_over_msg)
+    # rospy.loginfo("发布抓取是否结束话题: %s", grab_over_msg.data)
 
 # 抓取执行结果回调函数
 def cbGrabResult(msg):
@@ -80,6 +89,8 @@ if __name__ == "__main__":
     behaviors_pub = rospy.Publisher("/wpb_home/behaviors", String, queue_size=10)
     # 发布抓取行为激活话题
     grab_pub = rospy.Publisher("/wpb_home/grab_action", Pose, queue_size=10)
+    # 发布“抓取是否结束”的话题
+    grab_over_pub = rospy.Publisher("/grab_over", Bool, queue_size=10)
     # 订阅物品检测结果的话题
     object_sub = rospy.Subscriber("/wpb_home/objects_3d", Coord, cbObject, queue_size=10)
     # 订阅抓取执行结果的话题
@@ -93,5 +104,11 @@ if __name__ == "__main__":
     
     # 启动抓取错误检测线程
     grab_error_detect_thread = grabPauseErrorDetect()
+
+    # 发布抓取是否结束的话题
+    rate = rospy.Rate(1)  # 1 Hz
+    while not rospy.is_shutdown():
+        publish_grab_over()
+        rate.sleep()
 
     rospy.spin()

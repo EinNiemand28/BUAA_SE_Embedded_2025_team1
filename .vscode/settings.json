@@ -3,7 +3,10 @@
         "*.sdf": "xml",
         "*.world": "xml",
         "ostream": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "regex": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp"
     },
     "cmake.sourceDirectory": "/media/mitchell/Data/Projects/software_engineering/ros_end/src/arm_controller"
 }

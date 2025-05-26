@@ -1,4 +1,7 @@
 bool sim
+bool map
+string path # relative path under /media/mitchell/Data/Projects/software_engineering/ros_end/src/mapping/maps/
+string name # name of map
 ---
 bool success
 string message

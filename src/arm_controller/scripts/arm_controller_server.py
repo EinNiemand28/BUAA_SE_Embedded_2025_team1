@@ -8,7 +8,7 @@ import rospy
 import subprocess
 from arm_controller.srv import Place, PlaceResponse
 from std_srvs.srv import Trigger, TriggerResponse
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from geometry_msgs.msg import Pose
 
 class ArmControllerServer:
@@ -21,6 +21,9 @@ class ArmControllerServer:
 
         # 机械臂自然收起服务
         self.halt_service = rospy.Service('/arm_zero_service', Trigger, self.arm_zero)
+
+        # 发布“放置是否结束”的话题
+        self.place_over_pub = rospy.Publisher("/place_over", Bool, queue_size=10)
 
         rospy.loginfo("机械臂控制服务已启动")
 
@@ -51,12 +54,18 @@ class ArmControllerServer:
         # 机械臂收起进程
         self.zero_process = None
 
+        # 发布放置是否结束的话题
+        rate = rospy.Rate(1)  # 1 Hz
+        while not rospy.is_shutdown():
+            self.publish_place_over()
+            rate.sleep()
+
     def grab(self, req):
         """
         抓取服务的回调函数
         """
         # 如果之前有抓取、放置或机械臂收起进程在运行，则告知用户并返回
-        if not self.is_place_over or (self.zero_process and self.zero_process.poll() is None) or (self.grab_process and self.grab_process.poll() is None):
+        if not self.is_place_over or (self.zero_process and self.zero_process.poll() is None) or (not self.is_grab_over()):
             rospy.logwarn("有机械臂进程在运行，请稍后再试")
             return TriggerResponse(
                 success=False,
@@ -83,7 +92,7 @@ class ArmControllerServer:
             )
         
         # 要求之前有抓取进程在运行，以保证可以进行放置操作
-        if self.grab_process and self.grab_process.poll() is None:
+        if not self.is_grab_over():
             subprocess.Popen(self.kill_grab_node_command, shell=True)
             self.grab_process = None
         else:
@@ -123,7 +132,7 @@ class ArmControllerServer:
             )
         
         # 如果之前有抓取进程在运行，则终止它
-        if self.grab_process and self.grab_process.poll() is None:
+        if not self.is_grab_over():
             subprocess.Popen(self.kill_grab_node_command, shell=True)
             self.grab_process = None
 
@@ -134,6 +143,22 @@ class ArmControllerServer:
             success=True,
             message="正在机械臂收起"
         )
+    
+    def is_grab_over(self):
+        """
+        检查抓取是否结束
+        """
+        if self.grab_process and self.grab_process.poll() is None:
+            return False
+        return True
+
+    def publish_place_over(self):
+        """
+        发布放置是否结束的话题
+        """
+        place_over_msg = Bool()
+        place_over_msg.data = self.is_place_over
+        self.place_over_pub.publish(place_over_msg)
     
 if __name__ == "__main__":
     rospy.init_node('arm_controller_server')

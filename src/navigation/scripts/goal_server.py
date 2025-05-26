@@ -53,8 +53,11 @@ class GoalServer:
         self.client.wait_for_server()
         self.client.send_goal_and_wait(self.goal)
 
+        result = self.client.get_result().result
+        success = str(result) == 'success'
+
         # 确定导航结果
-        return GoalResponse(message="导航结果：" + str(self.client.get_result().result))
+        return GoalResponse(success = success, message="导航结果：" + result)
         
     def stop_navigation(self, req):
         # 取消导航目标

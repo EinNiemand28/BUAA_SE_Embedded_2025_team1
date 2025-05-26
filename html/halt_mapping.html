@@ -30,11 +30,16 @@
         // Calling navigation service
         var service = new ROSLIB.Service({
             ros: ros,
-            name: '/halt_auto_mapping',
-            serviceType: '/halt_auto_mapping'
+            name: '/halt_mapping',
+            serviceType: '/halt_mapping'
         });
 
-        service.callService(function (result) {
+        var request = new ROSLIB.ServiceRequest({
+            path: "",
+            name: 'new'
+        });
+
+        service.callService(request, function (result) {
             console.log('Result for service call on ' + service.name + ': ' + result);
         }, function (error) {
             console.log('Error calling service: ', error);

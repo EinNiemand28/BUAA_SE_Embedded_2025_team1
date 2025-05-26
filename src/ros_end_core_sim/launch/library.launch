@@ -1,0 +1,32 @@
+<launch>
+    <!-- Environment Variables -->
+    <env name="GAZEBO_MODEL_PATH" value="$(find gazebosim_demo)/models:$(optenv GAZEBO_MODEL_PATH)" />
+    <env name="GAZEBO_RESOURCE_PATH" value="$(find gazebosim_demo)/worlds:$(optenv GAZEBO_RESOURCE_PATH)" />
+
+    <!-- World -->
+    <include file='$(find ros_end_core_sim)/launch/world.launch'/>
+
+    <!-- Robot -->
+    <include file='$(find ros_end_core_sim)/launch/robot.launch'/> 
+
+    <!-- Ros Bridge -->
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+        <arg name='port' value='1991'/>
+    </include>
+
+    <!-- Vizanti node(s) -->
+    <include file='$(find vizanti)/launch/webviz.launch'/> 
+
+    <!-- Node prepared for mapping -->
+    <node pkg="mapping" type="auto_mapping_server.py" name="auto_mapping_server" output="screen" />
+
+    <!-- Node prepared for navigation -->
+    <node pkg="navigation" type="navigation_server.py" name="navigation_server" output="screen" />
+
+    <!-- Node prepared for book fetch -->
+    <node pkg="fetch_server" type="fetch_service.py" name="fetch_server" output="screen" />
+
+    <node pkg="arm_controller" type="arm_controller_server.py" name="arm_controller_server" output="screen" />
+
+    <!-- Node prepared for routing inspection: May not be necessary -->
+</launch>

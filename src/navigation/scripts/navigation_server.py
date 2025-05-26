@@ -22,17 +22,24 @@ class NavigationServer:
         # 启动导航服务器指令
         self.server_command = None
 
+        # 指定地图指令
+        self.map_command = "rosrun map_server map_server /media/mitchell/Data/Projects/software_engineering/ros_end/src/mapping/maps/"
+
         # 启动目标服务器指令
         self.goal_server_command = "rosrun navigation goal_server.py"
 
         # 终止导航系统指令
-        self.stop_command = "rosnode kill goal_server\n \
+        self.stop_command = "rosnode kill map_server\n \
+            rosnode kill goal_server\n \
             LAUNCH_FILE=\"run_full.launch\"\n \
             ROSLAUNCH_PID=$(ps aux | grep roslaunch | grep \"$LAUNCH_FILE\" | grep -v grep | awk '{print $2}')\n\
             [ -z \"$ROSLAUNCH_PID\" ] || kill -INT $ROSLAUNCH_PID"
 
         # 存储导航进程
         self.navigation_process = None
+
+        # 存储地图进程
+        self.map_process = None
 
         # 存储目标服务器进程
         self.goal_server_process = None
@@ -50,16 +57,33 @@ class NavigationServer:
             
             # 准备导航模块启动指令
             if req.sim:
-                self.server_command = "roslaunch task_manager_sim run_full.launch"
+                self.server_command = "roslaunch ros_end_core_sim run_full.launch"
             else:
                 self.server_command = "roslaunch task_manager run_full.launch"
                 rospy.logerr_once("wrong!")
 
+            # 如果需要指定地图，则添加地图指令
+            if req.map:
+                map_command = self.map_command + req.path + req.name + ".yaml" # 添加地图指令
+            else:
+                map_command = self.map_command + "map.yaml"
+                rospy.logwarn("未指定地图，将使用默认地图")
+
             # 加载导航服务环境
             self.navigation_process = subprocess.Popen(self.server_command, shell=True)
 
+            # 启动地图环境
+            self.map_process = subprocess.Popen(map_command, shell=True)
+
             # 启动导航目的地服务器(goal server)节点
             self.goal_server_process = subprocess.Popen(self.goal_server_command, shell=True)
+
+            # rospy.sleep(3)
+
+            # 矫正机器人的位置
+            subprocess.Popen("rosrun mapping position_correction.py __name:=my_position_correction_node", shell=True)
+            rospy.sleep(3)
+            subprocess.call("rosnode kill my_position_correction_node", shell=True)
 
             return StartResponse(
                 success=True,

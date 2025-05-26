@@ -13,12 +13,15 @@ import subprocess
 
 class AutoMappingServer:
     def __init__(self):
+        # 启动手动建图的服务
+        self.manual_service = rospy.Service('/manual_mapping_service', Start, self.start_manual_mapping)
+
         # 启动自动建图的服务
-        self.start_service = rospy.Service('/auto_mapping_service', Start, self.start_mapping)
+        self.auto_service = rospy.Service('/auto_mapping_service', Start, self.start_auto_mapping)
         rospy.loginfo("自动建图服务已就绪")
 
         # 终止自动建图的服务
-        self.halt_service = rospy.Service('/halt_auto_mapping', Halt, self.halt_auto_mapping)
+        self.halt_service = rospy.Service('/halt_mapping', Halt, self.halt_mapping)
         
         # 存储启动建图服务器指令
         self.server_command = None
@@ -50,7 +53,37 @@ class AutoMappingServer:
         # 杀死进程
         self.kill_process = None
 
-    def start_mapping(self, req):
+    def start_manual_mapping(self, req):
+        try:
+            if self.is_mapping_now():
+                return StartResponse(
+                    success=False,
+                    message=f"已在建图中"
+                )
+            
+            # 准备启动建图服务器指令
+            if req.sim:
+                self.server_command = "roslaunch ros_end_core_sim run_mapping.launch"  # 启动仿真条件下的手动建图
+            else:
+                self.server_command = "roslaunch task_manager run_mapping.launch" # 启动真实环境中的手动建图 TODO
+            
+            # 启动服务器节点
+            self.server_process = subprocess.Popen(self.server_command, shell=True)
+            rospy.loginfo(f"已启动建图服务器: {self.server_command}" + str(self.server_process.pid))
+
+            return StartResponse(
+                success=True,
+                message=f"已开始手动建图！"
+            )
+            
+        except Exception as e:
+            rospy.logerr(f"启动手动建图失败: {str(e)}")
+            return StartResponse(
+                success=False,
+                message=f"启动手动建图失败: {str(e)}"
+            )
+
+    def start_auto_mapping(self, req):
         try:
             if self.is_mapping_now():
                 return StartResponse(
@@ -60,7 +93,7 @@ class AutoMappingServer:
             
             # 准备启动建图服务器指令
             if req.sim:
-                self.server_command = "roslaunch task_manager_sim run_mapping.launch"  # 启动仿真条件下的自动建图
+                self.server_command = "roslaunch ros_end_core_sim run_mapping.launch"  # 启动仿真条件下的自动建图
             else:
                 self.server_command = "roslaunch task_manager run_mapping.launch" # 启动真实环境中的自动建图 TODO
             
@@ -99,7 +132,7 @@ class AutoMappingServer:
     def is_mapping_now(self):
         return (self.server_process and self.server_process.poll() is None) or (self.explore_process and self.explore_process.poll() is None)
 
-    def halt_auto_mapping(self, req):
+    def halt_mapping(self, req):
         try:
             if not self.is_mapping_now():
                 return HaltResponse(
@@ -109,8 +142,8 @@ class AutoMappingServer:
             
             # 保存建得的地图
             self.map_no = self.map_no + 1
-            self.save_map_command = "rosrun map_server map_saver -f " + str(self.map_no) # TODO
-            self.save_map_process = subprocess.Popen(self.save_map_command, shell=True)
+            self.save_map_command = "rosrun map_server map_saver -f " + str(req.name)
+            self.save_map_process = subprocess.Popen(self.save_map_command, shell=True, cwd="/media/mitchell/Data/Projects/software_engineering/ros_end/src/mapping/maps/" + req.path) # XXX 保存地图的路径需要根据实际部署机器修改
             
             # 终止自动建图
             while self.save_map_process.poll() is None:
@@ -135,7 +168,6 @@ class AutoMappingServer:
             return HaltResponse(
                 success=True,
                 message=f"建图服务已终止",
-                path=str(self.map_no)
             )
             
         except Exception as e:
