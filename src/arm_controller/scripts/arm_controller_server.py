@@ -33,6 +33,14 @@ class ArmControllerServer:
         # 存储终止抓取节点的指令
         self.kill_grab_node_command = "rosnode kill grab_node"
 
+        # 存储放置行为激活的指令
+        self.place_action_command = "roslaunch ros_end_core place_action.launch"
+
+        # 终止放置动作指令
+        self.stop_place_action_command = "LAUNCH_FILE=\"place_action.launch\"\n \
+            ROSLAUNCH_PID=$(ps aux | grep roslaunch | grep \"$LAUNCH_FILE\" | grep -v grep | awk '{print $2}')\n\
+            [ -z \"$ROSLAUNCH_PID\" ] || kill -INT $ROSLAUNCH_PID"
+
         # 发布放置行为激活话题
         self.place_pub = rospy.Publisher("/wpb_home/place_action", Pose, queue_size=10)
 
@@ -102,6 +110,11 @@ class ArmControllerServer:
             )
 
         self.is_place_over = False  # 设置放置操作未完成
+
+        # 启动放置行为激活进程
+        subprocess.Popen(self.place_action_command, shell=True)
+        rospy.sleep(3.0)  # 等待放置行为激活完成
+
         rospy.loginfo("开始放置物品")
         # 创建放置位置的Pose消息
         place_pose_msg = Pose()
@@ -118,6 +131,8 @@ class ArmControllerServer:
         rospy.logwarn("放置执行结果 = %s", msg.data)
         if str(msg.data) == "done":
             self.is_place_over = True
+            # 杀死放置行为激活进程
+            subprocess.Popen(self.stop_place_action_command, shell=True)
 
     def arm_zero(self, req):
         """

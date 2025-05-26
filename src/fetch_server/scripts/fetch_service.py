@@ -122,7 +122,7 @@ class FetchServer:
         if abs(oz) < 0.1:
             return (px, py - 1.23, 1.0)
         elif abs(oz - 1.57) < 0.1:
-            return (px + 1.23, py, 4.0)
+            return (px + 1.23, py - 0.5, 4.0)
         elif abs(oz + 1.57) < 0.1:
             return (px - 1.23, py, 0.00)
         else:
@@ -135,8 +135,8 @@ class FetchServer:
             place_position_y = x - place_robot_destination[0] - 0.1
             place_position_z = z
         elif abs(oz - 1.57) < 0.1:
-            place_position_x =  - x + place_robot_destination[0] - 0.1
-            place_position_y = - y + place_robot_destination[1] - 0.1
+            place_position_x =  - x + place_robot_destination[0]
+            place_position_y = - y + place_robot_destination[1] + 0.4
             place_position_z = z
         elif abs(oz + 1.57) < 0.1:
             place_position_x = x - place_robot_destination[0]

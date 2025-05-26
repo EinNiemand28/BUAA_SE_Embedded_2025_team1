@@ -37,11 +37,6 @@
         <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
     </node>
 
-    <!-- wpb_home_place_action -->
-    <node pkg="wpb_home_behaviors" type="wpb_home_place_action" name="wpb_home_place_action">
-        <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
-    </node>
-
     <!-- other trivial settings -->
     <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home_mani.urdf" />
     <arg name="gui" default="false" />
