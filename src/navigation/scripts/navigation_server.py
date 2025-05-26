@@ -59,8 +59,7 @@ class NavigationServer:
             if req.sim:
                 self.server_command = "roslaunch ros_end_core_sim run_full.launch"
             else:
-                self.server_command = "roslaunch task_manager run_full.launch"
-                rospy.logerr_once("wrong!")
+                self.server_command = "roslaunch ros_end_core run_full.launch"
 
             # 如果需要指定地图，则添加地图指令
             if req.map:

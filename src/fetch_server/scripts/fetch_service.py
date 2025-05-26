@@ -122,7 +122,7 @@ class FetchServer:
         if abs(oz) < 0.1:
             return (px, py - 1.23, 1.0)
         elif abs(oz - 1.57) < 0.1:
-            return (px + 1.23, py, 4.1)
+            return (px + 1.23, py, 4.0)
         elif abs(oz + 1.57) < 0.1:
             return (px - 1.23, py, 0.00)
         else:

@@ -35,25 +35,25 @@
         });
 
         var request = new ROSLIB.ServiceRequest({
-            gpx: 5,
-            gpy: 2,
-            gpz: 0,
-            goz: -1.57,
-
-            // gpx: 0,
+            // gpx: 5,
             // gpy: 2,
             // gpz: 0,
-            // goz: 0,
-//////////////////////////////////////////////////////
-            ppx: 0,
-            ppy: 2,
-            ppz: 1,
-            poz: 0,
+            // goz: -1.57,
 
-            // ppx: -5,
+            gpx: 0,
+            gpy: 2,
+            gpz: 0,
+            goz: 0,
+//////////////////////////////////////////////////////
+            // ppx: 0,
             // ppy: 2,
             // ppz: 1,
-            // poz: 1.57,
+            // poz: 0,
+
+            ppx: -5,
+            ppy: 2,
+            ppz: 1,
+            poz: 1.57,
         });
 
         service.callService(request, function (result) {

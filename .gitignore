@@ -3,3 +3,4 @@ devel/*
 *.zip
 urdf2sdf.sh
 .gitignore
+kill_gz.sh

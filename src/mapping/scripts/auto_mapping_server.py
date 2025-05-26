@@ -65,7 +65,7 @@ class AutoMappingServer:
             if req.sim:
                 self.server_command = "roslaunch ros_end_core_sim run_mapping.launch"  # 启动仿真条件下的手动建图
             else:
-                self.server_command = "roslaunch task_manager run_mapping.launch" # 启动真实环境中的手动建图 TODO
+                self.server_command = "roslaunch ros_end_core run_mapping.launch" # 启动真实环境中的手动建图 TODO
             
             # 启动服务器节点
             self.server_process = subprocess.Popen(self.server_command, shell=True)
@@ -95,7 +95,7 @@ class AutoMappingServer:
             if req.sim:
                 self.server_command = "roslaunch ros_end_core_sim run_mapping.launch"  # 启动仿真条件下的自动建图
             else:
-                self.server_command = "roslaunch task_manager run_mapping.launch" # 启动真实环境中的自动建图 TODO
+                self.server_command = "roslaunch ros_end_core run_mapping.launch" # 启动真实环境中的自动建图 TODO
             
             # 准备探索指令
             self.explore_command = \
