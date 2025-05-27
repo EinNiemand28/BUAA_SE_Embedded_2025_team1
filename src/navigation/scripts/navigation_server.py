@@ -6,7 +6,7 @@
 
 import rospy
 from navigation.srv import Start, StartResponse, Halt, HaltResponse
-from std_srvs.srv import Trigger
+from std_srvs.srv import Trigger, Empty
 from geometry_msgs.msg import Twist
 import subprocess
 
@@ -18,6 +18,9 @@ class NavigationServer:
 
         # 终止导航服务
         self.stop_service = rospy.Service('/halt_navigation', Halt, self.halt_navigation)
+
+        # 机器人紧急停止服务
+        self.emergency_stop_service = rospy.Service('/emergency_stop', Empty, self.emergency_stop)
 
         # 启动导航服务器指令
         self.server_command = None
@@ -131,6 +134,22 @@ class NavigationServer:
                 success=False,
                 message=f"导航模块终止失败: {str(e)}"
             )
+        
+    def emergency_stop(self, req):
+        """
+        机器人紧急停止服务回调函数
+        """
+        rospy.logwarn("机器人紧急停止")
+        self.keep_robot_static()
+
+        # 首先终止正在进行的导航任务
+        try:
+            halt_goal = rospy.ServiceProxy('/halt_goal', Trigger)
+            halt_goal()
+        except Exception as e:
+            rospy.logwarn(f"导航任务未能正常结束，强制终止。" + str(e))
+            self.keep_robot_static()
+        return True
         
     def keep_robot_static(self):
         movement_topic = rospy.Publisher('cmd_vel', Twist, queue_size=10)

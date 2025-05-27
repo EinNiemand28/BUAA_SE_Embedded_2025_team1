@@ -41,6 +41,7 @@
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/String.h>
+#include <std_srvs/Empty.h>
 #include <tf/transform_broadcaster.h>
 
 // 放置参数调节（单位：米）
@@ -97,6 +98,37 @@ void PlaceActionCallback(const geometry_msgs::Pose::ConstPtr& msg)
     ROS_WARN("[MOVE_TARGET] x = %.2f y= %.2f " ,fMoveTargetX, fMoveTargetY);
     nTimeDelayCounter = 0;
     nStep = STEP_PLACE_DIST;
+}
+
+bool PlaceHaltCallBack(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+    ROS_WARN("[HALT_PLACE] ");
+
+    // status set to wait
+    nStep = STEP_WAIT;
+
+    // stop the robot
+    geometry_msgs::Twist vel_cmd;
+    vel_cmd.linear.x = 0;
+    vel_cmd.linear.y = 0;
+    vel_cmd.linear.z = 0;
+    vel_cmd.angular.x = 0;
+    vel_cmd.angular.y = 0;
+    vel_cmd.angular.z = 0;
+    vel_pub.publish(vel_cmd);
+
+    // stop the manipulator
+    sensor_msgs::JointState mani_ctrl_msg;
+    mani_ctrl_msg.name.resize(2);
+    mani_ctrl_msg.position.resize(2);
+    mani_ctrl_msg.velocity.resize(2);
+    mani_ctrl_msg.name[0] = "lift";
+    mani_ctrl_msg.name[1] = "gripper";
+    mani_ctrl_msg.position[0] = 0;
+    mani_ctrl_msg.velocity[0] = 0;     //升降速度(单位:米/秒)
+    mani_ctrl_msg.position[1] = 0;
+    mani_ctrl_msg.velocity[1] = 0;       //手爪开合角速度(单位:度/秒)
+    mani_ctrl_pub.publish(mani_ctrl_msg);
+    return true;
 }
 
 void PoseDiffCallback(const geometry_msgs::Pose2D::ConstPtr& msg)
@@ -159,6 +191,8 @@ int main(int argc, char **argv)
     ros::Subscriber sub_beh = nh.subscribe("/wpb_home/behaviors", 30, BehaviorCB);
     odom_ctrl_pub = nh.advertise<std_msgs::String>("/wpb_home/ctrl", 30);
     ros::Subscriber pose_diff_sub = nh.subscribe("/wpb_home/pose_diff", 1, PoseDiffCallback);
+
+    ros::ServiceServer halt_place_srv = nh.advertiseService("/wpb_home/place_halt", PlaceHaltCallBack);
 
     mani_ctrl_msg.name.resize(2);
     mani_ctrl_msg.position.resize(2);

@@ -4,3 +4,4 @@ devel/*
 urdf2sdf.sh
 .gitignore
 kill_gz.sh
+kill_launch.sh

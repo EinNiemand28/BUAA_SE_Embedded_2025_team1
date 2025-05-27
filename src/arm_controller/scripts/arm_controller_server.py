@@ -7,8 +7,9 @@
 import rospy
 import subprocess
 from arm_controller.srv import Place, PlaceResponse
-from std_srvs.srv import Trigger, TriggerResponse
+from std_srvs.srv import Trigger, TriggerResponse, Empty
 from std_msgs.msg import String, Bool
+from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Pose
 
 class ArmControllerServer:
@@ -24,6 +25,9 @@ class ArmControllerServer:
 
         # 发布“放置是否结束”的话题
         self.place_over_pub = rospy.Publisher("/place_over", Bool, queue_size=10)
+
+        # 机械臂紧急停止服务
+        self.emergency_stop_service = rospy.Service('/arm_emergency_stop', Empty, self.arm_emergency_stop)
 
         rospy.loginfo("机械臂控制服务已启动")
 
@@ -159,6 +163,63 @@ class ArmControllerServer:
             message="正在机械臂收起"
         )
     
+    def arm_emergency_stop(self, req):
+        """
+        机械臂紧急停止的回调函数
+        """
+        rospy.logwarn("机械臂紧急停止")
+
+        # 如果有抓取进程在运行，则终止它
+        if not self.is_grab_over():
+            subprocess.Popen(self.kill_grab_node_command, shell=True)
+            self.grab_process = None
+
+        # 终止抓取动作
+        # rospy.wait_for_service("/wpb_home/grab_halt")
+        # try:
+        #     grab_halt_service = rospy.ServiceProxy('/wpb_home/grab_halt', Empty)
+        #     grab_halt_service()
+        # except rospy.ServiceException as e:
+        #     rospy.logerr("抓取停止服务调用失败: %s", e)
+        
+        # 如果有放置进程在运行，则终止它
+        if not self.is_place_over:
+            subprocess.Popen(self.stop_place_action_command, shell=True)
+            self.is_place_over = True
+
+        # 终止放置动作
+        # rospy.wait_for_service("/wpb_home/place_halt")
+        # try:
+        #     place_halt_service = rospy.ServiceProxy('/wpb_home/place_halt', Empty)
+        #     place_halt_service()
+        # except rospy.ServiceException as e:
+        #     rospy.logerr("放置停止服务调用失败: %s", e)
+        
+        # 停止机械臂
+        count = 0
+        while not rospy.is_shutdown():
+            self.halt_arm()
+            count += 1
+            rospy.sleep(0.1)
+            if count > 20:
+                break
+        
+        return TriggerResponse(
+            success=True,
+            message="机械臂已紧急停止"
+        )
+    
+    def halt_arm(self):
+        # 发布机械臂控制话题
+        mani_pub = rospy.Publisher("/wpb_home/mani_ctrl", JointState, queue_size=30)
+        # 构造机械臂控制消息并进行赋值
+        msg = JointState()
+        msg.name = ['lift', 'gripper']
+        msg.position = [ 0 , 0 ]
+        msg.velocity = [ 0 , 0 ]
+        rospy.loginfo("[mani_ctrl] Halt")
+        mani_pub.publish(msg)
+
     def is_grab_over(self):
         """
         检查抓取是否结束

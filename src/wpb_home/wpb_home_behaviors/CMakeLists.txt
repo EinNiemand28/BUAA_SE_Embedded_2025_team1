@@ -20,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge image_transport tf 
   sensor_msgs geometry_msgs std_msgs visualization_msgs 
   image_geometry message_generation
-  move_base_msgs actionlib 
+  move_base_msgs actionlib std_srvs
 )
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -77,6 +77,7 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   std_msgs  # Or other packages containing msgs
+  std_srvs
 )
 
 ################################################
