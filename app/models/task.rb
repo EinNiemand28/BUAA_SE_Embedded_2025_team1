@@ -25,7 +25,9 @@ class Task < ApplicationRecord
   # 枚举：任务状态
   enum :status, [
     :pending,                   # 待处理
+    :queued,                    # 已排队
     :processing,                # 处理中
+    :paused,                    # 已暂停
     :completed,                 # 已完成
     :failed,                    # 已失败
     :cancelling,                # 取消中
@@ -55,7 +57,7 @@ class Task < ApplicationRecord
 
   # 检查任务是否可以被取消
   def can_be_cancelled?
-    status_pending? || status_processing?
+    status_pending? || status_processing? || status_queued? || status_paused?
   end
 
   # 将任务参数（Hash）存储到 progress_details 字段中，通常在任务创建时调用
@@ -95,10 +97,10 @@ class Task < ApplicationRecord
       result_data: self.result_data.is_a?(String) ? (JSON.parse(self.result_data || "{}") rescue {}) : (self.result_data || {}),
       map_id: self.map_id,
       user_id: self.user_id, # 前端可能需要根据用户过滤
-      created_at: self.created_at.iso8601,
-      updated_at: self.updated_at.iso8601,
-      started_at: self.started_at&.iso8601,
-      completed_at: self.completed_at&.iso8601,
+      created_at: self.created_at,
+      updated_at: self.updated_at,
+      started_at: self.started_at,
+      completed_at: self.completed_at,
       priority: self.priority
       # 可以添加更多前端展示所需的信息，例如关联对象的名称
       # book_title: self.book&.title,
@@ -110,10 +112,10 @@ class Task < ApplicationRecord
     # 广播到订阅了此特定任务ID的流
     ActionCable.server.broadcast("task_update_channel_#{self.id}", { type: "task_update", task: task_payload })
 
-    # 可选：广播一个简化的更新到全局任务流，用于任务列表等场景
+    # TODO：广播一个简化的更新到全局任务流，用于任务列表等场景
     # ActionCable.server.broadcast("task_update_channel_all", {
     #   type: "task_summary_update",
-    #   task: { id: self.id, status: self.status, updated_at: self.updated_at.iso8601 }
+    #   task: { id: self.id, status: self.status, updated_at: self.updated_at }
     # })
 
     # 记录系统日志

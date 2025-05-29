@@ -52,7 +52,6 @@ const RobotControlChannel = {
     }
   },
 
-  // 发送移动指令
   move: function(direction, speed = 0.5) {
     const sub = this.ensureConnected();
     if (sub) {
@@ -62,8 +61,7 @@ const RobotControlChannel = {
     return Promise.reject("Subscription not available for move command");
   },
 
-  // 发送停止移动指令
-  stopMotion: function() { // 之前是 stop()，改为 stopMotion 避免与通用 stop 冲突
+  stopMotion: function() {
     const sub = this.ensureConnected();
     if (sub) {
       console.log("[RobotControlChannel.js] Performing 'stop_motion'");
@@ -72,7 +70,24 @@ const RobotControlChannel = {
     return Promise.reject("Subscription not available for stop_motion command");
   },
 
-  // 发送紧急停止指令
+  cancelTask: function(taskId) {
+    const sub = this.ensureConnected();
+    if (sub) {
+      console.log(`[RobotControlChannel.js] Performing 'cancel_task' for taskId=${taskId}`);
+      return sub.perform('cancel_task', { task_id: taskId });
+    }
+    return Promise.reject("Subscription not available for cancel_task command");
+  },
+
+  completeMapBuild: function(mapName, description = "") {
+    const sub = this.ensureConnected();
+    if (sub) {
+      console.log(`[RobotControlChannel.js] Performing 'complete_map_build': mapName=${mapName}, description=${description}`);
+      return sub.perform('complete_map_build', { map_name: mapName, description: description });
+    }
+    return Promise.reject("Subscription not available for complete_map_build command");
+  },
+
   emergencyStop: function() {
     const sub = this.ensureConnected();
     if (sub) {
@@ -82,7 +97,6 @@ const RobotControlChannel = {
     return Promise.reject("Subscription not available for emergency_stop command");
   },
 
-  // 发送切换摄像头流指令
   toggleCameraStream: function(enable) { // enable 应该是布尔值
     const sub = this.ensureConnected();
     if (sub) {

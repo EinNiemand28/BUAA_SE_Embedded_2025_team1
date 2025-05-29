@@ -10,14 +10,15 @@ class RobotStatus < ApplicationRecord
     :offline,             # 0: 离线/未连接 (WSRB 可能无法连接到TM，或者TM未启动)
     :initializing,        # 1: TaskManager 正在初始化
     :idle,                # 2: 空闲，准备好接收任务或进入手动模式
-    :mapping,             # 3: 正在执行自动建图任务
+    :mapping_auto,        # 3: 正在执行自动建图任务
     :navigating,          # 4: 正在执行导航任务
     :fetching_book,       # 5: 正在执行取书任务
     :returning_book,      # 6: 正在执行还书任务
     :scanning,            # 7: 正在执行扫描任务 (如库存盘点)
     :manual_control,      # 8: 手动控制模式 (由用户通过Web界面控制移动)
     :emergency_stopped,   # 9: 紧急停止状态
-    :error                # 10: 发生一般性错误 (非急停，但无法正常工作)
+    :executing_task,      # 10: 通用任务执行中 (如加载地图等)
+    :error                # 11: 发生一般性错误 (非急停，但无法正常工作)
     # :paused, # 如果需要暂停状态可以加回来
   ], prefix: true
 
@@ -62,7 +63,7 @@ class RobotStatus < ApplicationRecord
   end
 
   # 由 RobotFeedbackChannel 调用，基于来自 TaskManager (RobotStatusCompressed) 的 payload 更新
-  def update_status_from_ros(ros_payload)
+  def update_status_from_ros(ros_payload) # TODO
     # ros_payload 是一个Hash，例如:
     # { "pose": {"x":..., "y":..., "theta":...}, "velocity": {...}, "battery_level": ...,
     #   "overall_status": "idle", "error_message": null, "is_emergency_stopped": false }
@@ -140,17 +141,13 @@ class RobotStatus < ApplicationRecord
     end
 
     # 4. 更新活动地图 (如果TM报告了) - 注意：active_map_id 通常由Rails端任务（如LOAD_MAP）成功后设置
-    # if ros_payload.key?(:active_map_name) && ros_payload[:active_map_name].present?
-    #   map = Map.find_by(name: ros_payload[:active_map_name])
-    #   if map && self.active_map_id != map.id
-    #     attrs_to_update[:active_map_id] = map.id
-    #     log_changes << "active_map_id to #{map.id} (name: #{map.name})"
-    #   end
-    # end
-
-    # 5. 更新与任务相关的标志 (is_mapping, is_navigating) - 最好由status推断
-    # attrs_to_update[:is_mapping] = (attrs_to_update[:status] || self.status).to_sym == :mapping
-    # attrs_to_update[:is_navigating] = (attrs_to_update[:status] || self.status).to_sym == :navigating
+    if ros_payload.key?(:active_map) && ros_payload[:active_map].present?
+      map = Map.find_by(map_data_url: ros_payload[:active_map])
+      if map && self.active_map_id != map.id
+        attrs_to_update[:active_map_id] = map.id
+        log_changes << "active_map_id to #{map.id} (name: #{map.name})"
+      end
+    end
 
     if attrs_to_update.any?
       logger.info "[RobotStatus] Updating from ROS: #{attrs_to_update.inspect}"
@@ -179,83 +176,6 @@ class RobotStatus < ApplicationRecord
     else :processing # 通用任务执行中
     end
     update(current_task: task_to_assign, status: new_robot_status_key)
-  end
-
-  # 当建图任务成功完成
-  def complete_mapping!(task_just_completed)
-    if self.current_task_id == task_just_completed.id && status_mapping?
-      update(status: :idle, current_task: nil, error_message: nil)
-    end
-  end
-
-  # 当任何任务结束 (成功, 失败, 取消)
-  def clear_current_task!(task_just_ended)
-    if self.current_task_id == task_just_ended.id
-      # 任务结束后，机器人应该回到什么状态？
-      # 如果是急停中，保持急停。
-      # 如果任务失败或TM本身报错，状态为error。
-      # 如果任务被取消且无其他错误，回到idle。
-      # 如果任务成功完成，回到idle。
-      new_status = if status_emergency_stopped?
-                     :emergency_stopped
-      elsif task_just_ended.status_failed? || status_error?
-                     :error
-      elsif task_just_ended.status_cancelled? && !status_error?
-                     :idle
-      else # completed or other
-                     :idle
-      end
-      update(status: new_status, current_task: nil)
-    end
-  end
-
-  # 紧急停止 (由RobotControlChannel的action或TM反馈触发)
-  def emergency_stop!
-    # 如果有当前活动任务，它应该被Task Manager中断，并反馈失败状态
-    current_active_task = self.current_task
-    if current_active_task && current_active_task.processing?
-      # Rails端不能直接“中断”TM中的任务，但可以标记任务失败
-      # TM在感知到急停后，会中断其当前任务并发送TaskFeedback(failed_estop)
-      # 这里主要是更新Rails端的RobotStatus
-    end
-    update(status: :emergency_stopped, is_emergency_stopped: true, error_message: "紧急停止已激活 @ #{Time.current.to_s(:db)}", current_task: nil)
-  end
-
-  # 从急停恢复到空闲 (由RobotControlChannel的action或TM反馈触发)
-  def resume_from_emergency_stop!
-    if status_emergency_stopped?
-      update(status: :idle, is_emergency_stopped: false, error_message: nil)
-    else
-      logger.warn "[RobotStatus] Attempted to resume, but not in emergency_stopped state."
-      false
-    end
-  end
-
-  # 从急停进入手动控制模式
-  def enable_manual_control!
-    if status_emergency_stopped?
-      update(status: :manual_control, is_emergency_stopped: false, error_message: nil)
-    else
-      logger.warn "[RobotStatus] Attempted to enable manual control, but not in emergency_stopped state."
-      false
-    end
-  end
-
-  # 从手动控制模式返回空闲
-  def disable_manual_control!
-    if status_manual_control?
-      update(status: :idle, error_message: nil) # is_emergency_stopped 应该已经是 false
-    else
-      logger.warn "[RobotStatus] Attempted to disable manual control, but not in manual_control state."
-      false
-    end
-  end
-
-  # (可选) 设置活动地图，通常在 :load_map 任务成功完成后由 RobotFeedbackChannel 调用
-  def set_active_map_after_load(map_record)
-    if map_record.is_a?(Map)
-        update(active_map: map_record)
-    end
   end
 
   private

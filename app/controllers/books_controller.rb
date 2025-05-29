@@ -1,8 +1,8 @@
 class BooksController < ApplicationController
-  before_action :set_book, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate, except: [:index, :show, :search]
-  before_action :require_admin, except: [:index, :show, :search]
-  
+  before_action :set_book, only: [ :show, :edit, :update, :destroy ]
+  before_action :authenticate, except: [ :index, :show, :search ]
+  before_action :require_admin, except: [ :index, :show, :search ]
+
   def index
     @books = Book.all.order(created_at: :desc)
   end
@@ -16,9 +16,9 @@ class BooksController < ApplicationController
 
   def create
     @book = Book.new(book_params)
-    
+
     if @book.save
-      redirect_to @book, notice: t('books.create.success')
+      redirect_to @book, notice: t("books.create.success")
     else
       render :new, status: :unprocessable_entity
     end
@@ -30,8 +30,8 @@ class BooksController < ApplicationController
   def update
     if @book.update(book_params)
       respond_to do |format|
-        format.html { redirect_to @book, notice: t('books.update.success') }
-        format.json { render json: { success: true, message: t('books.update.success'), book: @book } }
+        format.html { redirect_to @book, notice: t("books.update.success") }
+        format.json { render json: { success: true, message: t("books.update.success"), book: @book } }
       end
     else
       respond_to do |format|
@@ -43,7 +43,7 @@ class BooksController < ApplicationController
 
   def destroy
     @book.destroy
-    redirect_to books_url, notice: t('books.destroy.success')
+    redirect_to books_url, notice: t("books.destroy.success")
   end
 
   def search
@@ -51,15 +51,15 @@ class BooksController < ApplicationController
     @books = Book.search(@query)
     render :index
   end
-  
+
   private
-  
+
   def set_book
     @book = Book.find(params[:id])
   end
-  
+
   def book_params
-    params.require(:book).permit(:isbn, :title, :author, :publisher, 
+    params.require(:book).permit(:isbn, :title, :author, :publisher,
                                  :publication_year, :status, :cover_image,
                                  :current_slot_id, :intended_slot_id)
   end

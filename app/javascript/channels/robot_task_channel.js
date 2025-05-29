@@ -36,7 +36,7 @@ const RobotTaskChannel = {
           // 任务创建或取消请求成功
           document.dispatchEvent(new CustomEvent("robot-task-channel:action_success", {
             detail: {
-              action: data.message && data.message.includes("cancellation") ? "cancel_task" : "create_task", // 简单判断
+              action: /*data.message && data.message.includes("cancellation") ? "cancel_task" : */"create_task", // 简单判断
               taskId: data.task_id,
               response: data
             }
@@ -87,16 +87,16 @@ const RobotTaskChannel = {
 
   // 方法：取消任务
   // taskId: 数字或字符串
-  cancelTask: function(taskId) {
-    const sub = this.ensureConnected();
-    if (sub) {
-      console.log(`[RobotTaskChannel.js] Performing 'cancel_task' for task ID: ${taskId}`);
-      return sub.perform('cancel_task', { task_id: taskId });
-    } else {
-      console.error("[RobotTaskChannel.js] Cannot cancel task, subscription not available.");
-      return Promise.reject("Subscription not available");
-    }
-  },
+  // cancelTask: function(taskId) {
+  //   const sub = this.ensureConnected();
+  //   if (sub) {
+  //     console.log(`[RobotTaskChannel.js] Performing 'cancel_task' for task ID: ${taskId}`);
+  //     return sub.perform('cancel_task', { task_id: taskId });
+  //   } else {
+  //     console.error("[RobotTaskChannel.js] Cannot cancel task, subscription not available.");
+  //     return Promise.reject("Subscription not available");
+  //   }
+  // },
 
   disconnect: function() {
     if (this.subscription) {
