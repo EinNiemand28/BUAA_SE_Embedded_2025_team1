@@ -1,0 +1,28 @@
+<%# app/views/system_logs/show.html.erb %>
+<h1><%= t('.title', id: @log.id) %></h1>
+
+<div class="mt-4 p-4 border rounded">
+  <p><strong><%= t('activerecord.attributes.system_log.created_at') %>:</strong> <%= l @log.created_at, format: :long %></p>
+  <p><strong><%= t('activerecord.attributes.system_log.log_type') %>:</strong> <%= t("system_logs.log_types.#{@log.log_type}", default: @log.log_type.humanize) %></p>
+  <p><strong><%= t('activerecord.attributes.system_log.severity') %>:</strong> <%= t("system_logs.severities.#{@log.severity}", default: @log.severity.humanize) %></p>
+  <p><strong><%= t('activerecord.attributes.system_log.source') %>:</strong> <%= @log.source %></p>
+  <p><strong><%= t('activerecord.attributes.system_log.message') %>:</strong></p>
+  <pre class="bg-gray-100 p-2 rounded"><%= @log.message %></pre>
+
+  <% if @log.user %>
+    <p><strong><%= t('activerecord.models.user') %>:</strong> <%= link_to @log.user.username, user_path(@log.user) %></p> <%# 假设有 user_path %>
+  <% end %>
+  <% if @log.task %>
+    <p><strong><%= t('activerecord.models.task') %>:</strong> <%= link_to "Task ##{@log.task_id}", task_path(@log.task) %></p>
+  <% end %>
+  <% if @log.book %>
+    <p><strong><%= t('activerecord.models.book') %>:</strong> <%= link_to @log.book.title, book_path(@log.book) %></p> <%# 假设有 book_path %>
+  <% end %>
+  <%# 如果有 details 字段 %>
+  <%# if @log.details.present? %>
+    <%# <p><strong>Details:</strong></p> %>
+    <%# <pre class="bg-gray-100 p-2 rounded"><%#= JSON.pretty_generate(@log.details) %></pre> %>
+  <%# end %>
+</div>
+
+<%= link_to t('common.back_to_list'), system_logs_path, class: "btn-secondary mt-4" %>

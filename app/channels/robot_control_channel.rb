@@ -207,16 +207,16 @@ class RobotControlChannel < ApplicationCable::Channel
 
 
   # toggle_camera_stream 等其他即时控制可以保持不变
-  def toggle_camera_stream(data)
-    user = connection.current_user
-    return transmit_error("User not authenticated for TOGGLE_CAMERA.") unless user
-    enable = data["enable"]
-    unless [ true, false ].include?(enable)
-      return transmit_error("Invalid 'enable' for toggle_camera_stream.")
-    end
-    command_payload_to_ros = { command_type: "TOGGLE_CAMERA", payload: { enable: enable } }
-    broadcast_command_to_ros(command_payload_to_ros, "Toggle camera: #{enable}")
-  end
+  # def toggle_camera_stream(data)
+  #   user = connection.current_user
+  #   return transmit_error("User not authenticated for TOGGLE_CAMERA.") unless user
+  #   enable = data["enable"]
+  #   unless [ true, false ].include?(enable)
+  #     return transmit_error("Invalid 'enable' for toggle_camera_stream.")
+  #   end
+  #   command_payload_to_ros = { command_type: "TOGGLE_CAMERA", payload: { enable: enable } }
+  #   broadcast_command_to_ros(command_payload_to_ros, "Toggle camera: #{enable}")
+  # end
 
 
   private

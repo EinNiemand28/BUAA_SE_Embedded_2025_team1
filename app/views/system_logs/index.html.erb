@@ -1,0 +1,70 @@
+<%# app/views/system_logs/index.html.erb %>
+<h1><%= t('.title') %></h1>
+
+<%# 过滤表单 %>
+<%= form_with url: system_logs_path, method: :get, local: true, class: "mb-4 p-4 border rounded" do |form| %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div>
+      <%= form.label :log_type, t('.filters.log_type'), class: "block text-sm font-medium text-gray-700" %>
+      <%= form.select :log_type, options_for_select(@log_type_options, params[:log_type]), { include_blank: t('common.all') }, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+    </div>
+    <div>
+      <%= form.label :severity, t('.filters.severity'), class: "block text-sm font-medium text-gray-700" %>
+      <%= form.select :severity, options_for_select(@severity_options, params[:severity]), { include_blank: t('common.all') }, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+    </div>
+    <div>
+      <%= form.label :source, t('.filters.source'), class: "block text-sm font-medium text-gray-700" %>
+      <%= form.select :source, options_for_select(@source_options, params[:source]), { include_blank: t('common.all') }, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+    </div>
+    <div>
+      <%= form.label :message_contains, t('.filters.message_contains'), class: "block text-sm font-medium text-gray-700" %>
+      <%= form.text_field :message_contains, value: params[:message_contains], class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+    </div>
+    <%# 可以添加 User ID, Task ID 等过滤字段 %>
+  </div>
+  <div class="mt-4">
+    <%= form.submit t('common.filter'), class: "btn-primary" %>
+    <%= link_to t('common.clear_filters'), system_logs_path, class: "btn-secondary ml-2" %>
+  </div>
+<% end %>
+
+<div class="overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('activerecord.attributes.system_log.created_at') %></th>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('activerecord.attributes.system_log.log_type') %></th>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('activerecord.attributes.system_log.severity') %></th>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('activerecord.attributes.system_log.source') %></th>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('activerecord.attributes.system_log.message') %></th>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('activerecord.models.user') %></th>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('activerecord.models.task') %></th>
+        <th scope="col" class="relative px-6 py-3"><span class="sr-only">Details</span></th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      <% @logs.each do |log| %>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= l log.created_at, format: :long %></td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm"><%= t("system_logs.log_types.#{log.log_type}", default: log.log_type.humanize) %></td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= "bg-red-100 text-red-800" if log.severity_critical? || log.severity_error? %> <%= "bg-yellow-100 text-yellow-800" if log.severity_warning? %> <%= "bg-green-100 text-green-800" if log.severity_info? %> <%= "bg-blue-100 text-blue-800" if log.severity_debug? %>">
+              <%= t("system_logs.severities.#{log.severity}", default: log.severity.humanize) %>
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= log.source %></td>
+          <td class="px-6 py-4 text-sm text-gray-900"><%= truncate(log.message, length: 100) %></td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= log.user&.username %></td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= link_to log.task_id, task_path(log.task_id) if log.task_id? %></td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <%= link_to t('common.show'), system_log_path(log), class: "text-indigo-600 hover:text-indigo-900" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-4">
+  <%= paginate @logs %>
+</div>

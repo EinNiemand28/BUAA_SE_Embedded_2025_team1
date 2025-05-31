@@ -33,7 +33,7 @@ class RobotTaskChannel < ApplicationCable::Channel
     parameters = data.dig("parameters") || {}
 
     # 权限检查：例如，只有管理员能创建建图任务
-    if task_type_str in ["map_build_auto", "map_build_manual", "load_map"]
+    if [ "map_build_auto", "map_build_manual", "load_map" ].include?(task_type_str)
       unless user.admin?
         transmit_error("Admin privileges required for #{task_type_str.upcase} task.")
         return
@@ -58,7 +58,6 @@ class RobotTaskChannel < ApplicationCable::Channel
         transmit_error("Map with name '#{map_name}' already exists. Please choose a different name.")
         return
       end
-      # 可选：检查 description 是否存在，如果需要
     end
 
     if task_type_str == "load_map"
@@ -68,28 +67,32 @@ class RobotTaskChannel < ApplicationCable::Channel
         transmit_error("Map not found or incomplete.")
         return
       end
-      parameters["map_name"] = map.name
-      parameters["map_data_url"] = map.map_data_url
     end
 
-    if task_type_str == "navigation_to_point"
+    if [ "navigation_to_point", "fetch_book_to_transfer", "return_book_from_transfer" ].include?(task_type_str)
       unless RobotStatus.current.active_map
-        transmit_error("No active map available for navigation.")
-        return
-      end
-      px = parameters["px"], py = parameters["py"], oz = parameters["oz"]
-      if px.nil? || py.nil? || oz.nil?
-        transmit_error("Navigation parameters (px, py, oz) are required.")
+        transmit_error("No active map available for #{task_type_str}.")
         return
       end
     end
 
-    task = user.tasks.new(
+    task = user.tasks.build(
       task_type: task_type_str,
       status: :pending, # 初始状态
-      priority: parameters.delete("priority") || 0
+      priority: parameters.delete("priority") || 0,
+      book_id: parameters.delete("book_id") || nil,
+      source_slot_id: parameters.delete("source_slot_id") || nil,
+      target_slot_id: parameters.delete("target_slot_id") || nil,
+      target_point_x: parameters.delete("target_point_x") || nil,
+      target_point_y: parameters.delete("target_point_y") || nil,
+      target_point_z: parameters.delete("target_point_z") || nil,
+      map_id: parameters.delete("map_id") || nil,
+      user_id: user.id,
+      scheduled_at: Time.current,
+      progress_details: {},
+      result_data: {}
     )
-    if RobotStatus.current.active_map
+    if RobotStatus.current.active_map && !task.type_map_build_auto? && !task.type_load_map?
       task.map = RobotStatus.current.active_map
     end
     task.store_parameters(parameters) # 将原始参数（如 map_name, description）存入 progress_details

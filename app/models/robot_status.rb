@@ -82,7 +82,7 @@ class RobotStatus < ApplicationRecord
         if new_estop_status && self.status != :emergency_stopped
             attrs_to_update[:status] = :emergency_stopped
             # 如果从非急停进入急停，且有当前任务，任务应被TM中断
-            self.current_task&.update(status: :failed, result_data: (self.current_task.result_data||{}).merge(failure_reason: "Robot emergency stop from ROS."))
+            # self.current_task&.update(status: :failed, result_data: (self.current_task.result_data||{}).merge(failure_reason: "Robot emergency stop from ROS."))
             attrs_to_update[:current_task_id] = nil # 急停时清除当前任务关联
         elsif !new_estop_status && self.status == :emergency_stopped && ros_payload[:overall_status].to_s != "emergency_stopped"
           # 如果急停解除，且TM的overall_status不是急停，则根据overall_status设置（或默认idle）
@@ -141,11 +141,25 @@ class RobotStatus < ApplicationRecord
     end
 
     # 4. 更新活动地图 (如果TM报告了) - 注意：active_map_id 通常由Rails端任务（如LOAD_MAP）成功后设置
-    if ros_payload.key?(:active_map) && ros_payload[:active_map].present?
-      map = Map.find_by(map_data_url: ros_payload[:active_map])
+    if ros_payload.key?(:active_map_id) && ros_payload[:active_map_id].present?
+      map = Map.find_by(id: ros_payload[:active_map_id].to_i)
       if map && self.active_map_id != map.id
         attrs_to_update[:active_map_id] = map.id
         log_changes << "active_map_id to #{map.id} (name: #{map.name})"
+      end
+    end
+
+    if ros_payload.key?(:active_task_id) && ros_payload[:active_task_id].present?
+      task_id = ros_payload[:active_task_id].to_i
+      if task_id > 0 && self.current_task_id != task_id
+        task = Task.find_by(id: task_id)
+        if task
+          attrs_to_update[:current_task] = task
+          log_changes << "current_task_id to #{task.id} (type: #{task.task_type})"
+        end
+      elsif task_id == 0 && self.current_task_id.present?
+        attrs_to_update[:current_task] = nil
+        log_changes << "current_task_id cleared (task completed or cancelled)"
       end
     end
 
@@ -155,27 +169,6 @@ class RobotStatus < ApplicationRecord
     else
       # logger.debug "[RobotStatus] No changes from ROS payload to update."
     end
-  end
-
-  # --- 状态转换方法 (由Rails端逻辑调用，通常是响应用户操作或任务生命周期) ---
-
-  # 当一个任务分配给机器人并开始执行时
-  def assign_task(task_to_assign)
-    return false unless task_to_assign.is_a?(Task)
-    # 只有在机器人空闲或处于可以接受此任务的状态时才能分配
-    # can_process_task? 应该在调用此方法前检查，但这里可以再确认
-    return false if emergency_stopped? || manual_control? # 急停和手动模式不能分配自动任务
-
-    new_robot_status_key = case task_to_assign.task_type.to_sym
-    when :map_build_auto then :mapping
-    when :navigation_to_point then :navigating
-    when :fetch_book_to_transfer then :fetching_book
-    when :return_book_from_transfer then :returning_book
-    when :inventory_scan_and_relocate then :scanning
-    when :load_map then :processing # 加载地图是个过程
-    else :processing # 通用任务执行中
-    end
-    update(current_task: task_to_assign, status: new_robot_status_key)
   end
 
   private
@@ -190,7 +183,7 @@ class RobotStatus < ApplicationRecord
       status: self.status.to_s,
       status_text: I18n.t("robots.status.#{self.status}", default: self.status.to_s.humanize),
       is_emergency_stopped: self.is_emergency_stopped, # 从数据库读取
-      is_mapping: self.status_mapping?,             # 根据当前status推断
+      is_mapping: self.status_mapping_auto?,             # 根据当前status推断
       is_navigating: self.status_navigating?,       # 根据当前status推断
       is_manual_control: self.status_manual_control?, # 新增
       current_task_id: self.current_task_id,

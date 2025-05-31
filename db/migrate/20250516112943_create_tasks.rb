@@ -10,17 +10,18 @@ class CreateTasks < ActiveRecord::Migration[7.2]
       t.float :target_point_x
       t.float :target_point_y
       t.float :target_point_z
+      t.float :target_orientation_z
       t.references :user, null: false, foreign_key: true
       t.references :parent_task, null: true, foreign_key: { to_table: :tasks }
       t.datetime :scheduled_at
       t.datetime :started_at
       t.datetime :completed_at
-      t.text :progress_details
-      t.text :result_data
+      t.json :progress_details
+      t.json :result_data
 
       t.timestamps
     end
-    
+
     add_index :tasks, :task_type
     add_index :tasks, :status
   end

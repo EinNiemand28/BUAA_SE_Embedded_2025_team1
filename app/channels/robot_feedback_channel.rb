@@ -3,12 +3,13 @@ class RobotFeedbackChannel < ApplicationCable::Channel
   def subscribed
     if connection.robot_client
       # ROS WSRB 节点作为 robot_client 连接到此 Channel，以便调用其下的方法
-      logger.info "[RobotFeedbackChannel] Robot client (WSRB) connected and subscribed for sending data TO Rails."
-    elsif params[:stream_identifier].present? && params[:stream_identifier].start_with?("map_preview_task_")
+      # logger.info "[RobotFeedbackChannel] Robot client (WSRB) connected and subscribed for sending data TO Rails."
+      logger.info "[RobotFeedbackChannel] Robot client (WSRB) connected for calling actions."
+      # elsif params[:stream_identifier].present? && params[:stream_identifier].start_with?("map_preview_task_")
       # 前端JS (robot_controller) 想要订阅特定任务的地图预览流
-      stream_name = params[:stream_identifier]
-      stream_from stream_name
-      logger.info "[RobotFeedbackChannel] Client (User: #{connection.current_user&.id}) subscribed to map preview stream: #{stream_name}"
+      # stream_name = params[:stream_identifier]
+      # stream_from stream_name
+      # logger.info "[RobotFeedbackChannel] Client (User: #{connection.current_user&.id}) subscribed to map preview stream: #{stream_name}"
     else
       logger.warn "[RobotFeedbackChannel] Unauthorized or invalid subscription by non-robot client without valid stream_identifier. Rejecting."
       reject
@@ -74,7 +75,8 @@ class RobotFeedbackChannel < ApplicationCable::Channel
     if task.status != new_task_status
       if new_task_status == :processing
         task.started_at ||= Time.current
-        RobotStatus.current.assign_task(task)
+        # RobotStatus.current.assign_task(task)
+        # update_status_from_ros 会处理
       end
       task.status = new_task_status
     end
@@ -95,7 +97,8 @@ class RobotFeedbackChannel < ApplicationCable::Channel
     result_data = payload[:result_data] || {}
 
     if type == "complete_map_build"
-      if result_data[:map_id].present?
+      if final_ros_status_str == "success"
+        # 完成地图构建任务
         map = Map.find_by(id: result_data[:map_id])
         if map
           map.update(map_data_url: result_data[:map_data_url])
@@ -108,6 +111,9 @@ class RobotFeedbackChannel < ApplicationCable::Channel
             )
           end
         end
+      elsif final_ros_status_str == "failed"
+        map = Map.find_by(id: result_data[:map_id])
+        map.delete if map # 删除失败的地图
       end
     end
     log_feedback_event(payload[:message] || "Control command completed with status: #{final_ros_status_str}.", { ros_status: final_ros_status_str })
@@ -160,21 +166,21 @@ class RobotFeedbackChannel < ApplicationCable::Channel
     end
   end
 
-  def report_isbn_scan(data) # 后续再开发
-    # return unless ensure_robot_client_and_log_action("report_isbn_scan", data)
-    # payload = extract_payload(data)
-    # return unless payload && payload[:scanned_isbn].present?
-    # # ... (逻辑不变) ...
-    # log_feedback_event("ISBN scan received: #{payload[:scanned_isbn]}.", payload.slice(:task_id, :slot_id_scanned, :confidence))
-    # if payload[:task_id] && (task = find_task(payload[:task_id]))
-    #   current_details = task.progress_details || {}
-    #   current_details["isbn_scans"] ||= []
-    #   current_details["isbn_scans"] << payload.slice(:scanned_isbn, :confidence, :slot_id_scanned, :image_snippet_url).merge(timestamp: Time.current.iso8601)
-    #   task.progress_details = current_details
-    #   task.save
-    # end
-    # ActionCable.server.broadcast("robot_general_updates_channel", { type: "isbn_scan_update", payload: payload })
-  end
+  # def report_isbn_scan(data) # 后续再开发
+  # return unless ensure_robot_client_and_log_action("report_isbn_scan", data)
+  # payload = extract_payload(data)
+  # return unless payload && payload[:scanned_isbn].present?
+  # # ... (逻辑不变) ...
+  # log_feedback_event("ISBN scan received: #{payload[:scanned_isbn]}.", payload.slice(:task_id, :slot_id_scanned, :confidence))
+  # if payload[:task_id] && (task = find_task(payload[:task_id]))
+  #   current_details = task.progress_details || {}
+  #   current_details["isbn_scans"] ||= []
+  #   current_details["isbn_scans"] << payload.slice(:scanned_isbn, :confidence, :slot_id_scanned, :image_snippet_url).merge(timestamp: Time.current.iso8601)
+  #   task.progress_details = current_details
+  #   task.save
+  # end
+  # ActionCable.server.broadcast("robot_general_updates_channel", { type: "isbn_scan_update", payload: payload })
+  # end
 
   private
   def ensure_robot_client_and_log_action(action_name, data, log_payload: true)

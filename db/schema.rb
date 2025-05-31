@@ -157,13 +157,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_18_035324) do
     t.float "target_point_x"
     t.float "target_point_y"
     t.float "target_point_z"
+    t.float "target_orientation_z"
     t.integer "user_id", null: false
     t.integer "parent_task_id"
     t.datetime "scheduled_at"
     t.datetime "started_at"
     t.datetime "completed_at"
-    t.text "progress_details"
-    t.text "result_data"
+    t.json "progress_details"
+    t.json "result_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "map_id"

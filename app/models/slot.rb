@@ -51,7 +51,7 @@ class Slot < ApplicationRecord
     abs_y = shelf_y + rotated_y
     abs_z = relative_z
 
-    { x: abs_x.round(4), y: abs_y.round(4), z: abs_z.round(4) }
+    { x: abs_x.round(4), y: abs_y.round(4), z: abs_z.round(4), oz: shelf_orientation.round(4) }
   end
 
   scope :available_or_occupied_by, ->(book) {

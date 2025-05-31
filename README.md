@@ -65,58 +65,94 @@ graph TD
 ## 功能模块
 
 *   **核心通信与机器人控制:**
-    *   [x] 通过 WebSocket (Action Cable) 实现 Web 前端、Rails 后端与 ROS 中间层节点 (`web_robot_bridge`) 的双向通信。
-    *   [x] 前端界面展示机器人基本状态（位置、速度、电量、连接状态）。
-    *   [x] 前端界面提供基础移动控制按钮。
-    *   [x] ROS 中间层节点订阅/发布相关 ROS Topic (如 `/odom`, `/cmd_vel`)。
-    *   [ ] 更复杂的通信接口（如：ROS 节点状态、机器人任务状态、机器人故障信息等）。
+    
+    *   [x] 通过 WebSocket (Action Cable) 实现 Web 前端 (JS) -> Rails Channels -> ROS `web_robot_bridge` -> ROS `task_manager` 的指令下发链路。
+    *   [x] 通过 WebSocket (Action Cable) 实现 ROS `task_manager` -> ROS `web_robot_bridge` -> Rails `RobotFeedbackChannel` -> 前端 JS (DOM Events) 的反馈更新链路。
+    *   [x] 前端界面 (通过 `RobotFeedbackInterface.js` 监听 `robot_status_model_update` 和 `robot_state_update` 事件) 实时展示机器人基本状态（来自 `RobotStatus` 模型的位置、速度、电量、连接状态、错误信息、当前任务、活动地图）。
+    *   [x] 前端界面 (通过 `ManualControlController` 调用 `RobotControlChannel.js`) 提供基础移动控制按钮 (前进、后退、左转、右转、停止)。
+    *   [x]  前端界面 (通过 `ManualControlController` 调用 `RobotControlChannel.js`) 提供紧急停止、从急停恢复、进入/退出手动控制模式的功能。
+    *   [x] ROS `web_robot_bridge` 节点订阅 Rails `RosCommsSubscriberChannel`，接收任务和控制指令，并将其作为 `TaskDirective` ROS 消息发布。
+    *   [x] ROS `web_robot_bridge` 节点订阅 `task_manager` 的 `TaskFeedback` 和 `RobotStatusCompressed` ROS 消息，并将数据转发给 Rails `RobotFeedbackChannel`。
+    *   [x] ROS `task_manager` 节点维护机器人核心状态机，处理任务队列，并与模拟的 ROS 服务交互。
+    *   [ ] 更复杂的通信接口（如：ROS 节点图实时状态、机器人详细传感器数据流、摄像头视频流）。
 *   **用户认证与授权:**
     *   [x] 基于 authentication-zero 的用户注册与登录功能。
+    *   [x] Action Cable 连接通过 `request.headers["X-Robot-API-Key"]` (机器人客户端) 或 `params[:user_token]` (用户浏览器) 进行认证。
     *   [x] 区分管理员与普通用户权限。
 *   **书籍管理:**
-    *   [x] `Book` 模型，包含 ISBN、标题、作者、出版社、出版年份、状态等字段。
-    *   [x] 支持 Active Storage 存储和显示书籍封面图片。（目前仅限于本地开发环境）
-    *   [x] 书籍的 CRUD (创建、读取、更新、删除) 操作界面。
+    *   [x] `Book` 模型及 CRUD (通过 `BooksController` 和标准视图)。
+    *   [x] Active Storage 存储和显示书籍封面。
     *   [x] 书籍列表搜索功能。
-    *   [x] 书籍状态管理（如：在库、外借、运输中）。
+    *   [x] 书籍状态管理 (`Book.status` enum)。
+    *   [x] 书籍与库位关联 (`current_slot`, `intended_slot`)。
 *   **书架与库位 (Slot) 管理:**
-    *   [x] `Bookshelf` 模型，包含编码、名称、物理尺寸、层数、每层库位数、是否为中转站等信息。
-    *   [x] `Slot` 模型，表示书架上的具体库位，包含所属书架、层号、列号、相对坐标、是否被占用等信息。
-    *   [x] 书架的 CRUD 操作界面。
-    *   [x] 创建书架后，根据其配置自动生成对应的所有库位 (`Slot`) 记录，并给出了计算库位绝对坐标的辅助方法。
-    *   [x] 书籍与库位关联：一本 `Book` 可以有其 `current_slot` (当前实际位置) 和 `intended_slot` (机器人任务的目标位置)。
-    *   [x] 界面展示书架详情及其包含的所有库位状态。
-    *   [x] 实现了书籍位置分配/移动的用户操作界面（模态框）。
-*   **机器人任务调度:** (计划中)
-    *   [ ] 创建和管理机器人任务（如：取书、放书、书籍归位）。
-    *   [ ] 任务队列管理。
-    *   [ ] 任务状态跟踪与展示。
-    *   [ ] 任务异常处理。
-*   **库存与导航:** (计划中)
-    *   [x] 可视化展示书架和库位占用情况。
-    *   [ ] 机器人根据书籍目标位置进行路径规划与导航（与 ROS 端配合）。
+    *   [x] `Bookshelf` 模型及 CRUD。
+    *   [x] `Slot` 模型，创建书架时自动生成库位。
+    *   [x] 书籍位置分配/移动的用户操作界面（模态框）。(这里的“操作”是指更新数据库记录，实际物理移动是任务)
+*   **机器人任务管理:**
+    
+    *   [x] 通过 `RobotTaskChannel.js` -> `RobotTaskChannel.rb#create_task` 创建机器人任务 (如 `:map_build_auto`, `:load_map`, `:navigation_to_point`, `:fetch_book_to_transfer`)，任务参数存储在 `Task.progress_details`。
+    *   [x] `Task` 模型 (`task_type`, `status` enums, 关联关系, 参数存储方法)。
+    *   [x] ROS `task_manager` 节点实现优先级任务队列和并发任务执行线程。
+    *   [x] 通过 `RobotControlChannel.js` -> `RobotControlChannel.rb#cancel_task` 取消任务。
+    *   [x] 任务状态实时更新：`Task` 模型回调 -> `TaskUpdateChannel.rb` -> `TaskUpdateChannel.js` -> DOM 事件 -> Stimulus 控制器更新UI。
+    *   [x] 任务列表和详情页 (`TasksController` 提供数据，JS 动态更新)。
+* **地图管理与导航:**
+
+   *   [x]  `Map` 模型及 CRUD (通过 `MapsController`，主要管理元数据)。
+   *   [x]  Active Storage 存储地图图片 (预览图，由 `RobotFeedbackChannel` 在 `complete_map_build` 反馈中处理)。
+   *   [x]  `map_data_url` 存储地图文件路径 (由 `RobotFeedbackChannel` 在 `complete_map_build` 反馈中更新)。 
+   *   [ ]  管理员通过 `RobotsController#control` 界面的表单发起“自动建图”任务。
+   *   [ ]  管理员通过 `RobotsController#control` 界面的按钮“完成建图”，调用 `RobotControlChannel.js#completeMapBuild`。
+   *   [ ]  管理员通过 `RobotsController#control` 界面选择地图并发起“加载地图”任务 (调用 `RobotTaskChannel.js#createTask` 类型 `:load_map`)。
+   *   [x]  `RobotStatus.active_map` 记录机器人当前使用的地图 (由 `LOAD_MAP` 任务成功反馈或 `RobotStatusCompressed` 消息同步)。
+   *   [x]  可视化展示书架和库位占用情况 (通过 `BookshelvesController` 和视图)。
+   *   [ ]  机器人根据书籍目标位置或用户指定点进行路径规划与导航（`task_manager` 中的 `_execute_navigate_to_point` 依赖实际的 ROS 导航服务）。
+*  **系统日志:**
+    *   [x] `SystemLog` 模型和 `SystemLogsController` (管理员查看)。
+    *   [x] 在关键操作点 (Channel, Model回调, Controller) 记录日志。
 
 ## 当前进度 (详细)
 
-*   **云端部署成功:** 已使用 Kamal + Docker 成功测试了将项目部署至云服务器的可行性，目前能够通过域名（通过Cloudflare实现 dns 解析和证书分发）访问和控制已有 Demo。
-*   **核心通信 Demo 实现:** 已基本打通 Web 浏览器、Rails 后端 (Action Cable)、ROS 中间层节点 (`web_robot_bridge`) 之间的 WebSocket 双向通信。
-*   **前端界面:**
-    *   初步实现了机器人状态展示（位置、速度、电量、连接状态）和基本移动控制按钮。
-    *   完成了用户登录/注册界面。
-    *   实现了书籍管理模块的完整 CRUD 界面，包括列表、详情、表单，支持封面显示和搜索。
-    *   实现了书架管理模块的完整 CRUD 界面，包括列表、详情、表单。
-    *   书架详情页能够展示其下所有库位的基本信息。
-    *   实现了书籍位置分配/移动的模态框交互界面。
-*   **后端逻辑:**
-    *   实现了 Action Cable 的 Channel 用于接收和广播机器人状态，以及处理前端发送的移动指令。
-    *   完成了用户账户模型 (`User`) 和会话管理 (`Session`)。
-    *   **数据模型与业务逻辑:**
-        *   **Book 模型:** 定义了书籍的属性、状态枚举、与封面图片的关联 (Active Storage)、搜索方法。
-        *   **Bookshelf 模型:** 定义了书架的属性、尺寸、库位配置、是否为中转站等，并包含自动生成其下所有 `Slot` 的回调逻辑。
-        *   **Slot 模型:** 定义了库位的属性、与书架和书籍的关联，以及计算绝对坐标的辅助方法。
-        *   **模型关联:** 正确建立了 `Book`、`Bookshelf`、`Slot` 之间的 `has_many`、`belongs_to`、`has_one` 关联，并处理了外键和索引。
-        *   **控制器:** 为 `BooksController` 和 `BookshelvesController` 实现了标准的 CRUD 动作。`SlotsController` 用于动态加载库位信息。
-*   **ROS 节点:** 提供了 `web_robot_bridge_node.py` 脚本，用于连接 Rails Action Cable，订阅/发布相关的 ROS Topic (如 `/odom`, `/cmd_vel`)，并将数据转发给 Web 端。
+* **云端部署成功:** 
+    * [x] Kamal + Docker 部署测试成功。已使用 Kamal + Docker 成功测试了将项目部署至云服务器的可行性，目前能够通过域名（通过Cloudflare实现 dns 解析和证书分发）访问和控制已有 Demo。
+
+* **核心通信 Demo 实现:** 
+    * [x] Web -> Rails -> WSRB -> TM 双向链路通畅。已基本打通 Web 浏览器、Rails 后端 (Action Cable)、ROS 中间层节点之间的 WebSocket 双向通信。
+
+* **前端界面 (`app/views/` 和 `app/javascript/controllers/`):**
+
+    * [x] 机器人状态实时显示 (基于 `RobotStatus` 和 Action Cable)。
+
+    * [x] 手动移动、急停等控制按钮功能已通过 Action Cable 实现。
+
+    * [x] 用户登录/注册 (`authentication-zero`)。
+
+    * [x] 书籍管理 CRUD 界面。
+
+    * [x] 书架管理 CRUD 界面，库位展示。
+
+    * [x] 书籍位置分配/移动 (数据库操作界面)。
+
+    * [ ] `RobotsController#control` 页面骨架，包含发起建图、加载地图的表单/按钮 (通过 Stimulus 调用 JS Channels)。
+
+    * [ ] `TasksController#index/show` 页面骨架，任务状态的动态更新通过 JS Channels 和 Stimulus。
+
+* **后端逻辑 (`app/channels/`, `app/models/`, `app/controllers/`):**
+
+    * [x] Action Cable Channels (`RobotTaskChannel`, `RobotControlChannel`, `RobotFeedbackChannel`, etc.) 职责明确，实现了与前端JS和ROS节点的通信协议。
+
+    * [x] Models (`User`, `Session`, `Book`, `Bookshelf`, `Slot`, `Map`, `Task`, `RobotStatus`, `SystemLog`) 定义完成，包含关联、验证、回调和核心业务方法。
+
+    * [x] HTTP Controllers 职责调整完成，主要负责数据展示和非实时交互的元数据管理。
+
+* **ROS 节点 (`web_robot_bridge_node.py`, `task_manager_node.py`):**
+    * [x] `web_robot_bridge` 实现了与 Rails Action Cable 的可靠连接、消息转换和路由。
+    * [x] `task_manager` 实现了状态机、任务队列、指令处理、与模拟 ROS 服务的交互、以及向 Rails 的反馈。
+    * [x] 自定义 ROS 消息 (`TaskDirective`, `TaskFeedback`, `RobotStatusCompressed`) 定义与使用匹配。
+
+
+
 
 ## 运行
 

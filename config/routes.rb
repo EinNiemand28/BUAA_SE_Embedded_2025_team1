@@ -1,18 +1,9 @@
 require "sidekiq/web"
 
 Rails.application.routes.draw do
-  resources :maps do
-    member do
-      post :activate
-    end
-  end
-
-  resources :tasks do
-    member do
-      post "cancel"
-      post "test_update"  # 添加测试更新路由
-    end
-  end
+  resources :system_logs, only: [ :index, :show ]
+  resources :maps
+  resources :tasks
 
   resources :bookshelves do
     resources :slots, only: [ :index ]

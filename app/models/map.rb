@@ -1,6 +1,6 @@
 # app/models/map.rb
 class Map < ApplicationRecord
-  have_one_attached :map_image
+  has_one_attached :map_image
   # 关联关系
   belongs_to :created_by_user, class_name: "User", foreign_key: "created_by_user_id"
 

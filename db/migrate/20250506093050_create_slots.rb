@@ -12,6 +12,6 @@ class CreateSlots < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :slots, [:bookshelf_id, :level, :row], unique: true
+    add_index :slots, [ :bookshelf_id, :level, :row ], unique: true
   end
 end

@@ -1,13 +1,13 @@
 # app/controllers/maps_controller.rb
 class MapsController < ApplicationController
   before_action :authenticate
-  before_action :require_admin!, except: [ :index, :show ] # 大部分操作需要管理员权限
-  before_action :set_map, only: [ :show, :edit, :update, :destroy, :activate_via_http ]
+  before_action :require_admin!, except: [ :show ] # 大部分操作需要管理员权限
+  before_action :set_map, except: [ :index, :new, :create ]
 
   def index
-    @maps = Map.all.includes(:created_by_user, :thumbnail_attachment).order(created_at: :desc)
+    @maps = Map.all.includes(:created_by_user, :map_image_attachment).order(created_at: :desc)
     @active_map = Map.active_map
-    # @maps = @maps.page(params[:page]).per(10) # Kaminari示例
+    @maps = @maps.page(params[:page]).per(6) # Kaminari示例
   end
 
   def show
@@ -19,7 +19,6 @@ class MapsController < ApplicationController
 
   def create
     @map = Map.new(map_params)
-    @map.created_by_user = Current.user # 关联当前用户
 
     if @map.save
       SystemLog.log(:map_event, :info,
@@ -36,7 +35,14 @@ class MapsController < ApplicationController
   end
 
   def update
-    # 现在不允许直接更新
+    if @map.update(map_params_for_update)
+      SystemLog.log(:map_event, :info,
+        "地图 ##{@map.id} '#{@map.name}' 由用户 #{Current.user.id} 更新。",
+        "MapsController#update", { user_id: Current.user.id, map_id: @map.id })
+      redirect_to @map, notice: t("maps.notices.updated_successfully")
+    else
+      render :edit, status: :unprocessable_entity
+    end
   end
 
   def destroy
@@ -55,13 +61,6 @@ class MapsController < ApplicationController
     @map.destroy
     redirect_to maps_path, notice: t("maps.notices.deleted_successfully")
   end
-
-  # HTTP POST 触发激活地图 (创建 LOAD_MAP 任务)
-  # 注意：方法名改为 activate_via_http 以区分可能的WebSocket操作，路由也应对应
-  def activate_via_http
-    # 暂时不实现
-  end
-
   private
 
   def set_map
@@ -72,6 +71,10 @@ class MapsController < ApplicationController
 
   def map_params
     params.require(:map).permit(:name, :map_data_url, :created_by_user_id, :description, :map_image)
+  end
+
+  def map_params_for_update
+    params.require(:map).permit(:description)
   end
 
   def require_admin!

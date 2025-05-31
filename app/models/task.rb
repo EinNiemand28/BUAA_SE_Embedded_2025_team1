@@ -49,8 +49,8 @@ class Task < ApplicationRecord
 
   # Rails 7+ 对于数据库字段类型为 json 或 jsonb 的，不需要显式 serialize
   # 如果你的数据库字段是 text 类型，并且你想存储 JSON，那么需要 serialize:
-  serialize :progress_details, coder: JSON
-  serialize :result_data, coder: JSON
+  # serialize :progress_details, coder: JSON
+  # serialize :result_data, coder: JSON
   # 建议数据库字段使用 jsonb 类型。
 
   # 实例方法
@@ -64,6 +64,29 @@ class Task < ApplicationRecord
   # 会保留 progress_details 中已有的其他信息（如ros_updates）
   def store_parameters(params_hash)
     current_details = self.progress_details.is_a?(Hash) ? self.progress_details : {}
+    case self.task_type.to_sym
+    when :load_map
+      self.progress_details["map_id"] = self.map.id || params_hash["map_id"]
+      self.progress_details["map_name"] = self.map&.name || params_hash["map_name"]
+      self.progress_details["map_data_url"] = self.map&.data_url || params_hash["map_data_url"]
+    when :navigation_to_point
+      self.progress_details["px"] = self.target_point_x || params_hash["target_point_x"]
+      self.progress_details["py"] = self.target_point_y || params_hash["target_point_y"]
+      self.progress_details["oz"] = self.target_orientation_z || params_hash["target_orientation_z"]
+    when :fetch_book_to_transfer, :return_book_from_transfer
+      self.progress_details["book_id"] = self.book.id || params_hash["book_id"]
+      source = self.source_slot.absolute_coordinates
+      target = self.target_slot.absolute_coordinates
+      self.progress_details["gpx"] = source[:x]
+      self.progress_details["gpy"] = source[:y]
+      self.progress_details["gpz"] = source[:z]
+      self.progress_details["goz"] = source[:oz]
+      self.progress_details["ppx"] = target[:x]
+      self.progress_details["ppy"] = target[:y]
+      self.progress_details["ppz"] = target[:z]
+      self.progress_details["poz"] = target[:oz]
+    end
+
     self.progress_details = current_details.merge(parameters: params_hash || {})
   end
 
@@ -93,12 +116,13 @@ class Task < ApplicationRecord
       type: self.task_type, # 枚举的字符串形式
       status: self.status,  # 枚举的字符串形式
       # 确保 progress_details 和 result_data 是 Hash (如果它们是JSON字符串，先解析)
-      progress_details: self.progress_details.is_a?(String) ? (JSON.parse(self.progress_details || "{}") rescue {}) : (self.progress_details || {}),
-      result_data: self.result_data.is_a?(String) ? (JSON.parse(self.result_data || "{}") rescue {}) : (self.result_data || {}),
+      progress_details: self.progress_details || {},
+      result_data: self.result_data || {},
       map_id: self.map_id,
       user_id: self.user_id, # 前端可能需要根据用户过滤
       created_at: self.created_at,
       updated_at: self.updated_at,
+      scheduled_at: self.scheduled_at,
       started_at: self.started_at,
       completed_at: self.completed_at,
       priority: self.priority
