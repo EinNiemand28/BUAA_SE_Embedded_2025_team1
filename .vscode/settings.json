@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "*.sdf": "xml",
+        "*.world": "xml",
+        "ostream": "cpp",
+        "random": "cpp",
+        "regex": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "string": "cpp",
+        "vector": "cpp"
+    },
+    "cmake.sourceDirectory": "/media/mitchell/Data/Projects/software_engineering/ros_end/src/arm_controller"
+}

@@ -1,4 +1,5 @@
+string path # relative path under /media/mitchell/Data/Projects/software_engineering/ros_end/src/mapping/maps/
+string name
 ---
 bool success
 string message
-string path

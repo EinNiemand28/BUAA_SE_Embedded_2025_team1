@@ -1,0 +1,11 @@
+float64 gpx
+float64 gpy
+float64 gpz
+float64 goz
+float64 ppx
+float64 ppy
+float64 ppz
+float64 poz
+---
+bool success
+string message
