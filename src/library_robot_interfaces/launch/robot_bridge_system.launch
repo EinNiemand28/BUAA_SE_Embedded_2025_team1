@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Launch Library Scenario: TODO(Maybe) -->
+
+  <!-- Launch both nodes together -->
+
+  <!-- Web Robot Bridge Node -->
+  <node pkg="library_robot_interfaces" 
+        type="web_robot_bridge_node.py" 
+        name="web_robot_bridge_node" 
+        output="screen">
+  </node>
+  
+  <!-- Task Manager Node -->
+  <node pkg="library_robot_interfaces" 
+        type="task_manager_node.py" 
+        name="task_manager_node" 
+        output="screen">
+    <param name="status_publish_rate_hz" value="2.0"/>
+    <param name="tf_update_rate_hz" value="2.0"/>
+    <param name="map_frame" value="map"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="base_frame" value="base_link"/>
+  </node>
+
+</launch>

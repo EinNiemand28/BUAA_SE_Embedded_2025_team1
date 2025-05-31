@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(web_robot_bridge)
+project(library_robot_interfaces)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   tf2_ros
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -48,11 +49,12 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  RobotStatusCompressed.msg
+  TaskFeedback.msg
+  TaskDirective.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -69,12 +71,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs
-#   nav_msgs
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+  nav_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -108,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES web_robot_bridge
-  CATKIN_DEPENDS geometry_msgs nav_msgs rospy std_msgs tf2_ros
+  CATKIN_DEPENDS message_runtime message_generation geometry_msgs nav_msgs rospy std_msgs tf2_ros
 #  DEPENDS system_lib
 )
 
