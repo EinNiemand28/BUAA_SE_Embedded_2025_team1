@@ -67,6 +67,8 @@ class RobotTaskChannel < ApplicationCable::Channel
         transmit_error("Map not found or incomplete.")
         return
       end
+      parameters["map_name"] = map.name
+      parameters["map_data_url"] = map.map_data_url
     end
 
     # 验证导航任务参数

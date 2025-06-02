@@ -59,7 +59,7 @@
             <%= t('maps.no_active_map') %>
           </h3>
           <div class="mt-1 text-sm text-yellow-700">
-            请激活一个地图以用于机器人导航
+            请加载一个地图以用于机器人导航
           </div>
         </div>
       </div>
@@ -162,10 +162,10 @@
 
             <div class="flex space-x-2">
               <% if Current.session&.user&.admin? %>
-                <% unless map.is_active? %>
-                  <%= button_to "激活", map_path(map), method: :patch, 
-                        params: { activate: true },
-                        class: "text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700" %>
+                <% if map.is_active? %>
+                  <span class="text-xs text-green-600 px-2 py-1 border border-green-300 rounded bg-green-50">
+                    正在使用
+                  </span>
                 <% end %>
                 
                 <%= button_to "删除", map_path(map), method: :delete, 

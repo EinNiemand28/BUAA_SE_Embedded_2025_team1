@@ -74,8 +74,8 @@
             </svg>
             机器人状态
           </h3>
-        </div>
-        
+      </div>
+
         <div class="p-6">
           <div class="space-y-4">
             <!-- 运行状态 -->
@@ -91,28 +91,28 @@
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium text-gray-500">当前任务</span>
               <div data-robot-dashboard-target="currentTaskInfo" class="text-sm">
-                <% if @robot_status.current_task %>
+          <% if @robot_status.current_task %>
                   <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
                     #<%= @robot_status.current_task.id %>
                   </span>
-                <% else %>
+          <% else %>
                   <span class="text-gray-400">无活动任务</span>
-                <% end %>
+          <% end %>
               </div>
-            </div>
+      </div>
 
             <!-- 活动地图 -->
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium text-gray-500">活动地图</span>
               <div>
-                <% if @robot_status.active_map %>
+          <% if @robot_status.active_map %>
                   <div class="flex items-center text-green-600">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
                     </svg>
                     <span class="text-sm font-medium"><%= @robot_status.active_map.name %></span>
                   </div>
-                <% else %>
+          <% else %>
                   <span class="text-orange-500 flex items-center text-sm">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -154,7 +154,7 @@
                   </div>
                 </div>
               </div>
-            <% end %>
+          <% end %>
           </div>
         </div>
       </div>
@@ -211,7 +211,7 @@
           </div>
         </div>
       </div>
-
+      
       <!-- 左下：快速操作面板（仅管理员可见） -->
       <% if Current.session&.user&.admin? %>
         <div class="bg-white shadow-lg rounded-xl border border-gray-200">
@@ -304,8 +304,8 @@
             </svg>
             地图与任务
           </h3>
-        </div>
-        
+  </div>
+
         <div class="p-6">
           <!-- 地图管理 -->
           <% if Current.session&.user&.admin? && Map.any? %>
@@ -337,9 +337,9 @@
               <%= link_to tasks_path, class: "text-xs text-blue-600 hover:text-blue-900" do %>
                 查看全部
               <% end %>
-            </div>
+    </div>
             
-            <% if @recent_tasks.any? %>
+      <% if @recent_tasks.any? %>
               <div class="space-y-2">
                 <% @recent_tasks.limit(3).each do |task| %>
                   <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
@@ -358,16 +358,16 @@
                       <%= time_ago_in_words(task.created_at) %>前
                     </span>
                   </div>
-                <% end %>
-              </div>
+              <% end %>
+        </div>
             <% else %>
               <div class="text-center py-4">
                 <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                 </svg>
                 <p class="mt-2 text-xs text-gray-500">暂无任务记录</p>
-              </div>
-            <% end %>
+          </div>
+        <% end %>
           </div>
         </div>
       </div>

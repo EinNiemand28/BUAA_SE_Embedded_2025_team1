@@ -141,8 +141,10 @@ class RobotFeedbackChannel < ApplicationCable::Channel
     current_result_data = task.result_data || {}
     task.result_data = current_result_data.merge(final_ros_status: final_ros_status_str, ros_message: payload[:message], ros_result_data: payload[:result_data]).compact
 
+    RobotStatus.current.update(current_task_id: nil)
+
     if task.status_completed?
-      if task.type_load_map?
+      if task.task_type_load_map?
         # 处理地图加载任务的完成
         map_id = payload[:result_data][:map_id] || task.map_id
         if map_id.present?
@@ -153,7 +155,7 @@ class RobotFeedbackChannel < ApplicationCable::Channel
             # update_status_from_ros会处理
           end
         end
-      elsif task.type_fetch_book_to_transfer?
+      elsif task.task_type_fetch_book_to_transfer?
         # 处理取书任务完成：更新书籍和槽位状态
         book = task.book
         source_slot = task.source_slot
@@ -170,7 +172,7 @@ class RobotFeedbackChannel < ApplicationCable::Channel
           log_feedback_event("Book '#{book.title}' moved from slot #{source_slot.id} to slot #{target_slot.id}.",
                            { task_id: task.id, book_id: book.id, source_slot_id: source_slot.id, target_slot_id: target_slot.id })
         end
-      elsif task.type_return_book_from_transfer?
+      elsif task.task_type_return_book_from_transfer?
         # 处理还书任务完成：更新书籍和槽位状态
         book = task.book
         source_slot = task.source_slot # 中转站槽位
@@ -190,7 +192,7 @@ class RobotFeedbackChannel < ApplicationCable::Channel
       end
     elsif task.status_failed? || task.status_cancelled?
       # 处理任务失败或取消的情况，需要回滚预分配的资源
-      if task.type_fetch_book_to_transfer?
+      if task.task_type_fetch_book_to_transfer?
         book = task.book
         target_slot = task.target_slot
 
@@ -204,6 +206,7 @@ class RobotFeedbackChannel < ApplicationCable::Channel
         end
       end
     end
+
 
     unless task.save
       log_feedback_event("Failed to save task completion: #{task.errors.full_messages.join(', ')}", { task_id: task.id }, :error)

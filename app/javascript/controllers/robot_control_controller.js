@@ -47,7 +47,8 @@ export default class extends Controller {
   static values = {
     initialRobotStatus: String,
     initialEmergencyStopped: Boolean,
-    currentMappingTaskId: Number
+    currentMappingTaskId: Number,
+    initialActiveMap: String
   }
 
   connect() {
@@ -61,6 +62,18 @@ export default class extends Controller {
     this.isManualControlEnabled = false
     this.currentSpeed = 0.5
     
+    // 初始化活动地图数据
+    if (this.initialActiveMapValue && this.initialActiveMapValue.trim() !== '') {
+      try {
+        this.currentActiveMap = JSON.parse(this.initialActiveMapValue)
+      } catch (e) {
+        console.warn("[RobotControl] Failed to parse initial active map data:", e)
+        this.currentActiveMap = null
+      }
+    } else {
+      this.currentActiveMap = null
+    }
+    
     // 摄像头状态（简化版）
     this.isCameraStreaming = false
     this.lastFrameTime = 0
@@ -68,6 +81,7 @@ export default class extends Controller {
     this.actualFps = 0
     
     console.log("[RobotControl] Initial camera streaming state:", this.isCameraStreaming)
+    console.log("[RobotControl] Initial active map:", this.currentActiveMap)
     
     // 连接channels
     this._connectChannels()
@@ -79,6 +93,7 @@ export default class extends Controller {
     this._updateUI()
     this._updateButtonStates()
     this._updateCameraUI()
+    this._updateActiveMapDisplay() // 初始化地图显示
     
     console.log("[RobotControl] Controller initialization complete")
   }
@@ -161,6 +176,15 @@ export default class extends Controller {
     this.currentRobotStatus = statusData.status
     this.isEmergencyStopped = statusData.is_emergency_stopped
     
+    // 处理活动地图信息
+    if (statusData.active_map) {
+      this.currentActiveMap = statusData.active_map
+      this._updateActiveMapDisplay()
+    } else if (statusData.active_map === null) {
+      this.currentActiveMap = null
+      this._updateActiveMapDisplay()
+    }
+    
     this._updateUI()
     this._updateButtonStates()
   }
@@ -189,6 +213,8 @@ export default class extends Controller {
       if (data.task_type === "map_build_auto") {
         this.currentMappingTaskId = data.task_id
         this._updateMappingButtonStates(true)
+      } else if (data.task_type === "load_map") {
+        this._showNotification("地图加载任务已创建，等待机器人响应...", "info")
       }
     }
   }
@@ -737,5 +763,48 @@ export default class extends Controller {
       "info": `<svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>`
     }
     return iconMap[type] || iconMap["info"]
+  }
+
+  _updateActiveMapDisplay() {
+    if (this.currentActiveMap && this.currentActiveMap.map_image_url) {
+      this._showMapPreview(this.currentActiveMap.map_image_url)
+      if (this.hasMapPreviewPlaceholderTarget) {
+        this.mapPreviewPlaceholderTarget.innerHTML = `
+          <div class="text-center">
+            <svg class="mx-auto w-8 h-8 mb-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-sm text-green-600 font-medium">已加载地图: ${this.currentActiveMap.name}</p>
+            <p class="text-xs text-gray-500 mt-1">机器人当前使用此地图进行导航</p>
+          </div>
+        `
+      }
+    } else {
+      // 没有活动地图或地图没有图片
+      if (this.hasMapPreviewTarget) {
+        this.mapPreviewTarget.classList.add("hidden")
+      }
+      if (this.hasMapPreviewPlaceholderTarget) {
+        this.mapPreviewPlaceholderTarget.classList.remove("hidden")
+        if (this.currentActiveMap && !this.currentActiveMap.map_image_url) {
+          this.mapPreviewPlaceholderTarget.innerHTML = `
+            <div class="text-center">
+              <svg class="mx-auto w-8 h-8 mb-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+              <p class="text-sm text-yellow-600 font-medium">已加载地图: ${this.currentActiveMap.name}</p>
+              <p class="text-xs text-gray-500 mt-1">地图暂无预览图片</p>
+            </div>
+          `
+        } else {
+          this.mapPreviewPlaceholderTarget.innerHTML = `
+            <svg class="mx-auto w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            建图完成后将显示地图预览
+          `
+        }
+      }
+    }
   }
 } 
