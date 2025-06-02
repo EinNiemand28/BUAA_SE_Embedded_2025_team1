@@ -227,20 +227,25 @@ class TaskManagerNode:
         self._publish_robot_status()
 
     def _publish_robot_status(self): # 将当前TM的状态发布出去
-        with self.data_lock, self.task_scheduler_lock:
-            msg = RobotStatusCompressed()
-            msg.header.stamp = rospy.Time.now()
-            msg.pose_x = float(self.pose_data.get("x", 0.0))
-            msg.pose_y = float(self.pose_data.get("y", 0.0))
-            msg.pose_theta = float(self.pose_data.get("theta", 0.0))
-            msg.velocity_linear = float(self.velocity_data.get("linear", 0.0))
-            msg.velocity_angular = float(self.velocity_data.get("angular", 0.0))
-            msg.battery_percentage = float(self.battery_percentage)
-            msg.robot_state_str = self.current_tm_state # TM自身管理的核心状态
-            msg.error_message = self.current_error_msg or ""
-            msg.is_emergency_stopped = self.is_robot_emergency_stopped
-            msg.active_task_id_rails = int(self.current_executing_task_info.task_id or 0) if self.current_executing_task_info else 0
-            msg.active_map = self.active_map_in_ros or 0
+        # rospy.logfatal("Publishing RobotStatusCompressed...1")
+        # with self.data_lock:
+        # rospy.logfatal("Publishing 2")
+            # with self.task_scheduler_lock:
+        # rospy.logfatal("Publishing 3")
+        msg = RobotStatusCompressed()
+        msg.header.stamp = rospy.Time.now()
+        msg.pose_x = float(self.pose_data.get("x", 0.0))
+        msg.pose_y = float(self.pose_data.get("y", 0.0))
+        msg.pose_theta = float(self.pose_data.get("theta", 0.0))
+        msg.velocity_linear = float(self.velocity_data.get("linear", 0.0))
+        msg.velocity_angular = float(self.velocity_data.get("angular", 0.0))
+        msg.battery_percentage = float(self.battery_percentage)
+        msg.robot_state_str = self.current_tm_state # TM自身管理的核心状态
+        msg.error_message = self.current_error_msg or ""
+        msg.is_emergency_stopped = self.is_robot_emergency_stopped
+        msg.active_task_id_rails = int(self.current_executing_task_info.task_id or 0) if self.current_executing_task_info else 0
+        msg.active_map = self.active_map_in_ros or 0
+        # rospy.logfatal("published 4")
         self.robot_status_compressed_pub.publish(msg)
         rospy.logdebug(f"[{self.node_name}] Published RobotStatusCompressed: State='{msg.robot_state_str}', EStop={msg.is_emergency_stopped}")
 
@@ -497,8 +502,12 @@ class TaskManagerNode:
             with self.task_scheduler_lock:
                 if self.current_executing_task_info == task_info and not self.current_tm_state == self.STATE_MAPPING_AUTO:
                     self.current_executing_task_info = None
+            need_change_state = False
+            with self.data_lock:
                 if not self.is_robot_emergency_stopped and not self.current_tm_state == self.STATE_MAPPING_AUTO:
-                    self._change_tm_state_and_publish(self.STATE_IDLE)
+                    need_change_state = True
+            if need_change_state:
+                self._change_tm_state_and_publish(self.STATE_IDLE)
 
     def _dispatch_task_execution(self, task_info):
         task_id = task_info.task_id
@@ -552,7 +561,7 @@ class TaskManagerNode:
 
     def _reboot_ros_for_task_cancellation(self, type): # 手动取消 or 急停取消正在执行的任务
         rospy.loginfo(f"[{self.node_name}] Rebooting ROS for ({type})...")    
-        def call_service_safely(service_name, service_type, request_args=None):
+        def call_service_safely(service_name, service_type, request_args=[]):
             """安全调用ROS服务"""
             try:
                 rospy.wait_for_service(service_name, timeout=2.0)
@@ -562,8 +571,11 @@ class TaskManagerNode:
                     response = service_proxy(**request_args)
                 else:
                     response = service_proxy()
-                    
-                rospy.loginfo(f"[{self.node_name}] Service {service_name} called successfully")
+                if response.success:
+                    rospy.loginfo(f"[{self.node_name}] Service {service_name} called successfully")
+                else:
+                    rospy.logwarn(f"[{self.node_name}] Service {service_name} returned failure: {response.message}")
+                    return False
                 return True
                 
             except rospy.ServiceException as e:
@@ -767,7 +779,7 @@ class TaskManagerNode:
             if res.success:
                 rospy.loginfo(f"[{self.node_name}] Map build completed successfully.")
 
-                map_image_base64 = convert_pgm_to_image_base64("/home/qianfu/library_robot/ros_end/src/mapping/" + "./maps/" + map_name + ".pgm")
+                map_image_base64 = convert_pgm_to_image_base64("/media/mitchell/Data/Projects/software_engineering/ros_end/src/mapping/" + "./maps/" + map_name + ".pgm")
 
                 if not map_image_base64:
                     rospy.logwarn(f"[{self.node_name}] Failed to convert map image to base64.")
