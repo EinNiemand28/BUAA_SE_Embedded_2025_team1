@@ -35,19 +35,6 @@ class MapsController < ApplicationController
   end
 
   def update
-    # 处理激活地图的请求
-    if params[:activate] == "true"
-      if @map.activate_in_db!
-        SystemLog.log(:map_event, :info,
-          "地图 ##{@map.id} '#{@map.name}' 由用户 #{Current.user.id} 激活。",
-          "MapsController#update", { user_id: Current.user.id, map_id: @map.id })
-        redirect_to @map, notice: t("maps.notices.activated")
-      else
-        redirect_to @map, alert: "激活地图失败：#{@map.errors.full_messages.join(', ')}"
-      end
-      return
-    end
-
     if @map.update(map_params_for_update)
       SystemLog.log(:map_event, :info,
         "地图 ##{@map.id} '#{@map.name}' 由用户 #{Current.user.id} 更新。",

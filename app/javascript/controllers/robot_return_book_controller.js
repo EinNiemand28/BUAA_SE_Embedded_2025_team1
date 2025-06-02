@@ -5,7 +5,7 @@ export default class extends Controller {
   static values = { bookId: Number }
 
   connect() {
-    console.log("[RobotFetchBook] Controller connected for book:", this.bookIdValue)
+    console.log("[RobotReturnBook] Controller connected for book:", this.bookIdValue)
     
     // 确保RobotTaskChannel已连接
     if (!RobotTaskChannel.subscription) {
@@ -13,7 +13,7 @@ export default class extends Controller {
     }
   }
 
-  fetchBook() {
+  returnBook() {
     if (!this.bookIdValue) {
       this._showNotification("书籍ID未找到", "error")
       return
@@ -22,25 +22,25 @@ export default class extends Controller {
     // 检查是否有活动地图
     this._checkActiveMap().then((hasActiveMap) => {
       if (!hasActiveMap) {
-        this._showNotification("没有活动地图，无法执行取书任务", "error")
+        this._showNotification("没有活动地图，无法执行还书任务", "error")
         return
       }
 
       // 确认操作
-      if (!confirm("确定要让机器人取这本书吗？机器人将把书籍送到中转站。")) {
+      if (!confirm("确定要让机器人将这本书从中转站还回原位置吗？")) {
         return
       }
 
-      console.log("[RobotFetchBook] Creating fetch book task for book:", this.bookIdValue)
+      console.log("[RobotReturnBook] Creating return book task for book:", this.bookIdValue)
 
-      // 创建取书任务
+      // 创建还书任务
       if (RobotTaskChannel.subscription) {
         const params = {
           book_id: this.bookIdValue
         }
         
-        RobotTaskChannel.createTask("fetch_book_to_transfer", params)
-        this._showNotification("正在创建取书任务...", "info")
+        RobotTaskChannel.createTask("return_book_from_transfer", params)
+        this._showNotification("正在创建还书任务...", "info")
         
         // 监听任务创建结果
         this._setupTaskListeners()
@@ -59,7 +59,7 @@ export default class extends Controller {
       }
       return false
     } catch (error) {
-      console.warn("[RobotFetchBook] Could not check active map status:", error)
+      console.warn("[RobotReturnBook] Could not check active map status:", error)
       return true // 假设有地图，让后端处理验证
     }
   }
@@ -68,8 +68,8 @@ export default class extends Controller {
     // 监听任务创建成功
     const successHandler = (event) => {
       const { action, data } = event.detail
-      if (action === "create_task" && data.task_type === "fetch_book_to_transfer") {
-        this._showNotification(`取书任务已创建：#${data.task_id}`, "success")
+      if (action === "create_task" && data.task_type === "return_book_from_transfer") {
+        this._showNotification(`还书任务已创建：#${data.task_id}`, "success")
         
         // 不自动跳转，让用户选择是否查看任务详情
         this._showTaskCreatedActions(data.task_id)
@@ -82,7 +82,7 @@ export default class extends Controller {
     const errorHandler = (event) => {
       const { action, errors } = event.detail
       if (action === "create_task") {
-        this._showNotification(`创建取书任务失败: ${errors.join(", ")}`, "error")
+        this._showNotification(`创建还书任务失败: ${errors.join(", ")}`, "error")
         
         // 移除监听器
         this._removeTaskListeners(successHandler, errorHandler)
@@ -114,7 +114,7 @@ export default class extends Controller {
           </svg>
         </div>
         <div class="flex-1">
-          <h4 class="text-sm font-medium text-gray-900">取书任务已创建</h4>
+          <h4 class="text-sm font-medium text-gray-900">还书任务已创建</h4>
           <p class="mt-1 text-sm text-gray-500">任务 #${taskId} 已提交给机器人</p>
           <div class="mt-3 flex space-x-2">
             <a href="/tasks/${taskId}" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700">

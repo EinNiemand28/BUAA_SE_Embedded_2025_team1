@@ -6,6 +6,11 @@ export default class extends Controller {
 
   connect() {
     console.log("[RobotNavigation] Controller connected for bookshelf:", this.bookshelfIdValue)
+    
+    // 确保RobotTaskChannel已连接
+    if (!RobotTaskChannel.subscription) {
+      RobotTaskChannel.connect()
+    }
   }
 
   navigateToShelf() {
@@ -14,70 +19,48 @@ export default class extends Controller {
       return
     }
 
-    // 确认操作
-    if (!confirm("确定要让机器人导航到这个书架吗？")) {
-      return
-    }
+    // 检查是否有活动地图
+    this._checkActiveMap().then((hasActiveMap) => {
+      if (!hasActiveMap) {
+        this._showNotification("没有活动地图，无法执行导航任务", "error")
+        return
+      }
 
-    console.log("[RobotNavigation] Creating navigation task for bookshelf:", this.bookshelfIdValue)
+      // 确认操作
+      if (!confirm("确定要让机器人导航到这个书架吗？")) {
+        return
+      }
 
-    // 获取书架的导航坐标
-    this._getBookshelfNavigationCoordinates()
-      .then(coordinates => {
-        // 创建导航任务
-        if (RobotTaskChannel.subscription) {
-          const taskParams = {
-            target_point_x: coordinates.x,
-            target_point_y: coordinates.y,
-            target_orientation_z: coordinates.oz,
-            bookshelf_id: this.bookshelfIdValue
-          }
-          
-          RobotTaskChannel.createTask("navigation_to_point", taskParams)
-          this._showNotification("正在创建导航任务...", "info")
-          
-          // 监听任务创建结果
-          this._setupTaskListeners()
-        } else {
-          this._showNotification("无法连接到机器人系统", "error")
+      console.log("[RobotNavigation] Creating navigation task for bookshelf:", this.bookshelfIdValue)
+
+      // 创建导航任务
+      if (RobotTaskChannel.subscription) {
+        const params = {
+          bookshelf_id: this.bookshelfIdValue
         }
-      })
-      .catch(error => {
-        console.error("[RobotNavigation] Failed to get navigation coordinates:", error)
-        this._showNotification("获取导航坐标失败", "error")
-      })
+        
+        RobotTaskChannel.createTask("navigation_to_point", params)
+        this._showNotification("正在创建导航任务...", "info")
+        
+        // 监听任务创建结果
+        this._setupTaskListeners()
+      } else {
+        this._showNotification("无法连接到机器人系统", "error")
+      }
+    })
   }
 
-  async _getBookshelfNavigationCoordinates() {
+  async _checkActiveMap() {
     try {
-      const response = await fetch(`/api/bookshelves/${this.bookshelfIdValue}`)
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      const response = await fetch('/robots/status.json')
+      if (response.ok) {
+        const data = await response.json()
+        return data.active_map_id !== null
       }
-      const data = await response.json()
-      
-      // 计算导航坐标（书架前方0.75米处）
-      const shelf = data.bookshelf
-      const distance = 0.75 // 导航距离
-      const orientation = shelf.orientation || 0
-      
-      // 书架前方位置计算
-      const halfWidth = shelf.width / 2.0
-      const frontX = shelf.center_x + halfWidth * Math.cos(orientation)
-      const frontY = shelf.center_y + halfWidth * Math.sin(orientation)
-      
-      const navX = frontX + distance * Math.cos(orientation)
-      const navY = frontY + distance * Math.sin(orientation)
-      const navOz = orientation + Math.PI // 朝向书架
-      
-      return {
-        x: parseFloat(navX.toFixed(4)),
-        y: parseFloat(navY.toFixed(4)),
-        oz: parseFloat(navOz.toFixed(4))
-      }
+      return false
     } catch (error) {
-      console.error("[RobotNavigation] Error fetching bookshelf data:", error)
-      throw error
+      console.warn("[RobotNavigation] Could not check active map status:", error)
+      return true // 假设有地图，让后端处理验证
     }
   }
 
@@ -88,14 +71,11 @@ export default class extends Controller {
       if (action === "create_task" && data.task_type === "navigation_to_point") {
         this._showNotification(`导航任务已创建：#${data.task_id}`, "success")
         
-        // 可选：跳转到任务详情页
-        setTimeout(() => {
-          window.location.href = `/tasks/${data.task_id}`
-        }, 2000)
+        // 不自动跳转，让用户选择是否查看任务详情
+        this._showTaskCreatedActions(data.task_id)
         
         // 移除监听器
-        document.removeEventListener("robot-task-channel:action_success", successHandler)
-        document.removeEventListener("robot-task-channel:action_error", errorHandler)
+        this._removeTaskListeners(successHandler, errorHandler)
       }
     }
 
@@ -105,13 +85,60 @@ export default class extends Controller {
         this._showNotification(`创建导航任务失败: ${errors.join(", ")}`, "error")
         
         // 移除监听器
-        document.removeEventListener("robot-task-channel:action_success", successHandler)
-        document.removeEventListener("robot-task-channel:action_error", errorHandler)
+        this._removeTaskListeners(successHandler, errorHandler)
       }
     }
 
     document.addEventListener("robot-task-channel:action_success", successHandler)
     document.addEventListener("robot-task-channel:action_error", errorHandler)
+    
+    // 设置超时清理
+    setTimeout(() => {
+      this._removeTaskListeners(successHandler, errorHandler)
+    }, 10000) // 10秒后自动清理监听器
+  }
+
+  _removeTaskListeners(successHandler, errorHandler) {
+    document.removeEventListener("robot-task-channel:action_success", successHandler)
+    document.removeEventListener("robot-task-channel:action_error", errorHandler)
+  }
+
+  _showTaskCreatedActions(taskId) {
+    const actionDiv = document.createElement("div")
+    actionDiv.className = "fixed bottom-4 right-4 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm"
+    actionDiv.innerHTML = `
+      <div class="flex items-start space-x-3">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h4 class="text-sm font-medium text-gray-900">导航任务已创建</h4>
+          <p class="mt-1 text-sm text-gray-500">任务 #${taskId} 已提交给机器人</p>
+          <div class="mt-3 flex space-x-2">
+            <a href="/tasks/${taskId}" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700">
+              查看任务
+            </a>
+            <a href="/robots" class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-200">
+              机器人状态
+            </a>
+            <button onclick="this.closest('div').remove()" class="text-xs text-gray-500 hover:text-gray-700">
+              关闭
+            </button>
+          </div>
+        </div>
+      </div>
+    `
+
+    document.body.appendChild(actionDiv)
+
+    // 15秒后自动移除
+    setTimeout(() => {
+      if (actionDiv.parentElement) {
+        actionDiv.remove()
+      }
+    }, 15000)
   }
 
   _showNotification(message, type = "info") {
@@ -173,4 +200,4 @@ export default class extends Controller {
     }
     return iconMap[type] || iconMap["info"]
   }
-} 
+}

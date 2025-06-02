@@ -3,8 +3,7 @@
      data-controller="robot-control"
      data-robot-control-initial-robot-status-value="<%= @robot_status.status %>"
      data-robot-control-initial-emergency-stopped-value="<%= @robot_status.is_emergency_stopped %>"
-     data-robot-control-current-mapping-task-id-value="<%= @current_mapping_task_for_view&.id %>"
-     data-robot-control-initial-active-map-value="<%= (@active_map ? { id: @active_map.id, name: @active_map.name, map_image_url: @active_map.map_image.attached? ? rails_blob_url(@active_map.map_image, only_path: true) : nil }.to_json : '').html_safe %>">
+     data-robot-control-current-mapping-task-id-value="<%= @current_mapping_task_for_view&.id %>">
   
   <!-- 顶部控制栏 -->
   <div class="bg-white shadow-sm border-b border-gray-200">

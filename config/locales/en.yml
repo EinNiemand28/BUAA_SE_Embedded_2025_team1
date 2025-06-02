@@ -890,3 +890,15 @@ en:
       active_map_set: "Map \"%{name}\" set as active"
       status_reset: "Robot status has been reset"
       map_files_missing: "The active map is missing required files"
+
+  book_actions:
+    fetch_book: "Fetch Book"
+    return_book: "Return Book"
+    navigate_to_bookshelf: "Navigate to Bookshelf"
+    book_not_placed: "Not Placed"
+
+  navigation:
+    navigate_to_shelf: "Navigate to Shelf"
+    navigation_to_point: "Navigate to Point"
+    navigation_success: "Navigation task created"
+    navigation_error: "Failed to create navigation task"

@@ -19,6 +19,9 @@ class RobotFeedbackChannel < ApplicationCable::Channel
   def unsubscribed
     if connection.robot_client
       RobotStatus.current.update_status_from_ros({ overall_status: "offline", is_emergency_stopped: false })
+      RobotStatus.current.update(current_task_id: nil) # 清除当前任务状态
+      RobotStatus.current.active_map.deactivate_in_db! if RobotStatus.current.active_map # 停用当前活动地图
+      RobotStatus.current.update(active_map: nil) # 清除当前活动地图
       # 机器人客户端断开连接时，更新状态为 offline
     end
     logger.info "[RobotFeedbackChannel] Client (User: #{connection.current_user&.id} or Robot) unsubscribed."
@@ -114,6 +117,7 @@ class RobotFeedbackChannel < ApplicationCable::Channel
               content_type: "image/*"
             )
           end
+          RobotStatus.current.update(current_task_id: nil)
         end
       elsif final_ros_status_str == "failed"
         map = Map.find_by(id: result_data[:map_id])

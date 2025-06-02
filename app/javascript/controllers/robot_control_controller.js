@@ -47,8 +47,7 @@ export default class extends Controller {
   static values = {
     initialRobotStatus: String,
     initialEmergencyStopped: Boolean,
-    currentMappingTaskId: Number,
-    initialActiveMap: String
+    currentMappingTaskId: Number
   }
 
   connect() {
@@ -62,18 +61,6 @@ export default class extends Controller {
     this.isManualControlEnabled = false
     this.currentSpeed = 0.5
     
-    // 初始化活动地图数据
-    if (this.initialActiveMapValue && this.initialActiveMapValue.trim() !== '') {
-      try {
-        this.currentActiveMap = JSON.parse(this.initialActiveMapValue)
-      } catch (e) {
-        console.warn("[RobotControl] Failed to parse initial active map data:", e)
-        this.currentActiveMap = null
-      }
-    } else {
-      this.currentActiveMap = null
-    }
-    
     // 摄像头状态（简化版）
     this.isCameraStreaming = false
     this.lastFrameTime = 0
@@ -81,7 +68,6 @@ export default class extends Controller {
     this.actualFps = 0
     
     console.log("[RobotControl] Initial camera streaming state:", this.isCameraStreaming)
-    console.log("[RobotControl] Initial active map:", this.currentActiveMap)
     
     // 连接channels
     this._connectChannels()
@@ -93,7 +79,6 @@ export default class extends Controller {
     this._updateUI()
     this._updateButtonStates()
     this._updateCameraUI()
-    this._updateActiveMapDisplay() // 初始化地图显示
     
     console.log("[RobotControl] Controller initialization complete")
   }
@@ -213,8 +198,6 @@ export default class extends Controller {
       if (data.task_type === "map_build_auto") {
         this.currentMappingTaskId = data.task_id
         this._updateMappingButtonStates(true)
-      } else if (data.task_type === "load_map") {
-        this._showNotification("地图加载任务已创建，等待机器人响应...", "info")
       }
     }
   }

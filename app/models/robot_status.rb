@@ -58,7 +58,7 @@ class RobotStatus < ApplicationRecord
     when :navigation_to_point, :fetch_book_to_transfer, :return_book_from_transfer, :inventory_scan_and_relocate
       status_idle? && active_map.present? && current_task_id.nil?
     else # 其他未知或通用任务
-      false # 不支持的任务类型
+      status_idle? && current_task_id.nil?
     end
   end
 
@@ -117,10 +117,10 @@ class RobotStatus < ApplicationRecord
                 log_changes << "status to #{tm_reported_state_sym} (from TM overall_status)"
             end
         else # 当前Rails端任务状态优先 (如:mapping)，不被TM的 "idle" 覆盖
-            rospy.logdebug(f "[{self.node_name}] TM reported overall_status '{tm_reported_state_str}', but Rails status '{self.status}' is task-specific. Not overriding.")
+            logger.debug "[{self.node_name}] TM reported overall_status '{tm_reported_state_str}', but Rails status '{self.status}' is task-specific. Not overriding."
         end
       else
-        rospy.logwarn(f "[{self.node_name}] Received unknown overall_status from TM: '{tm_reported_state_str}'. Not updating status.")
+        logger.warn "[{self.node_name}] Received unknown overall_status from TM: '{tm_reported_state_str}'. Not updating status."
       end
     end
 
@@ -178,16 +178,6 @@ class RobotStatus < ApplicationRecord
   end
 
   def broadcast_status_update_to_frontend
-    # 获取活动地图的详细信息（包括图片URL）
-    active_map_data = nil
-    if self.active_map
-      active_map_data = {
-        id: self.active_map.id,
-        name: self.active_map.name,
-        map_image_url: self.active_map.map_image.attached? ? Rails.application.routes.url_helpers.rails_blob_url(self.active_map.map_image, only_path: true) : nil
-      }
-    end
-
     status_payload = {
       id: self.id,
       status: self.status.to_s,
@@ -200,7 +190,6 @@ class RobotStatus < ApplicationRecord
       current_task_type: self.current_task&.task_type, # 包含任务类型
       active_map_id: self.active_map_id,
       active_map_name: self.active_map&.name,
-      active_map: active_map_data, # 包含地图详细信息
       error_message: self.error_message,
       # battery_level: self.try(:battery_level) || "N/A", # 如果模型有此字段，确保它被更新
       updated_at: self.updated_at.iso8601 # 使用ISO8601格式

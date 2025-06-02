@@ -4,9 +4,13 @@ class TasksController < ApplicationController
   before_action :set_task, except: [ :index, :new, :create ]
 
   def index
-    @tasks = Task.all.includes(:user, :map)
+    @tasks = if Current.user.admin?
+      Task.all.includes(:user, :book, :source_slot, :target_slot, :map)
+    else
+      Current.user.tasks.includes(:book, :source_slot, :target_slot, :map)
+    end
 
-    # 筛选条件
+    # 添加筛选逻辑
     if params[:status].present?
       @tasks = @tasks.where(status: params[:status])
     end
@@ -15,19 +19,9 @@ class TasksController < ApplicationController
       @tasks = @tasks.where(task_type: params[:task_type])
     end
 
-    if params[:map_id].present?
-      @tasks = @tasks.where(map_id: params[:map_id])
-    end
-
     @tasks = @tasks.order(created_at: :desc)
-    
-    # 分页
-    @tasks = @tasks.page(params[:page]).per(10)
-    
-    # 用于筛选器的选项
-    @status_options = Task.statuses.keys
-    @task_type_options = Task.task_types.keys
-    @map_options = Map.all.order(:name)
+    # 可以根据需要添加分页
+    # @tasks = @tasks.page(params[:page]).per(12)
   end
 
   def show

@@ -19,41 +19,41 @@
   </div>
 
   <!-- 筛选器 -->
-  <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-4 mb-6">
-    <%= form_with url: tasks_path, method: :get, local: true, class: "flex flex-wrap items-end gap-4" do |form| %>
-      <!-- 状态筛选 -->
-      <div class="flex-1 min-w-0">
-        <%= form.label :status, t('activerecord.attributes.task.status'), class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= form.select :status, 
-              options_for_select([['全部状态', '']] + @status_options.map { |status| [t("activerecord.attributes.task.statuses.#{status}"), status] }, params[:status]),
-              {},
-              class: "block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-      </div>
-
-      <!-- 类型筛选 -->
-      <div class="flex-1 min-w-0">
-        <%= form.label :task_type, t('activerecord.attributes.task.task_type'), class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= form.select :task_type, 
-              options_for_select([['全部类型', '']] + @task_type_options.map { |type| [t("activerecord.attributes.task.task_types.#{type}"), type] }, params[:task_type]),
-              {},
-              class: "block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-      </div>
-
-      <!-- 地图筛选 -->
-      <div class="flex-1 min-w-0">
-        <%= form.label :map_id, t('activerecord.attributes.task.map'), class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= form.select :map_id, 
-              options_for_select([['全部地图', '']] + @map_options.map { |map| [map.name, map.id] }, params[:map_id]),
-              {},
-              class: "block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-      </div>
-
-      <!-- 提交按钮 -->
-      <div class="flex space-x-2">
-        <%= form.submit t('tasks.index.filter'), 
-              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
-        <%= link_to t('tasks.index.clear_filter'), tasks_path, 
-              class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+  <div class="bg-white shadow-sm rounded-lg p-4 mb-6">
+    <%= form_with(url: tasks_path, method: :get, class: "flex flex-wrap items-center gap-4") do |form| %>
+      <div class="flex items-center space-x-4">
+        <div class="min-w-0 flex-1">
+          <label class="block text-sm font-medium text-gray-700"><%= t('tasks.index.filter_by_status') %></label>
+          <%= form.select :status, options_for_select([
+                [t('tasks.index.all_statuses'), ''],
+                [t('activerecord.attributes.task.statuses.pending'), 'pending'],
+                [t('activerecord.attributes.task.statuses.queued'), 'queued'],
+                [t('activerecord.attributes.task.statuses.processing'), 'processing'],
+                [t('activerecord.attributes.task.statuses.paused'), 'paused'],
+                [t('activerecord.attributes.task.statuses.completed'), 'completed'],
+                [t('activerecord.attributes.task.statuses.failed'), 'failed'],
+                [t('activerecord.attributes.task.statuses.cancelled'), 'cancelled']
+              ], params[:status]), { include_blank: false }, 
+              { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" } %>
+        </div>
+        
+        <div class="min-w-0 flex-1">
+          <label class="block text-sm font-medium text-gray-700"><%= t('tasks.index.filter_by_type') %></label>
+          <%= form.select :task_type, options_for_select([
+                [t('tasks.index.all_types'), ''],
+                [t('activerecord.attributes.task.task_types.map_build_auto'), 'map_build_auto'],
+                [t('activerecord.attributes.task.task_types.navigation_to_point'), 'navigation_to_point'],
+                [t('activerecord.attributes.task.task_types.fetch_book_to_transfer'), 'fetch_book_to_transfer'],
+                [t('activerecord.attributes.task.task_types.return_book_from_transfer'), 'return_book_from_transfer'],
+                [t('activerecord.attributes.task.task_types.inventory_scan_and_relocate'), 'inventory_scan_and_relocate'],
+                [t('activerecord.attributes.task.task_types.load_map'), 'load_map']
+              ], params[:task_type]), { include_blank: false }, 
+              { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" } %>
+        </div>
+        
+        <div class="flex items-end">
+          <%= form.submit "筛选", class: "inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer" %>
+        </div>
       </div>
     <% end %>
   </div>

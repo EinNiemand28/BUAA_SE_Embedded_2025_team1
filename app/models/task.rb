@@ -67,25 +67,25 @@ class Task < ApplicationRecord
     current_details = self.progress_details.is_a?(Hash) ? self.progress_details : {}
     case self.task_type.to_sym
     when :load_map
-      self.progress_details["map_id"] = self.map.id || params_hash["map_id"]
-      self.progress_details["map_name"] = self.map&.name || params_hash["map_name"]
-      self.progress_details["map_data_url"] = self.map&.data_url || params_hash["map_data_url"]
+      params_hash["map_id"] = self.map.id || params_hash["map_id"]
+      params_hash["map_name"] = self.map&.name || params_hash["map_name"]
+      params_hash["map_data_url"] = self.map&.map_data_url || params_hash["map_data_url"]
     when :navigation_to_point
-      self.progress_details["px"] = self.target_point_x || params_hash["target_point_x"]
-      self.progress_details["py"] = self.target_point_y || params_hash["target_point_y"]
-      self.progress_details["oz"] = self.target_orientation_z || params_hash["target_orientation_z"]
+      params_hash["px"] = self.target_point_x || params_hash["target_point_x"]
+      params_hash["py"] = self.target_point_y || params_hash["target_point_y"]
+      params_hash["oz"] = self.target_orientation_z || params_hash["target_orientation_z"]
     when :fetch_book_to_transfer, :return_book_from_transfer
-      self.progress_details["book_id"] = self.book.id || params_hash["book_id"]
+      params_hash["book_id"] = self.book.id || params_hash["book_id"]
       source = self.source_slot.absolute_coordinates
       target = self.target_slot.absolute_coordinates
-      self.progress_details["gpx"] = source[:x]
-      self.progress_details["gpy"] = source[:y]
-      self.progress_details["gpz"] = source[:z]
-      self.progress_details["goz"] = source[:oz]
-      self.progress_details["ppx"] = target[:x]
-      self.progress_details["ppy"] = target[:y]
-      self.progress_details["ppz"] = target[:z]
-      self.progress_details["poz"] = target[:oz]
+      params_hash["gpx"] = source[:x]
+      params_hash["gpy"] = source[:y]
+      params_hash["gpz"] = source[:z]
+      params_hash["goz"] = source[:oz]
+      params_hash["ppx"] = target[:x]
+      params_hash["ppy"] = target[:y]
+      params_hash["ppz"] = target[:z]
+      params_hash["poz"] = target[:oz]
     end
 
     self.progress_details = current_details.merge(parameters: params_hash || {})

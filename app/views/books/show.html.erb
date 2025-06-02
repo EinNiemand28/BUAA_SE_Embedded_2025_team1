@@ -182,16 +182,31 @@
                 
                 <!-- 机器人取书按钮 -->
                 <% if @book.current_slot %>
-                  <button type="button" 
-                          data-controller="robot-fetch-book"
-                          data-robot-fetch-book-book-id-value="<%= @book.id %>"
-                          data-action="click->robot-fetch-book#fetchBook"
-                          class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-                    </svg>
-                    <%= t('book_actions.fetch_book') %>
-                </button>
+                  <% if @book.current_slot.bookshelf.is_transit_station? %>
+                    <!-- 书籍在中转站，显示还书按钮 -->
+                    <button type="button" 
+                            data-controller="robot-return-book"
+                            data-robot-return-book-book-id-value="<%= @book.id %>"
+                            data-action="click->robot-return-book#returnBook"
+                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                      </svg>
+                      <%= t('book_actions.return_book') %>
+                    </button>
+                  <% else %>
+                    <!-- 书籍在普通书架，显示取书按钮 -->
+                    <button type="button" 
+                            data-controller="robot-fetch-book"
+                            data-robot-fetch-book-book-id-value="<%= @book.id %>"
+                            data-action="click->robot-fetch-book#fetchBook"
+                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                      </svg>
+                      <%= t('book_actions.fetch_book') %>
+                    </button>
+                  <% end %>
                 <% else %>
                   <span class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 rounded">
                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

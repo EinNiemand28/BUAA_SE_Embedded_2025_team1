@@ -1,8 +1,8 @@
 # app/controllers/api/bookshelves_controller.rb
 module Api
   class BookshelvesController < ApplicationController
-    before_action :require_user_session
-    before_action :set_bookshelf, only: [:show]
+    before_action :authenticate
+    before_action :set_bookshelf, only: [ :show ]
 
     def show
       render json: {
@@ -24,4 +24,4 @@ module Api
       @bookshelf = Bookshelf.find(params[:id])
     end
   end
-end 
+end
