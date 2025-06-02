@@ -21,6 +21,7 @@ from library_robot_interfaces.msg import TaskDirective, TaskFeedback, RobotStatu
 
 from mapping.srv import Start, StartResponse, Halt, HaltResponse
 from navigation.srv import Goal, GoalResponse
+from navigation.srv import Start as nStart, StartResponse as nStartResponse, Halt as nHalt, HaltResponse as nHaltResponse
 from std_srvs.srv import Trigger, TriggerResponse, Empty
 from arm_controller.srv import Place, PlaceResponse
 from fetch_server.srv import Fetch, FetchResponse
@@ -32,7 +33,7 @@ NAVIGATION_GOAL_SERVICE_NAME = "/goal_service"
 NAVIGATION_HALT_SERVICE_NAME = "/halt_goal"
 # GRAB_SERVICE_NAME = "/grab_service"
 # PLACE_SERVICE_NAME = "/place_service"
-# FETCH_SERVICE_NAME = "/fetch_service"
+FETCH_BOOK_SERVICE_NAME = "/fetch_service"
 
 # ROS Topics
 TM_DIRECTIVE_TOPIC = "/task_manager/directive" # TM subscribes
@@ -137,7 +138,7 @@ class TaskManagerNode:
         state_mapping = {
             "MAP_BUILD_AUTO": self.STATE_MAPPING_AUTO,
             # "COMPLETE_MAP_BUILD": self.STATE_EXECUTING_TASK,
-            "NAVIGATE_TO_POINT": self.STATE_NAVIGATING_TASK,
+            "NAVIGATION_TO_POINT": self.STATE_NAVIGATING_TASK,
             "LOAD_MAP": self.STATE_EXECUTING_TASK,
             "FETCH_BOOK_TO_TRANSFER": self.STATE_FETCHING_BOOK,
         }
@@ -227,20 +228,20 @@ class TaskManagerNode:
         self._publish_robot_status()
 
     def _publish_robot_status(self): # 将当前TM的状态发布出去
-        with self.data_lock, self.task_scheduler_lock:
-            msg = RobotStatusCompressed()
-            msg.header.stamp = rospy.Time.now()
-            msg.pose_x = float(self.pose_data.get("x", 0.0))
-            msg.pose_y = float(self.pose_data.get("y", 0.0))
-            msg.pose_theta = float(self.pose_data.get("theta", 0.0))
-            msg.velocity_linear = float(self.velocity_data.get("linear", 0.0))
-            msg.velocity_angular = float(self.velocity_data.get("angular", 0.0))
-            msg.battery_percentage = float(self.battery_percentage)
-            msg.robot_state_str = self.current_tm_state # TM自身管理的核心状态
-            msg.error_message = self.current_error_msg or ""
-            msg.is_emergency_stopped = self.is_robot_emergency_stopped
-            msg.active_task_id_rails = int(self.current_executing_task_info.task_id or 0) if self.current_executing_task_info else 0
-            msg.active_map = self.active_map_in_ros or 0
+        # with self.data_lock, self.task_scheduler_lock:
+        msg = RobotStatusCompressed()
+        msg.header.stamp = rospy.Time.now()
+        msg.pose_x = float(self.pose_data.get("x", 0.0))
+        msg.pose_y = float(self.pose_data.get("y", 0.0))
+        msg.pose_theta = float(self.pose_data.get("theta", 0.0))
+        msg.velocity_linear = float(self.velocity_data.get("linear", 0.0))
+        msg.velocity_angular = float(self.velocity_data.get("angular", 0.0))
+        msg.battery_percentage = float(self.battery_percentage)
+        msg.robot_state_str = self.current_tm_state # TM自身管理的核心状态
+        msg.error_message = self.current_error_msg or ""
+        msg.is_emergency_stopped = self.is_robot_emergency_stopped
+        msg.active_task_id_rails = int(self.current_executing_task_info.task_id or 0) if self.current_executing_task_info else 0
+        msg.active_map = self.active_map_in_ros or 0
         self.robot_status_compressed_pub.publish(msg)
         rospy.logdebug(f"[{self.node_name}] Published RobotStatusCompressed: State='{msg.robot_state_str}', EStop={msg.is_emergency_stopped}")
 
@@ -515,8 +516,8 @@ class TaskManagerNode:
             self._execute_map_build_auto(task_info)
         elif task_type == "LOAD_MAP":
             self._execute_load_map(task_info)
-        elif task_type == "NAVIGATE_TO_POINT":
-            self._execute_navigate_to_point(task_info)
+        elif task_type == "NAVIGATION_TO_POINT":
+            self._execute_navigation_to_point(task_info)
         elif task_type == "FETCH_BOOK_TO_TRANSFER":
             self._execute_fetch_book_to_transfer(task_info)
         else:
@@ -806,17 +807,17 @@ class TaskManagerNode:
             })
 
     def _execute_load_map(self, task_info):
+        params = task_info.params
+        task_id = task_info.task_id
         try:
-            params = task_info.params
-            task_id = task_info.task_id
             map_id = params.get("map_id")
             map_name = params.get("map_name")
             map_data_url = params.get("map_data_url")
             rospy.loginfo(f"[{self.node_name}] Loading map '{map_data_url + map_name}' for task {task_id}")
 
             rospy.wait_for_service(NAVIGATION_ENABLE_SERVICE_NAME, timeout=5.0)
-            load_map = rospy.ServiceProxy(NAVIGATION_ENABLE_SERVICE_NAME, Start)
-            res = load_map(sim=true, map=true, path=map_data_url, name=map_name)
+            load_map = rospy.ServiceProxy(NAVIGATION_ENABLE_SERVICE_NAME, nStart)
+            res = load_map(sim=True, map=True, path=map_data_url, name=map_name)
 
             if res.success:
                 rospy.loginfo(f"[{self.node_name}] Map '{map_data_url + map_name}' loaded successfully.")
@@ -847,12 +848,12 @@ class TaskManagerNode:
                 "message": f"TM: Exception in loading map: {str(e)}"
             })
 
-    def _execute_navigate_to_pose(self, task_info):
+    def _execute_navigation_to_point(self, task_info):
         with self.data_lock:
             if self.active_map_in_ros is None:
-                rospy.logwarn(f"[{self.node_name}] NAVIGATE_TO_POINT command rejected: No active map loaded.")
+                rospy.logwarn(f"[{self.node_name}] NAVIGATION_TO_POINT command rejected: No active map loaded.")
                 return
-            rospy.loginfo(f"[{self.node_name}] NAVIGATE_TO_POINT command accepted with active map: {self.active_map_in_ros}")
+            rospy.loginfo(f"[{self.node_name}] NAVIGATION_TO_POINT command accepted with active map: {self.active_map_in_ros}")
         try:
             params = task_info.params
             task_id = task_info.task_id
@@ -861,8 +862,8 @@ class TaskManagerNode:
             oz = params.get("oz")
             rospy.loginfo(f"[{self.node_name}] Navigating to pose ({px}, {py}, {oz}) for task {task_id}")
 
-            rospy.wait_for_service(NAVIGATION_ENABLE_SERVICE_NAME, timeout=5.0)
-            navigate_to_pose = rospy.ServiceProxy(NAVIGATION_ENABLE_SERVICE_NAME, Goal)
+            rospy.wait_for_service(NAVIGATION_GOAL_SERVICE_NAME, timeout=5.0)
+            navigate_to_pose = rospy.ServiceProxy(NAVIGATION_GOAL_SERVICE_NAME, Goal)
             res = navigate_to_pose(px=px, py=py, oz=oz)
 
             if res.success:
@@ -908,7 +909,7 @@ class TaskManagerNode:
             rospy.loginfo(f"[{self.node_name}] Fetching book {book_id} from ({gpx}, {gpy}, {gpz}, {goz}) to ({ppx}, {ppy}, {ppz}, {poz}) for task {task_id}")
 
             rospy.wait_for_service(FETCH_BOOK_SERVICE_NAME, timeout=5.0)
-            fetch_book = rospy.ServiceProxy(FETCH_BOOK_SERVICE_NAME, FetchBook)
+            fetch_book = rospy.ServiceProxy(FETCH_BOOK_SERVICE_NAME, Fetch)
             res = fetch_book(gpx=gpx, gpy=gpy, gpz=gpz, goz=goz, 
                 ppx=ppx, ppy=ppy, ppz=ppz, poz=poz)
             
