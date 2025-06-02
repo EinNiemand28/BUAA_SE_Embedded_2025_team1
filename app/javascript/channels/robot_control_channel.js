@@ -1,5 +1,5 @@
 // app/javascript/channels/robot_control_channel.js
-import consumer from "./consumer"
+import consumer from "channels/consumer"
 
 const RobotControlChannel = {
   subscription: null,
@@ -17,42 +17,33 @@ const RobotControlChannel = {
       },
 
       disconnected() {
-        console.warn("[RobotControlChannel.js] Disconnected from RobotControlChannel on Rails.");
+        console.log("[RobotControlChannel.js] Disconnected from RobotControlChannel.");
         document.dispatchEvent(new CustomEvent("robot-control-channel:disconnected"));
       },
 
       received(data) {
-        // 一般 RobotControlChannel 是单向的 (JS -> Rails -> ROS)
-        // Rails 端通常不通过此 Channel broadcast 数据给JS，除非有特定确认消息
-        console.log("[RobotControlChannel.js] Received data:", data);
-        if (data.status === "error") { // 例如，如果Rails端校验失败并通过transmit返回错误
-            console.error("[RobotControlChannel.js] Command error:", data.errors);
-            document.dispatchEvent(new CustomEvent("robot-control-channel:command_error", { detail: data }));
+        console.log("[RobotControlChannel.js] Received data from Rails:", data);
+        
+        if (data.status === "success") {
+          document.dispatchEvent(new CustomEvent("robot-control-channel:command_success", {
+            detail: { data: data }
+          }));
+        } else if (data.status === "error") {
+          document.dispatchEvent(new CustomEvent("robot-control-channel:command_error", {
+            detail: { 
+              command: data.command || "unknown",
+              errors: data.errors || [data.error || "未知错误"]
+            }
+          }));
         }
       }
     });
+
     return this.subscription;
   },
 
-  ensureConnected: function() {
-    if (!this.subscription || !this.subscription.consumer.connection.isOpen()) {
-      return this.connect();
-    }
-    return this.subscription;
-  },
-
-  performAction: function(actionName, data = {}) {
-    const sub = this.ensureConnected();
-    if (sub) {
-      console.log(`[RobotControlChannel.js] Performing '${actionName}' with data:`, data);
-      return sub.perform(actionName, data);
-    } else {
-      console.error(`[RobotControlChannel.js] Cannot perform action '${actionName}', subscription not available.`);
-      return Promise.reject(`Subscription not available for action ${actionName}`);
-    }
-  },
-
-  move: function(direction, speed = 0.5) {
+  // --- 移动控制方法 ---
+  move: function(direction, speed) {
     const sub = this.ensureConnected();
     if (sub) {
       console.log(`[RobotControlChannel.js] Performing 'move': direction=${direction}, speed=${speed}`);
@@ -65,45 +56,108 @@ const RobotControlChannel = {
     const sub = this.ensureConnected();
     if (sub) {
       console.log("[RobotControlChannel.js] Performing 'stop_motion'");
-      return sub.perform('stop_motion', {}); // Rails端 action 名是 stop_motion
+      return sub.perform('stop_motion', {});
     }
     return Promise.reject("Subscription not available for stop_motion command");
   },
 
-  cancelTask: function(taskId) {
-    const sub = this.ensureConnected();
-    if (sub) {
-      console.log(`[RobotControlChannel.js] Performing 'cancel_task' for taskId=${taskId}`);
-      return sub.perform('cancel_task', { task_id: taskId });
-    }
-    return Promise.reject("Subscription not available for cancel_task command");
-  },
-
-  completeMapBuild: function(mapName, description = "") {
-    const sub = this.ensureConnected();
-    if (sub) {
-      console.log(`[RobotControlChannel.js] Performing 'complete_map_build': mapName=${mapName}, description=${description}`);
-      return sub.perform('complete_map_build', { map_name: mapName, description: description });
-    }
-    return Promise.reject("Subscription not available for complete_map_build command");
-  },
-
+  // --- 系统控制方法 ---
   emergencyStop: function() {
     const sub = this.ensureConnected();
     if (sub) {
-      console.warn("[RobotControlChannel.js] Performing 'emergency_stop'");
+      console.log("[RobotControlChannel.js] Performing 'emergency_stop'");
       return sub.perform('emergency_stop', {});
     }
     return Promise.reject("Subscription not available for emergency_stop command");
   },
 
-  toggleCameraStream: function(enable) { // enable 应该是布尔值
+  resumeOperation: function() {
+    const sub = this.ensureConnected();
+    if (sub) {
+      console.log("[RobotControlChannel.js] Performing 'resume_operation'");
+      return sub.perform('resume_operation', {});
+    }
+    return Promise.reject("Subscription not available for resume_operation command");
+  },
+
+  // --- 手动控制模式 ---
+  enableManualControl: function() {
+    const sub = this.ensureConnected();
+    if (sub) {
+      console.log("[RobotControlChannel.js] Performing 'enable_manual_control'");
+      return sub.perform('enable_manual_control', {});
+    }
+    return Promise.reject("Subscription not available for enable_manual_control command");
+  },
+
+  disableManualControl: function() {
+    const sub = this.ensureConnected();
+    if (sub) {
+      console.log("[RobotControlChannel.js] Performing 'disable_manual_control'");
+      return sub.perform('disable_manual_control', {});
+    }
+    return Promise.reject("Subscription not available for disable_manual_control command");
+  },
+
+  // --- 建图控制 ---
+  completeMapBuild: function(mapName, mapDescription) {
+    const sub = this.ensureConnected();
+    if (sub) {
+      console.log(`[RobotControlChannel.js] Performing 'complete_map_build': name=${mapName}`);
+      return sub.perform('complete_map_build', { 
+        map_name: mapName, 
+        map_description: mapDescription 
+      });
+    }
+    return Promise.reject("Subscription not available for complete_map_build command");
+  },
+
+  // --- 摄像头控制 ---
+  toggleCameraStream: function(enable) {
     const sub = this.ensureConnected();
     if (sub) {
       console.log(`[RobotControlChannel.js] Performing 'toggle_camera_stream': enable=${enable}`);
-      return sub.perform('toggle_camera_stream', { enable: !!enable }); // 确保是布尔值
+      return sub.perform('toggle_camera_stream', { enable: !!enable });
     }
     return Promise.reject("Subscription not available for toggle_camera_stream command");
+  },
+
+  // --- 通用移动指令发送方法 ---
+  sendMovementCommand: function(command) {
+    // command应包含 linear_velocity 和 angular_velocity 字段
+    let direction = "stop";
+    let speed = 0;
+    
+    if (command.linear_velocity > 0) {
+      direction = "forward";
+      speed = Math.abs(command.linear_velocity);
+    } else if (command.linear_velocity < 0) {
+      direction = "backward"; 
+      speed = Math.abs(command.linear_velocity);
+    } else if (command.angular_velocity > 0) {
+      direction = "left";
+      speed = Math.abs(command.angular_velocity);
+    } else if (command.angular_velocity < 0) {
+      direction = "right";
+      speed = Math.abs(command.angular_velocity);
+    }
+    
+    return this.move(direction, speed);
+  },
+
+  // --- 辅助方法 ---
+  ensureConnected: function() {
+    if (!this.subscription) {
+      console.log("[RobotControlChannel.js] No subscription found. Attempting to connect...");
+      this.connect();
+    }
+    
+    if (this.subscription && this.subscription.consumer.connection.isOpen()) {
+      return this.subscription;
+    } else {
+      console.warn("[RobotControlChannel.js] Connection not ready for robot control operations.");
+      return null;
+    }
   },
 
   disconnect: function() {

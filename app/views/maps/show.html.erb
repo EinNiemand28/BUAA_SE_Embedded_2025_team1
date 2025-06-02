@@ -1,174 +1,260 @@
-<div class="container mx-auto px-4 py-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold"><%= t('maps.titles.show') %>: <%= @map.name %></h1>
-    <div class="flex space-x-3">
-      <%= link_to t('common.back'), maps_path, class: "btn btn-outline" %>
-      <%= link_to t('common.edit'), edit_map_path(@map), class: "btn btn-secondary" %>
-      <% if !@map.is_active? %>
-        <%= button_to t('maps.buttons.activate'), activate_map_path(@map), method: :post, class: "btn btn-primary" %>
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+  <!-- 页面头部 -->
+  <div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+          <%= @map.name %>
+        </h2>
+        <% if @map.is_active? %>
+          <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <%= t('maps.status.active') %>
+          </span>
+        <% end %>
+      </div>
+      <% if @map.description.present? %>
+        <p class="mt-1 text-sm text-gray-500"><%= @map.description %></p>
       <% end %>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+      <% if Current.session&.user&.admin? %>
+        <% unless @map.is_active? %>
+          <%= button_to "激活地图", @map, method: :patch, 
+                params: { activate: true },
+                class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
+        <% end %>
+        <%= link_to "编辑", edit_map_path(@map), 
+              class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        <%= button_to "删除", @map, method: :delete, 
+              form: { data: { turbo_confirm: "确定要删除这个地图吗？" } },
+              class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
+      <% end %>
+      <%= link_to "返回地图列表", maps_path, 
+            class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
     </div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2">
-      <div class="bg-white shadow rounded-lg p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-2xl font-semibold"><%= t('maps.details.title') %></h2>
-          <% if @map.is_active? %>
-            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
-              <%= t('maps.status.active') %>
-            </span>
-          <% else %>
-            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">
-              <%= t('maps.status.inactive') %>
-            </span>
-          <% end %>
+    <!-- 左侧：地图预览和基本信息 -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- 地图预览 -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+          <h3 class="text-lg leading-6 font-medium text-gray-900"><%= t('maps.preview.title') %></h3>
         </div>
         
-        <div class="border-t border-gray-200 pt-4">
-          <dl class="divide-y divide-gray-200">
-            <div class="py-3 flex justify-between">
-              <dt class="text-sm font-medium text-gray-500"><%= t('common.name') %></dt>
-              <dd class="text-sm text-gray-900"><%= @map.name %></dd>
+        <div class="px-4 py-5 sm:p-6">
+          <% if @map.map_image.attached? %>
+            <div class="rounded-lg overflow-hidden border border-gray-200">
+              <%= image_tag @map.map_image.variant(resize_to_limit: [800, 600]), 
+                    class: "w-full h-auto max-h-96 object-contain bg-gray-100", 
+                    alt: @map.name %>
             </div>
-            <div class="py-3 flex justify-between">
-              <dt class="text-sm font-medium text-gray-500"><%= t('common.description') %></dt>
-              <dd class="text-sm text-gray-900"><%= @map.description.present? ? @map.description : t('common.not_available') %></dd>
+            <div class="mt-3 text-center">
+              <%= link_to "查看原图", rails_blob_path(@map.map_image, disposition: "attachment"), 
+                    class: "text-sm text-blue-600 hover:text-blue-900 font-medium" %>
             </div>
-            <div class="py-3 flex justify-between">
-              <dt class="text-sm font-medium text-gray-500"><%= t('common.created_by') %></dt>
-              <dd class="text-sm text-gray-900"><%= @map.created_by_user.username %></dd>
+          <% else %>
+            <div class="border-2 border-gray-300 border-dashed rounded-lg h-64 flex items-center justify-center">
+              <div class="text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('maps.preview.not_available') %></h3>
+                <p class="mt-1 text-sm text-gray-500">此地图没有预览图像</p>
+              </div>
             </div>
-            <div class="py-3 flex justify-between">
-              <dt class="text-sm font-medium text-gray-500"><%= t('common.created_at') %></dt>
-              <dd class="text-sm text-gray-900"><%= l @map.created_at, format: :long %></dd>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- 地图详细信息 -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+          <h3 class="text-lg leading-6 font-medium text-gray-900"><%= t('maps.details.title') %></h3>
+        </div>
+        
+        <div class="px-4 py-5 sm:p-6">
+          <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+            <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">地图名称</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @map.name %></dd>
             </div>
-            <div class="py-3 flex justify-between">
-              <dt class="text-sm font-medium text-gray-500"><%= t('common.updated_at') %></dt>
-              <dd class="text-sm text-gray-900"><%= l @map.updated_at, format: :long %></dd>
+
+            <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">状态</dt>
+              <dd class="mt-1">
+                <% if @map.is_active? %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <%= t('maps.status.active') %>
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <%= t('maps.status.inactive') %>
+                  </span>
+                <% end %>
+              </dd>
             </div>
-            <% if @map.map_config.attached? %>
-              <div class="py-3 flex justify-between">
-                <dt class="text-sm font-medium text-gray-500"><%= t('maps.details.config_file') %></dt>
-                <dd class="text-sm">
-                  <%= link_to @map.map_config.filename, rails_blob_path(@map.map_config, disposition: "attachment"), class: "text-blue-600 hover:text-blue-800" %>
+
+            <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">创建者</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @map.created_by_user.username %></dd>
+            </div>
+
+            <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">创建时间</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @map.created_at.strftime("%Y-%m-%d %H:%M") %></dd>
+            </div>
+
+            <% if @map.map_data_url.present? %>
+              <div class="sm:col-span-2">
+                <dt class="text-sm font-medium text-gray-500"><%= t('maps.details.data_url') %></dt>
+                <dd class="mt-1 text-sm text-gray-900 font-mono bg-gray-100 p-2 rounded break-all">
+                  <%= @map.map_data_url %>
                 </dd>
               </div>
             <% end %>
-            <% if @map.map_data_url.present? %>
-              <div class="py-3 flex justify-between">
-                <dt class="text-sm font-medium text-gray-500"><%= t('maps.details.data_url') %></dt>
-                <dd class="text-sm text-blue-600 break-words"><%= @map.map_data_url %></dd>
+
+            <% if @map.description.present? %>
+              <div class="sm:col-span-2">
+                <dt class="text-sm font-medium text-gray-500">描述</dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= @map.description %></dd>
               </div>
             <% end %>
           </dl>
         </div>
       </div>
+    </div>
 
-      <div class="bg-white shadow rounded-lg p-6 mt-6">
-        <h2 class="text-2xl font-semibold mb-4"><%= t('maps.preview.title') %></h2>
-        <div class="border border-gray-200 rounded-lg p-4 flex items-center justify-center h-64 bg-gray-50">
-          <% if @map.map_image.attached? %>
-            <%= image_tag @map.map_image_url, class: "max-h-full object-contain", alt: @map.name %>
-          <% elsif @map.map_data_url.present? && @map.map_data_url.ends_with?('.png', '.jpg', '.jpeg', '.gif', '.pgm') %>
-            <%= image_tag @map.map_data_url, class: "max-h-full object-contain", alt: @map.name %>
-          <% else %>
-            <p class="text-gray-500"><%= t('maps.preview.not_available') %></p>
-          <% end %>
-        </div>
-      </div>
-      
-      <% if @map.map_image.attached? || @map.map_config.attached? %>
-        <div class="bg-white shadow rounded-lg p-6 mt-6">
-          <h2 class="text-2xl font-semibold mb-4"><%= t('maps.files.title') %></h2>
-          <div class="space-y-4">
-            <% if @map.map_config.attached? %>
-              <div class="border border-gray-200 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="ml-4">
-                      <h3 class="text-sm font-medium text-gray-900"><%= t('maps.files.config_file') %></h3>
-                      <p class="text-sm text-gray-500"><%= @map.map_config.filename %> (<%= number_to_human_size(@map.map_config.byte_size) %>)</p>
-                    </div>
-                  </div>
-                  <div>
-                    <%= link_to t('maps.files.download'), rails_blob_path(@map.map_config, disposition: "attachment"), class: "btn btn-sm btn-outline" %>
-                  </div>
-                </div>
-              </div>
+    <!-- 右侧：相关任务和操作 -->
+    <div class="lg:col-span-1 space-y-6">
+      <!-- 快速操作 -->
+      <% if Current.session&.user&.admin? %>
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900"><%= t('maps.actions.title') %></h3>
+          </div>
+          
+          <div class="px-4 py-5 sm:p-6 space-y-3">
+            <!-- 创建导航任务 -->
+            <% if @map.is_active? %>
+              <%= link_to control_robots_path, 
+                    class: "w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <%= t('maps.actions.create_navigation_task') %>
+              <% end %>
             <% end %>
-            
-            <% if @map.map_image.attached? %>
-              <div class="border border-gray-200 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 bg-gray-100 rounded overflow-hidden">
-                      <%= image_tag @map.thumbnail_url, class: "h-10 w-10 object-cover", alt: @map.name %>
-                    </div>
-                    <div class="ml-4">
-                      <h3 class="text-sm font-medium text-gray-900"><%= t('maps.files.image_file') %></h3>
-                      <p class="text-sm text-gray-500"><%= @map.map_image.filename %> (<%= number_to_human_size(@map.map_image.byte_size) %>)</p>
-                    </div>
-                  </div>
-                  <div>
-                    <%= link_to t('maps.files.view'), rails_blob_path(@map.map_image), class: "btn btn-sm btn-outline mr-2", target: "_blank" %>
-                    <%= link_to t('maps.files.download'), rails_blob_path(@map.map_image, disposition: "attachment"), class: "btn btn-sm btn-outline" %>
-                  </div>
-                </div>
-              </div>
+
+            <!-- 创建建图任务 -->
+            <%= link_to control_robots_path, 
+                  class: "w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+              </svg>
+              <%= t('maps.actions.create_mapping_task') %>
             <% end %>
           </div>
         </div>
       <% end %>
-    </div>
 
-    <div class="lg:col-span-1">
-      <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-4"><%= t('maps.related_tasks.title') %></h2>
-        <% if @related_tasks.present? %>
-          <ul class="divide-y divide-gray-200">
-            <% @related_tasks.each do |task| %>
-              <li class="py-3">
-                <div class="flex items-center justify-between">
-<div>
-                    <%= link_to t('tasks.task_number', id: task.id), task_path(task), class: "text-blue-600 font-medium" %>
-                    <p class="text-sm text-gray-500"><%= t("tasks.types.#{task.task_type}") %></p>
-                    <p class="text-xs text-gray-400"><%= l task.created_at, format: :short %></p>
+      <!-- 相关任务 -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+          <h3 class="text-lg leading-6 font-medium text-gray-900"><%= t('maps.related_tasks.title') %></h3>
+        </div>
+        
+        <div class="max-h-96 overflow-y-auto">
+          <% related_tasks = Task.where(map: @map).order(created_at: :desc).limit(10) %>
+          <% if related_tasks.any? %>
+            <div class="divide-y divide-gray-200">
+              <% related_tasks.each do |task| %>
+                <div class="px-4 py-3">
+                  <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                      <% case task.status %>
+                      <% when 'completed' %>
+                        <div class="w-2 h-2 bg-green-400 rounded-full mt-2"></div>
+                      <% when 'processing' %>
+                        <div class="w-2 h-2 bg-blue-400 rounded-full mt-2"></div>
+                      <% when 'failed' %>
+                        <div class="w-2 h-2 bg-red-400 rounded-full mt-2"></div>
+                      <% else %>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full mt-2"></div>
+                      <% end %>
+                    </div>
+                    <div class="ml-3 flex-1">
+                      <div class="flex items-center justify-between">
+                        <%= link_to task_path(task), class: "text-sm font-medium text-blue-600 hover:text-blue-900" do %>
+                          #<%= task.id %>
+                        <% end %>
+                        <span class="text-xs text-gray-500">
+                          <%= time_ago_in_words(task.created_at) %>前
+                        </span>
+                      </div>
+                      <p class="text-sm text-gray-900">
+                        <%= t("activerecord.attributes.task.task_types.#{task.task_type}") %>
+                      </p>
+                      <div class="mt-1">
+                        <%= task_status_badge(task.status) %>
+                      </div>
+                    </div>
                   </div>
-                  <span class="px-2 py-1 text-xs rounded-full <%= task_status_class(task) %>">
-                    <%= t("tasks.statuses.#{task.status}") %>
-                  </span>
                 </div>
-              </li>
-            <% end %>
-          </ul>
-          
-          <div class="mt-4 text-center">
-            <%= link_to t('maps.related_tasks.view_all'), tasks_path(map_id: @map.id), class: "text-blue-600 text-sm" %>
-          </div>
-        <% else %>
-          <div class="text-center py-4 text-gray-500">
-            <p><%= t('maps.related_tasks.none') %></p>
-          </div>
-        <% end %>
-      </div>
-      
-      <div class="bg-white shadow rounded-lg p-6 mt-6">
-        <h2 class="text-xl font-semibold mb-4"><%= t('maps.actions.title') %></h2>
-        <div class="space-y-3">
-          <%= link_to t('maps.actions.create_navigation_task'), new_task_path(task_type: :navigation_to_point, map_id: @map.id), class: "btn btn-blue w-full" %>
-          <%= link_to t('maps.actions.create_mapping_task'), new_task_path(task_type: :map_build_auto, map_id: @map.id), class: "btn btn-green w-full" %>
-          <% if !@map.is_active? %>
-            <%= button_to t('maps.buttons.activate'), activate_map_path(@map), method: :post, class: "btn btn-yellow w-full" %>
-          <% end %>
-          <% if !@map.tasks.exists? %>
-            <%= button_to t('maps.actions.delete'), map_path(@map), method: :delete, data: { confirm: t('common.confirm_delete') }, class: "btn btn-red w-full" %>
+              <% end %>
+            </div>
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+              <%= link_to "查看所有相关任务", tasks_path(map_id: @map.id), 
+                    class: "text-sm text-blue-600 hover:text-blue-900 font-medium" %>
+            </div>
+          <% else %>
+            <div class="px-4 py-8 text-center">
+              <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+              </svg>
+              <p class="mt-2 text-sm text-gray-500"><%= t('maps.related_tasks.none') %></p>
+            </div>
           <% end %>
         </div>
       </div>
+
+      <!-- 地图文件 -->
+      <% if @map.map_image.attached? %>
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">地图文件</h3>
+          </div>
+          
+          <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <div class="ml-3">
+                  <div class="text-sm font-medium text-gray-900">
+                    <%= @map.map_image.filename %>
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    <%= number_to_human_size(@map.map_image.byte_size) %>
+                  </div>
+                </div>
+              </div>
+              <div class="flex space-x-2">
+                <%= link_to "预览", rails_blob_path(@map.map_image), target: "_blank", 
+                      class: "text-sm text-blue-600 hover:text-blue-900" %>
+                <%= link_to "下载", rails_blob_path(@map.map_image, disposition: "attachment"), 
+                      class: "text-sm text-blue-600 hover:text-blue-900" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
-
-

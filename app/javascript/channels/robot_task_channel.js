@@ -1,5 +1,5 @@
 // app/javascript/channels/robot_task_channel.js
-import consumer from "./consumer"
+import consumer from "channels/consumer"
 
 // 这个模块导出一个对象，包含了与 RobotTaskChannel 交互的方法。
 // Stimulus 控制器或其他JS代码可以导入并使用这个对象。
@@ -33,21 +33,24 @@ const RobotTaskChannel = {
         console.log("[RobotTaskChannel.js] Received data:", data);
 
         if (data.status === "success" && data.task_id) {
-          // 任务创建或取消请求成功
+          // 任务创建成功
           document.dispatchEvent(new CustomEvent("robot-task-channel:action_success", {
             detail: {
-              action: /*data.message && data.message.includes("cancellation") ? "cancel_task" : */"create_task", // 简单判断
-              taskId: data.task_id,
-              response: data
+              action: "create_task",
+              data: {
+                task_id: data.task_id,
+                task_type: data.task_type,
+                initial_status: data.initial_status
+              }
             }
           }));
         } else if (data.status === "error") {
-          // 任务创建或取消请求失败
+          // 任务创建失败
           console.error("[RobotTaskChannel.js] Action failed:", data.errors);
           document.dispatchEvent(new CustomEvent("robot-task-channel:action_error", {
             detail: {
-              errors: data.errors,
-              response: data
+              action: "create_task",
+              errors: data.errors || ["Unknown error"]
             }
           }));
         }
@@ -67,7 +70,7 @@ const RobotTaskChannel = {
   },
 
   // 方法：创建任务
-  // taskType: 字符串, e.g., "MAP_BUILD_AUTO"
+  // taskType: 字符串, e.g., "map_build_auto"
   // parameters: 对象, e.g., { map_name: "My Map", description: "..." }
   createTask: function(taskType, parameters = {}) {
     const sub = this.ensureConnected();

@@ -8,11 +8,11 @@ image: einniemand/library-robot
 servers:
   web:
     hosts:
-      - 144.126.218.111
-      - 143.244.183.83
+      - 209.38.75.232
+      - 143.198.102.210
   worker:
     hosts:
-      - 128.199.12.70
+      - 161.35.234.46
     cmd: bundle exec sidekiq -C config/sidekiq.yml
     options:
       health-cmd: exit 0
@@ -71,6 +71,11 @@ env:
     - KAMAL_REGISTRY_PASSWORD
     - ROBOT_API_KEY
     - RAILS_APP_DOMAIN
+    - DO_SPACES_ACCESS_KEY_ID
+    - DO_SPACES_SECRET_ACCESS_KEY
+    - DO_SPACES_REGION
+    - DO_SPACES_BUCKET
+    - DO_SPACES_ENDPOINT
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal app logs -r job" will tail logs from the first server in the job section.

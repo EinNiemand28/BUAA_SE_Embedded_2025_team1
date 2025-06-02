@@ -118,7 +118,7 @@ class RobotControlChannel < ApplicationCable::Channel
     end
 
     # 创建或更新地图记录
-    map = Map.create(name: map_name, description: description, created_by: user.id)
+    map = Map.create(name: map_name, description: description, created_by_user_id: user.id)
 
     if map.persisted?
       command_payload_to_ros = {
@@ -149,9 +149,6 @@ class RobotControlChannel < ApplicationCable::Channel
     command_payload_to_ros = { command_type: "EMERGENCY_STOP", payload: {} }
     broadcast_command_to_ros(command_payload_to_ros, "EMERGENCY STOP command initiated", :critical)
 
-    # Rails 端也应立即尝试更新 RobotStatus (TM的反馈会最终确认)
-    # 这有助于UI快速反应，即使ROS反馈有延迟
-    RobotStatus.current.emergency_stop! # 调用模型方法
     transmit({ status: "success", message: "Emergency stop signal sent and local status updated." })
   end
 
@@ -205,19 +202,36 @@ class RobotControlChannel < ApplicationCable::Channel
     transmit({ status: "success", message: "Disable manual control signal sent." })
   end
 
+  # --- 摄像头控制 ---
+  def toggle_camera_stream(data)
+    user = connection.current_user
+    return transmit_error("User not authenticated for TOGGLE_CAMERA_STREAM.") unless user
 
-  # toggle_camera_stream 等其他即时控制可以保持不变
-  # def toggle_camera_stream(data)
-  #   user = connection.current_user
-  #   return transmit_error("User not authenticated for TOGGLE_CAMERA.") unless user
-  #   enable = data["enable"]
-  #   unless [ true, false ].include?(enable)
-  #     return transmit_error("Invalid 'enable' for toggle_camera_stream.")
-  #   end
-  #   command_payload_to_ros = { command_type: "TOGGLE_CAMERA", payload: { enable: enable } }
-  #   broadcast_command_to_ros(command_payload_to_ros, "Toggle camera: #{enable}")
-  # end
+    enable = data["enable"]
+    unless [true, false].include?(enable)
+      return transmit_error("Invalid 'enable' parameter for toggle_camera_stream.")
+    end
 
+    command_payload_to_ros = { 
+      command_type: "TOGGLE_CAMERA_STREAM", 
+      payload: { enable: enable } 
+    }
+    broadcast_command_to_ros(command_payload_to_ros, "Toggle camera stream: #{enable}")
+    
+    # 记录系统日志
+    SystemLog.log(
+      :robot, :info,
+      "Camera stream #{enable ? 'enabled' : 'disabled'} by user #{user.id}",
+      "RobotControlChannel#toggle_camera_stream",
+      { user_id: user.id, camera_enabled: enable }
+    )
+
+    transmit({ 
+      status: "success", 
+      message: "Camera stream #{enable ? 'enable' : 'disable'} request sent to robot.",
+      enabled: enable
+    })
+  end
 
   private
 

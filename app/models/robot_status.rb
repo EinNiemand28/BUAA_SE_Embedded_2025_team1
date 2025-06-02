@@ -50,15 +50,15 @@ class RobotStatus < ApplicationRecord
     return false unless task_type_sym && Task.task_types.key?(task_type_sym)
 
     # 任何情况下，急停或手动控制模式下都不能接受新的自动任务
-    return false if emergency_stopped? || manual_control? || error? # 出错状态下也不应接受新任务
+    return false if status_emergency_stopped? || status_manual_control? || status_error? # 出错状态下也不应接受新任务
 
     case task_type_sym
     when :map_build_auto, :load_map # 这些任务可以从 idle 或 offline 状态发起
-      (idle? || offline?) && current_task_id.nil?
+      (status_idle? || status_offline?) && current_task_id.nil?
     when :navigation_to_point, :fetch_book_to_transfer, :return_book_from_transfer, :inventory_scan_and_relocate
-      idle? && active_map.present? && current_task_id.nil?
+      status_idle? && active_map.present? && current_task_id.nil?
     else # 其他未知或通用任务
-      idle? && current_task_id.nil?
+      status_idle? && current_task_id.nil?
     end
   end
 
@@ -182,7 +182,7 @@ class RobotStatus < ApplicationRecord
       id: self.id,
       status: self.status.to_s,
       status_text: I18n.t("robots.status.#{self.status}", default: self.status.to_s.humanize),
-      is_emergency_stopped: self.is_emergency_stopped, # 从数据库读取
+      is_emergency_stopped: self.status_emergency_stopped?, # 急停状态
       is_mapping: self.status_mapping_auto?,             # 根据当前status推断
       is_navigating: self.status_navigating?,       # 根据当前status推断
       is_manual_control: self.status_manual_control?, # 新增

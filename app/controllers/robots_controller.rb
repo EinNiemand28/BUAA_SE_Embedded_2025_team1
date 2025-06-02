@@ -16,7 +16,7 @@ class RobotsController < ApplicationController
     @active_map = @robot_status.active_map
 
     # 如果当前机器人正在执行建图任务，则加载该任务以便前端显示其状态
-    if @robot_status.status == :mapping && @robot_status.current_task&.type_map_build_auto?
+    if @robot_status.status_mapping_auto? && @robot_status.current_task&.task_type_map_build_auto?
       @current_mapping_task_for_view = @robot_status.current_task
     end
     # 你也可以传递一个空的Task对象给表单，如果需要

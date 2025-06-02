@@ -37,11 +37,11 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = "X-Accel-Redirect" # for NGINX
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local # TODO
+  config.active_storage.service = :digitalocean
 
   # Mount Action Cable outside main process or domain.
   config.action_cable.url = ENV.fetch("ACTION_CABLE_URL") { "wss://#{ENV["RAILS_APP_DOMAIN"] || 'localhost:3000'}/cable" }
-  config.action_cable.allowed_request_origins = [ 
+  config.action_cable.allowed_request_origins = [
     "https://#{ENV["RAILS_APP_DOMAIN"] || 'localhost:3000'}",
     "http://#{ENV["RAILS_APP_DOMAIN"] || 'localhost:3000'}",
     nil
@@ -106,9 +106,9 @@ Rails.application.configure do
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   config.hosts = [
-    ENV.fetch("RAILS_APP_DOMAIN") { "localhost" },
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
+    ENV.fetch("RAILS_APP_DOMAIN") { "localhost" }
+    #   "example.com",     # Allow requests from example.com
+    #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
   ]
   # Skip DNS rebinding protection for the default health check endpoint.
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }

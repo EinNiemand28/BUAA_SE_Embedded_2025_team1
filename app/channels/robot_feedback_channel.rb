@@ -17,6 +17,10 @@ class RobotFeedbackChannel < ApplicationCable::Channel
   end
 
   def unsubscribed
+    if connection.robot_client
+      RobotStatus.current.update_status_from_ros({ overall_status: "offline", is_emergency_stopped: false })
+      # 机器人客户端断开连接时，更新状态为 offline
+    end
     logger.info "[RobotFeedbackChannel] Client (User: #{connection.current_user&.id} or Robot) unsubscribed."
   end
 
@@ -139,8 +143,8 @@ class RobotFeedbackChannel < ApplicationCable::Channel
 
     if task.status_completed?
       if task.type_load_map?
-        # TODO: 处理地图加载任务的完成
-        map_id = payload[:result_data][:map_id]
+        # 处理地图加载任务的完成
+        map_id = payload[:result_data][:map_id] || task.map_id
         if map_id.present?
           map = Map.find_by(id: map_id)
           if map
@@ -150,11 +154,53 @@ class RobotFeedbackChannel < ApplicationCable::Channel
           end
         end
       elsif task.type_fetch_book_to_transfer?
+        # 处理取书任务完成：更新书籍和槽位状态
         book = task.book
-        # source_slot = task.source_slot
+        source_slot = task.source_slot
         target_slot = task.target_slot
-        if book
-          book.update(current_slot: target_slot)
+
+        if book && source_slot && target_slot
+          # 更新书籍位置
+          book.update!(current_slot: target_slot)
+
+          # 更新槽位占用状态
+          source_slot.update!(is_occupied: false)
+          target_slot.update!(is_occupied: true)
+
+          log_feedback_event("Book '#{book.title}' moved from slot #{source_slot.id} to slot #{target_slot.id}.",
+                           { task_id: task.id, book_id: book.id, source_slot_id: source_slot.id, target_slot_id: target_slot.id })
+        end
+      elsif task.type_return_book_from_transfer?
+        # 处理还书任务完成：更新书籍和槽位状态
+        book = task.book
+        source_slot = task.source_slot # 中转站槽位
+        target_slot = task.target_slot # 最终归位槽位
+
+        if book && source_slot && target_slot
+          # 更新书籍位置
+          book.update!(current_slot: target_slot, intended_slot: nil)
+
+          # 更新槽位占用状态
+          source_slot.update!(is_occupied: false)
+          target_slot.update!(is_occupied: true)
+
+          log_feedback_event("Book '#{book.title}' returned from transit slot #{source_slot.id} to final slot #{target_slot.id}.",
+                           { task_id: task.id, book_id: book.id, source_slot_id: source_slot.id, target_slot_id: target_slot.id })
+        end
+      end
+    elsif task.status_failed? || task.status_cancelled?
+      # 处理任务失败或取消的情况，需要回滚预分配的资源
+      if task.type_fetch_book_to_transfer?
+        book = task.book
+        target_slot = task.target_slot
+
+        if book && target_slot
+          # 回滚预分配：清除intended_slot，释放target_slot
+          book.update!(intended_slot: nil)
+          target_slot.update!(is_occupied: false)
+
+          log_feedback_event("Fetch book task failed/cancelled. Rolled back slot allocation for book '#{book.title}'.",
+                           { task_id: task.id, book_id: book.id, target_slot_id: target_slot.id }, :warning)
         end
       end
     end

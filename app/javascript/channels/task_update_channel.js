@@ -1,5 +1,5 @@
 // app/javascript/channels/task_update_channel.js
-import consumer from "./consumer"
+import consumer from "channels/consumer"
 
 // 这个模块提供了一个函数，用于为特定的任务ID创建或获取一个ActionCable订阅。
 // 它接收数据并通过自定义事件分发，具体的UI更新由监听这些事件的Stimulus控制器处理。

@@ -26,6 +26,21 @@ class Bookshelf < ApplicationRecord
     levels * slots_per_level
   end
 
+  def navigation_coordinates(distance: 0.75)
+    shelf_orientation = self.orientation || 0 # 如果朝向为空，默认为0
+    front_direction = shelf_orientation + Math::PI # 书架前方方向（180度）
+    half_width = self.width / 2.0
+
+    front_x = self.center_x + half_width * Math.cos(shelf_orientation)
+    front_y = self.center_y + half_width * Math.sin(shelf_orientation)
+
+    nav_x = front_x + distance * Math.cos(shelf_orientation)
+    nav_y = front_y + distance * Math.sin(shelf_orientation)
+    nav_z = 0.0
+
+    { x: nav_x.round(4), y: nav_y.round(4), z: nav_z.round(4), oz: front_direction.round(4) }
+  end
+
   private
 
   def generate_slots

@@ -8,6 +8,7 @@ class Task < ApplicationRecord
   belongs_to :map, optional: true # 任务关联的地图（例如，建图任务创建的地图，或导航任务使用的地图）
   belongs_to :parent_task, class_name: "Task", optional: true # 父任务（用于复杂任务分解）
   has_many :child_tasks, class_name: "Task", foreign_key: "parent_task_id", dependent: :destroy # 子任务
+  has_many :task_logs, class_name: "SystemLog", dependent: :destroy # 任务日志
 
   # 枚举：任务类型
   enum :task_type, [

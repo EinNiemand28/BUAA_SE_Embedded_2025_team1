@@ -49,7 +49,25 @@ class BooksController < ApplicationController
   def search
     @query = params[:query]
     @books = Book.search(@query)
-    render :index
+    
+    respond_to do |format|
+      format.html { render :index }
+      format.json { 
+        render json: { 
+          books: @books.map do |book|
+            {
+              id: book.id,
+              title: book.title,
+              author: book.author,
+              isbn: book.isbn,
+              status: book.status,
+              current_slot_id: book.current_slot_id,
+              has_current_location: book.current_slot.present?
+            }
+          end
+        }
+      }
+    end
   end
 
   private

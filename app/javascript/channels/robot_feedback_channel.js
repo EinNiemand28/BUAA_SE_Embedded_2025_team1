@@ -1,5 +1,5 @@
 // app/javascript/channels/robot_feedback_channel.js
-import consumer from "./consumer"
+import consumer from "channels/consumer"
 
 // 这个JS Channel 订阅 Rails 的 RobotFeedbackChannel，接收来自ROS的各种反馈。
 // 它将收到的不同类型的数据分发为更具体的自定义事件，供页面上的Stimulus控制器或其他JS监听。

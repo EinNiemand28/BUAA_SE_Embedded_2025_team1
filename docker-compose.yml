@@ -72,7 +72,7 @@ services:
     command: bin/rails server -b 0.0.0.0
     volumes:
       - .:/rails
-      - bundle_cache:/usr/local/bundle
+      # - bundle_cache:/usr/local/bundle
       - ./storage:/rails/storage
     ports:
       - "3000:3000"
@@ -95,7 +95,7 @@ services:
     command: bash -c "bundle install && bundle exec sidekiq"
     volumes:
       - .:/rails
-      - bundle_cache:/usr/local/bundle
+      # - bundle_cache:/usr/local/bundle
       - ./storage:/rails/storage
     depends_on:
       - redis
@@ -110,7 +110,7 @@ services:
 
 volumes:
   redis_data: # 持久化redis数据
-  bundle_cache: # bundle缓存
+  # bundle_cache: # bundle缓存
   # sqlite_data: # sqlite数据库数据
 
 networks:

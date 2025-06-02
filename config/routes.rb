@@ -7,6 +7,9 @@ Rails.application.routes.draw do
 
   resources :bookshelves do
     resources :slots, only: [ :index ]
+    member do
+      patch :toggle_transit_station
+    end
   end
 
   resources :books do
@@ -67,9 +70,17 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/*
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "up", to: proc { [ 200, {}, [ "OK" ] ] }
 
   # Defines the root path route ("/")
   # root "posts#index"
   root "robots#index"
   # match '*path', via: :all, to: proc { [404, {}, ['Not Found']] }
+
+  # API endpoints
+  namespace :api do
+    resources :bookshelves, only: [ :show, :index ]
+    resources :tasks, only: [ :index, :show ]
+    resources :maps, only: [ :index, :show ]
+  end
 end

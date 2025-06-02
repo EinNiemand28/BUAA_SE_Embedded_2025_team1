@@ -69,11 +69,147 @@ class RobotTaskChannel < ApplicationCable::Channel
       end
     end
 
-    if [ "navigation_to_point", "fetch_book_to_transfer", "return_book_from_transfer" ].include?(task_type_str)
+    # 验证导航任务参数
+    if task_type_str == "navigation_to_point"
       unless RobotStatus.current.active_map
-        transmit_error("No active map available for #{task_type_str}.")
+        transmit_error("No active map available for navigation.")
         return
       end
+
+      bookshelf_id = parameters["bookshelf_id"]
+      if bookshelf_id.blank?
+        transmit_error("Bookshelf ID is required for navigation task.")
+        return
+      end
+
+      bookshelf = Bookshelf.find_by(id: bookshelf_id)
+      if bookshelf.nil?
+        transmit_error("Bookshelf not found.")
+        return
+      end
+
+      # 计算导航目标坐标
+      nav_coords = bookshelf.navigation_coordinates
+      parameters.merge!(
+        "target_point_x" => nav_coords[:x],
+        "target_point_y" => nav_coords[:y],
+        "target_point_z" => nav_coords[:z],
+        "target_orientation_z" => nav_coords[:oz],
+        "bookshelf_name" => bookshelf.name
+      )
+    end
+
+    # 验证取书任务参数
+    if task_type_str == "fetch_book_to_transfer"
+      unless RobotStatus.current.active_map
+        transmit_error("No active map available for fetch book task.")
+        return
+      end
+
+      book_id = parameters["book_id"]
+      if book_id.blank?
+        transmit_error("Book ID is required for fetch book task.")
+        return
+      end
+
+      book = Book.find_by(id: book_id)
+      if book.nil?
+        transmit_error("Book not found.")
+        return
+      end
+
+      # 检查书籍是否有当前位置
+      unless book.current_slot
+        transmit_error("Book has no current slot location.")
+        return
+      end
+
+      # 查找中转站的空闲槽位
+      transit_station = Bookshelf.transit_stations.first
+      unless transit_station
+        transmit_error("No transit station available.")
+        return
+      end
+
+      available_slot = transit_station.slots.where(is_occupied: false).first
+      unless available_slot
+        transmit_error("No available slots in transit station.")
+        return
+      end
+
+      # 预分配槽位
+      available_slot.update!(is_occupied: true)
+      book.update!(intended_slot: available_slot)
+
+      # 获取源位置和目标位置坐标
+      source_coords = book.current_slot.absolute_coordinates
+      target_coords = available_slot.absolute_coordinates
+
+      parameters.merge!(
+        "source_slot_id" => book.current_slot.id,
+        "target_slot_id" => available_slot.id,
+        "source_x" => source_coords[:x],
+        "source_y" => source_coords[:y],
+        "source_z" => source_coords[:z],
+        "source_oz" => source_coords[:oz],
+        "target_x" => target_coords[:x],
+        "target_y" => target_coords[:y],
+        "target_z" => target_coords[:z],
+        "target_oz" => target_coords[:oz],
+        "book_title" => book.title,
+        "book_isbn" => book.isbn
+      )
+    end
+
+    # 验证还书任务参数
+    if task_type_str == "return_book_from_transfer"
+      unless RobotStatus.current.active_map
+        transmit_error("No active map available for return book task.")
+        return
+      end
+
+      book_id = parameters["book_id"]
+      if book_id.blank?
+        transmit_error("Book ID is required for return book task.")
+        return
+      end
+
+      book = Book.find_by(id: book_id)
+      if book.nil?
+        transmit_error("Book not found.")
+        return
+      end
+
+      # 检查书籍是否在中转站
+      unless book.current_slot&.bookshelf&.is_transit_station?
+        transmit_error("Book is not currently in transit station.")
+        return
+      end
+
+      # 检查是否有预定的目标位置
+      unless book.intended_slot
+        transmit_error("Book has no intended return location.")
+        return
+      end
+
+      # 获取源位置和目标位置坐标
+      source_coords = book.current_slot.absolute_coordinates
+      target_coords = book.intended_slot.absolute_coordinates
+
+      parameters.merge!(
+        "source_slot_id" => book.current_slot.id,
+        "target_slot_id" => book.intended_slot.id,
+        "source_x" => source_coords[:x],
+        "source_y" => source_coords[:y],
+        "source_z" => source_coords[:z],
+        "source_oz" => source_coords[:oz],
+        "target_x" => target_coords[:x],
+        "target_y" => target_coords[:y],
+        "target_z" => target_coords[:z],
+        "target_oz" => target_coords[:oz],
+        "book_title" => book.title,
+        "book_isbn" => book.isbn
+      )
     end
 
     task = user.tasks.build(
@@ -86,13 +222,14 @@ class RobotTaskChannel < ApplicationCable::Channel
       target_point_x: parameters.delete("target_point_x") || nil,
       target_point_y: parameters.delete("target_point_y") || nil,
       target_point_z: parameters.delete("target_point_z") || nil,
+      target_orientation_z: parameters.delete("target_orientation_z") || nil,
       map_id: parameters.delete("map_id") || nil,
       user_id: user.id,
       scheduled_at: Time.current,
       progress_details: {},
       result_data: {}
     )
-    if RobotStatus.current.active_map && !task.type_map_build_auto? && !task.type_load_map?
+    if RobotStatus.current.active_map && !task.task_type_map_build_auto? && !task.task_type_load_map?
       task.map = RobotStatus.current.active_map
     end
     task.store_parameters(parameters) # 将原始参数（如 map_name, description）存入 progress_details
@@ -102,7 +239,7 @@ class RobotTaskChannel < ApplicationCable::Channel
 
       # 更新 RobotStatus，指派任务 (如果适用，例如对于独占性任务)
       # 对于建图任务，可以在这里就更新 RobotStatus 为 mapping，或等待ROS确认开始
-      # robot_status.assign_task(task) if task.type_map_build_auto? # 假设 assign_task 会更新状态为 mapping
+      # robot_status.assign_task(task) if task.task_type_map_build_auto? # 假设 assign_task 会更新状态为 mapping
 
       # 构建并向 ROS 广播任务执行指令
       broadcast_task_to_ros("TASK_EXECUTE", task)
@@ -131,7 +268,7 @@ class RobotTaskChannel < ApplicationCable::Channel
     ros_parameters = task.fetch_parameters
 
     # 除非建图或者加载地图任务，否则需要确保有一个活动地图
-    unless task.type_map_build_auto? || task.type_load_map?
+    unless task.task_type_map_build_auto? || task.task_type_load_map?
       unless RobotStatus.current.active_map
           logger.error "[RobotTaskChannel] NAVIGATION_TO_POINT Task #{task.id}: No active map found."
           task.update(status: :failed, result_data: (task.result_data || {}).merge(error: "No active map for navigation."))

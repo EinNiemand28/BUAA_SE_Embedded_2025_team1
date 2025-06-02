@@ -78,3 +78,5 @@ gem "dotenv-rails", "~> 3.1"
 gem "foreman", "~> 0.88.1"
 
 gem "heroicon", "~> 1.0"
+
+gem "aws-sdk-s3", "~> 1.188"

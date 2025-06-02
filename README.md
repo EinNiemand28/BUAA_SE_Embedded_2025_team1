@@ -66,6 +66,17 @@ graph TD
 
 *   **核心通信与机器人控制:**
     
+    ```mermaid
+        graph LR
+            A[前端JS] -->|任务创建| B[RobotTaskChannel]
+            A -->|即时控制| C[RobotControlChannel] 
+            D[ROS节点] -->|状态反馈| E[RobotFeedbackChannel]
+            B --> F[ros_comms_channel]
+            C --> F
+            E -->|处理后| G[TaskUpdateChannel]
+            E -->|处理后| H[RobotGeneralUpdatesChannel]
+    ```
+    
     *   [x] 通过 WebSocket (Action Cable) 实现 Web 前端 (JS) -> Rails Channels -> ROS `web_robot_bridge` -> ROS `task_manager` 的指令下发链路。
     *   [x] 通过 WebSocket (Action Cable) 实现 ROS `task_manager` -> ROS `web_robot_bridge` -> Rails `RobotFeedbackChannel` -> 前端 JS (DOM Events) 的反馈更新链路。
     *   [x] 前端界面 (通过 `RobotFeedbackInterface.js` 监听 `robot_status_model_update` 和 `robot_state_update` 事件) 实时展示机器人基本状态（来自 `RobotStatus` 模型的位置、速度、电量、连接状态、错误信息、当前任务、活动地图）。
@@ -75,20 +86,25 @@ graph TD
     *   [x] ROS `web_robot_bridge` 节点订阅 `task_manager` 的 `TaskFeedback` 和 `RobotStatusCompressed` ROS 消息，并将数据转发给 Rails `RobotFeedbackChannel`。
     *   [x] ROS `task_manager` 节点维护机器人核心状态机，处理任务队列，并与模拟的 ROS 服务交互。
     *   [ ] 更复杂的通信接口（如：ROS 节点图实时状态、机器人详细传感器数据流、摄像头视频流）。
+    
 *   **用户认证与授权:**
+    
     *   [x] 基于 authentication-zero 的用户注册与登录功能。
     *   [x] Action Cable 连接通过 `request.headers["X-Robot-API-Key"]` (机器人客户端) 或 `params[:user_token]` (用户浏览器) 进行认证。
     *   [x] 区分管理员与普通用户权限。
+    
 *   **书籍管理:**
     *   [x] `Book` 模型及 CRUD (通过 `BooksController` 和标准视图)。
     *   [x] Active Storage 存储和显示书籍封面。
     *   [x] 书籍列表搜索功能。
     *   [x] 书籍状态管理 (`Book.status` enum)。
     *   [x] 书籍与库位关联 (`current_slot`, `intended_slot`)。
+    
 *   **书架与库位 (Slot) 管理:**
     *   [x] `Bookshelf` 模型及 CRUD。
     *   [x] `Slot` 模型，创建书架时自动生成库位。
     *   [x] 书籍位置分配/移动的用户操作界面（模态框）。(这里的“操作”是指更新数据库记录，实际物理移动是任务)
+    
 *   **机器人任务管理:**
     
     *   [x] 通过 `RobotTaskChannel.js` -> `RobotTaskChannel.rb#create_task` 创建机器人任务 (如 `:map_build_auto`, `:load_map`, `:navigation_to_point`, `:fetch_book_to_transfer`)，任务参数存储在 `Task.progress_details`。
@@ -97,6 +113,7 @@ graph TD
     *   [x] 通过 `RobotControlChannel.js` -> `RobotControlChannel.rb#cancel_task` 取消任务。
     *   [x] 任务状态实时更新：`Task` 模型回调 -> `TaskUpdateChannel.rb` -> `TaskUpdateChannel.js` -> DOM 事件 -> Stimulus 控制器更新UI。
     *   [x] 任务列表和详情页 (`TasksController` 提供数据，JS 动态更新)。
+    
 * **地图管理与导航:**
 
    *   [x]  `Map` 模型及 CRUD (通过 `MapsController`，主要管理元数据)。
@@ -108,6 +125,7 @@ graph TD
    *   [x]  `RobotStatus.active_map` 记录机器人当前使用的地图 (由 `LOAD_MAP` 任务成功反馈或 `RobotStatusCompressed` 消息同步)。
    *   [x]  可视化展示书架和库位占用情况 (通过 `BookshelvesController` 和视图)。
    *   [ ]  机器人根据书籍目标位置或用户指定点进行路径规划与导航（`task_manager` 中的 `_execute_navigate_to_point` 依赖实际的 ROS 导航服务）。
+   
 *  **系统日志:**
     *   [x] `SystemLog` 模型和 `SystemLogsController` (管理员查看)。
     *   [x] 在关键操作点 (Channel, Model回调, Controller) 记录日志。
