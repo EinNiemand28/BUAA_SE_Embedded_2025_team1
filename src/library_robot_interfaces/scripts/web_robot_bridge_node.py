@@ -10,9 +10,10 @@ from std_msgs.msg import String
 from library_robot_interfaces.msg import TaskDirective, TaskFeedback, RobotStatusCompressed, CameraFrameData
 
 # --- 配置 ---
-# RAILS_APP_HOST = "robot.einniemand.top"
-RAILS_APP_HOST = "localhost:3000" 
-RAILS_APP_SCHEME = "ws"
+RAILS_APP_HOST = "robot.einniemand.top"
+# RAILS_APP_HOST = "localhost:3000" 
+RAILS_APP_SCHEME = "wss"
+# RAILS_APP_SCHEME = "ws" # 如果是本地开发环境，需要使用 ws 而不是 wss
 WEBSOCKET_URL = f"{RAILS_APP_SCHEME}://{RAILS_APP_HOST}/cable"
 API_KEY = "7ad0bbbdf00c5cbe87799355200f212ed329030028fd3ccd51524e461adf2c31" # 从你的.env文件同步
 
