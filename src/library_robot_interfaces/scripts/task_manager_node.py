@@ -19,9 +19,9 @@ import tf.transformations # For quaternion to euler conversion (standard in ROS1
 
 from library_robot_interfaces.msg import TaskDirective, TaskFeedback, RobotStatusCompressed
 
-from mapping.srv import Start, StartResponse
+from mapping.srv import Start, StartResponse, Halt, HaltResponse
 from navigation.srv import Goal, GoalResponse
-from std_srvs.srv import Trigger, TriggerResponse
+from std_srvs.srv import Trigger, TriggerResponse, Empty
 from arm_controller.srv import Place, PlaceResponse
 from fetch_server.srv import Fetch, FetchResponse
 
@@ -82,20 +82,35 @@ def convert_pgm_to_image_base64(pgm_file_path):
             rospy.logerr(f"Failed to read PGM file: {pgm_file_path}")
             return None
 
-        pil_image = Image.fromarray(map_image, mode='L')
-
-        width, height = pil_image.size
-        if width > 1024 or height > 1024:
-            scale_factor = min(1024 / width, 1024 / height)
-            new_size = (int(width * scale_factor), int(height * scale_factor))
-            pil_image = pil_image.resize(new_size, Image.Resampling.LANCZOS)
-            rospy.loginfo(f"Resized PGM image to {new_size} to fit within 1024x1024.")
+        # Get image dimensions
+        height, width = map_image.shape
         
+        # Calculate center coordinates
+        center_x = width // 2
+        center_y = height // 2
+        
+        # Extract 400x400 pixels from center
+        crop_size = 300
+        half_crop = crop_size // 2
+        
+        # Calculate crop boundaries
+        x1 = max(0, center_x - half_crop)
+        y1 = max(0, center_y - half_crop)
+        x2 = min(width, center_x + half_crop)
+        y2 = min(height, center_y + half_crop)
+        
+        # Crop the center region
+        cropped_image = map_image[y1:y2, x1:x2]
+        
+        # Convert to PIL Image
+        pil_image = Image.fromarray(cropped_image, mode='L')
+        
+        # Save as PNG to preserve quality (lossless)
         buffered = io.BytesIO()
-        pil_image.save(buffered, format="JPEG", quality=85, optimized=True)
+        pil_image.save(buffered, format="PNG")
         img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-        rospy.loginfo(f"Converted PGM file {pgm_file_path} to base64 successfully.")
+        rospy.loginfo(f"Extracted center 400x400 region from PGM file {pgm_file_path} and converted to base64 successfully.")
         return img_base64
 
     except Exception as e:
@@ -224,8 +239,8 @@ class TaskManagerNode:
             msg.robot_state_str = self.current_tm_state # TM自身管理的核心状态
             msg.error_message = self.current_error_msg or ""
             msg.is_emergency_stopped = self.is_robot_emergency_stopped
-            msg.active_task_id_rails = int(self.current_executing_task_info.task_id_rails or 0) if self.current_executing_task_info else 0
-            msg.active_map = self.active_map_in_ros or ""
+            msg.active_task_id_rails = int(self.current_executing_task_info.task_id or 0) if self.current_executing_task_info else 0
+            msg.active_map = self.active_map_in_ros or 0
         self.robot_status_compressed_pub.publish(msg)
         rospy.logdebug(f"[{self.node_name}] Published RobotStatusCompressed: State='{msg.robot_state_str}', EStop={msg.is_emergency_stopped}")
 
@@ -361,8 +376,8 @@ class TaskManagerNode:
                 if existing_task.task_id == task_info.task_id:
                     rospy.logwarn(f"[{self.node_name}] Task {task_info.task_id} already in queue.")
                     return
-            
-            if self.current_task and self.current_task.task_id == task_info.task_id:
+
+            if self.current_executing_task_info and self.current_executing_task_info.task_id == task_info.task_id:
                 rospy.logwarn(f"[{self.node_name}] Task {task_info.task_id} is currently executing")
                 return
 
@@ -391,7 +406,7 @@ class TaskManagerNode:
     
     def _request_cancel_task(self, task_id):
         with self.task_scheduler_lock:
-            need_cancel = True if self.current_executing_task_info and self.current_executing_task_info.task_id_rails == task_id else False
+            need_cancel = True if self.current_executing_task_info and self.current_executing_task_info.task_id == task_id else False
         if need_cancel:
             rospy.loginfo(f"[{self.node_name}] Cancelling current task {task_id}.")
             self._publish_task_feedback("report_task_completion", {
@@ -455,9 +470,9 @@ class TaskManagerNode:
                     self.current_executing_task_info = task_to_execute
             
             if task_to_execute:
-                rospy.loginfo(f"[{self.node_name}] Starting execution thread for Task {task_to_run.task_id_rails} ({task_to_run.task_type_rails})")
+                rospy.loginfo(f"[{self.node_name}] Starting execution thread for Task {task_to_execute.task_id} ({task_to_execute.task_type})")
                 task_thread = threading.Thread(
-                    target=self._execute_task_wrapper, 
+                    target=self._task_execution_wrapper, 
                     args=(task_to_execute,)
                 )
                 task_thread.daemon = True
@@ -480,16 +495,16 @@ class TaskManagerNode:
             })
         finally:
             with self.task_scheduler_lock:
-                if self.current_executing_task_info == task_info:
+                if self.current_executing_task_info == task_info and not self.current_tm_state == self.STATE_MAPPING_AUTO:
                     self.current_executing_task_info = None
-                if not self.is_robot_emergency_stopped:
+                if not self.is_robot_emergency_stopped and not self.current_tm_state == self.STATE_MAPPING_AUTO:
                     self._change_tm_state_and_publish(self.STATE_IDLE)
 
     def _dispatch_task_execution(self, task_info):
         task_id = task_info.task_id
         task_type = task_info.task_type
 
-        self.publish_task_feedback(task_id, "update_task_progress", {
+        self._publish_task_feedback("update_task_progress", {
             "task_id": int(task_id or 0),
             "status_from_ros": "tm_task_started",
             # "progress_percentage": 10,
@@ -536,23 +551,81 @@ class TaskManagerNode:
                 self.current_executing_task_info = None
 
     def _reboot_ros_for_task_cancellation(self, type): # 手动取消 or 急停取消正在执行的任务
-        halt_command = "rosservice call /arm_emergency_stop\n \
-            rosnode kill /wpb_home_grab_action\n \
-            rosservice call /emergency_stop"
+        rospy.loginfo(f"[{self.node_name}] Rebooting ROS for ({type})...")    
+        def call_service_safely(service_name, service_type, request_args=None):
+            """安全调用ROS服务"""
+            try:
+                rospy.wait_for_service(service_name, timeout=2.0)
+                service_proxy = rospy.ServiceProxy(service_name, service_type)
+                
+                if request_args:
+                    response = service_proxy(**request_args)
+                else:
+                    response = service_proxy()
+                    
+                rospy.loginfo(f"[{self.node_name}] Service {service_name} called successfully")
+                return True
+                
+            except rospy.ServiceException as e:
+                rospy.logwarn(f"[{self.node_name}] Service {service_name} failed: {e}")
+                return False
+            except rospy.ROSException as e:
+                rospy.logwarn(f"[{self.node_name}] Service {service_name} not available: {e}")
+                return False
+            except Exception as e:
+                rospy.logwarn(f"[{self.node_name}] Unexpected error calling {service_name}: {e}")
+                return False
         
-        restore_command = "rosservice call /arm_zero_service\n \
-            rosrun wpb_home_behaviors wpb_home_grab_action"
-
-        rospy.loginfo(f"[{self.node_name}] Rebooting ROS for ({type})...")
+        def kill_node_safely(node_name):
+            """安全杀死ROS节点"""
+            try:
+                result = subprocess.run(['rosnode', 'kill', node_name], 
+                                    capture_output=True, text=True, timeout=3.0)
+                if result.returncode == 0:
+                    rospy.loginfo(f"[{self.node_name}] Node {node_name} killed")
+                    return True
+                else:
+                    rospy.logwarn(f"[{self.node_name}] Failed to kill {node_name}")
+                    return False
+            except Exception as e:
+                rospy.logwarn(f"[{self.node_name}] Error killing {node_name}: {e}")
+                return False
+        
+        def start_node_safely(package, executable):
+            """安全启动ROS节点"""
+            try:
+                subprocess.Popen(['rosrun', package, executable])
+                rospy.loginfo(f"[{self.node_name}] Started {package}/{executable}")
+                return True
+            except Exception as e:
+                rospy.logwarn(f"[{self.node_name}] Error starting {package}/{executable}: {e}")
+                return False
+        
         try:
-            # 关闭相关节点然后重新启动
-            subprocess.run(halt_command, shell=True, check=True)
-            rospy.loginfo(f"[{self.node_name}] ROS halted.")
-            # TODO: 有一点问题
-            subprocess.run(restore_command, shell=True, check=True)
-            rospy.loginfo(f"[{self.node_name}] ROS restored.")
+            # Phase 1: 停止命令
+            rospy.loginfo(f"[{self.node_name}] Phase 1: Executing halt commands...")
+
+            call_service_safely('/arm_emergency_stop', Empty)
+            
+            kill_node_safely('/wpb_home_grab_action')
+            
+            call_service_safely('/emergency_stop', Empty)
+            
+            call_service_safely('/halt_mapping', Halt, {'path': './maps/', 'name': 'temp'})
+            time.sleep(1.0)
+            
+            
+            # Phase 2: 恢复命令
+            rospy.loginfo(f"[{self.node_name}] Phase 2: Executing restore commands...")
+
+            call_service_safely('/arm_zero_service', Trigger)
+            
+            start_node_safely('wpb_home_behaviors', 'wpb_home_grab_action')
+            
+            rospy.loginfo(f"[{self.node_name}] ROS reboot sequence completed for ({type})")
+            
         except Exception as e:
-            rospy.logerr(f"[{self.node_name}] Error occurred while rebooting ROS for ({type}): {e}")
+            rospy.logerr(f"[{self.node_name}] Unexpected error during ROS reboot for ({type}): {e}")
         # TODO: 是否还需要重新启动其他节点或服务？比如导航、建图等？
 
     def _execute_resume_from_estop_or_error(self, directive):
@@ -645,7 +718,7 @@ class TaskManagerNode:
 
     def _execute_map_build_auto(self, task_info):
         try:
-            params = json.loads(task_info.params)
+            params = task_info.params
             task_id = task_info.task_id
             rospy.loginfo(f"[{self.node_name}] Starting auto mapping for task {task_id} with params: {params}")
             sim = params.get("sim", True)
@@ -682,19 +755,19 @@ class TaskManagerNode:
                 rospy.logwarn(f"[{self.node_name}] COMPLETE_MAP_BUILD command rejected: Robot not in MAPPING_AUTO state (current: {self.current_tm_state}).")
                 return
         try:
-            params = json.loads(task_info.params)
+            params = task_info.params
             rospy.loginfo(f"[{self.node_name}] Completing map build for task {self.current_executing_task_info.task_id} with params: {params}")
             map_id = params.get("map_id")
-            # map_name = params.get("map_name")
+            map_name = params.get("map_name")
 
             rospy.wait_for_service(HALT_MAPPING_SERVICE_NAME, timeout=5.0)
-            halt_mapping = rospy.ServiceProxy(HALT_MAPPING_SERVICE_NAME, Trigger)
-            res = halt_mapping()
+            halt_mapping = rospy.ServiceProxy(HALT_MAPPING_SERVICE_NAME, Halt)
+            res = halt_mapping(path="./", name=map_name)
 
             if res.success:
                 rospy.loginfo(f"[{self.node_name}] Map build completed successfully.")
 
-                map_image_base64 = convert_map_to_base64("./Maps/" + map_name + ".pgm")
+                map_image_base64 = convert_pgm_to_image_base64("/home/qianfu/library_robot/ros_end/src/mapping/" + "./maps/" + map_name + ".pgm")
 
                 if not map_image_base64:
                     rospy.logwarn(f"[{self.node_name}] Failed to convert map image to base64.")
@@ -715,7 +788,7 @@ class TaskManagerNode:
                 self._publish_task_feedback("report_control_completion", {
                     "type": "complete_map_build",
                     "final_status_from_ros": "failed",
-                    "message": f"TM: Map build completion failed: {res.message}"
+                    "message": f"TM: Map build completion failed: {res.message}",
                     "result_data": {
                         "map_id": map_id,
                     }
@@ -734,7 +807,7 @@ class TaskManagerNode:
 
     def _execute_load_map(self, task_info):
         try:
-            params = json.loads(task_info.params)
+            params = task_info.params
             task_id = task_info.task_id
             map_id = params.get("map_id")
             map_name = params.get("map_name")
@@ -781,7 +854,7 @@ class TaskManagerNode:
                 return
             rospy.loginfo(f"[{self.node_name}] NAVIGATE_TO_POINT command accepted with active map: {self.active_map_in_ros}")
         try:
-            params = json.loads(task_info.params)
+            params = task_info.params
             task_id = task_info.task_id
             px = params.get("px")
             py = params.get("py")
@@ -821,7 +894,7 @@ class TaskManagerNode:
                 return
             rospy.loginfo(f"[{self.node_name}] FETCH_BOOK_TO_TRANSFER command accepted with active map: {self.active_map_in_ros}")
         try:
-            params = json.loads(task_info.params)
+            params = task_info.params
             task_id = task_info.task_id
             book_id = params.get("book_id")
             gpx = params.get("gpx")
@@ -844,7 +917,7 @@ class TaskManagerNode:
                 self._publish_task_feedback("report_task_completion", {
                     "task_id": int(task_id or 0),
                     "final_status_from_ros": "success",
-                    "message": f"TM: Fetch book {book_id} successful."
+                    "message": f"TM: Fetch book {book_id} successful.",
                     "result_data": {
                         "book_id": book_id,
                     }

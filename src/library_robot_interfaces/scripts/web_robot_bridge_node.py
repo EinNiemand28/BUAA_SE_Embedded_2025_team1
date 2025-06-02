@@ -7,10 +7,11 @@ import time
 import uuid
 
 from std_msgs.msg import String
-from library_robot_interfaces.msg import TaskDirective, TaskFeedback, RobotStatusCompressed
+from library_robot_interfaces.msg import TaskDirective, TaskFeedback, RobotStatusCompressed, CameraFrameData
 
 # --- 配置 ---
-RAILS_APP_HOST = "localhost:3000"
+# RAILS_APP_HOST = "robot.einniemand.top"
+RAILS_APP_HOST = "localhost:3000" 
 RAILS_APP_SCHEME = "ws"
 WEBSOCKET_URL = f"{RAILS_APP_SCHEME}://{RAILS_APP_HOST}/cable"
 API_KEY = "7ad0bbbdf00c5cbe87799355200f212ed329030028fd3ccd51524e461adf2c31" # 从你的.env文件同步
@@ -18,11 +19,14 @@ API_KEY = "7ad0bbbdf00c5cbe87799355200f212ed329030028fd3ccd51524e461adf2c31" # �
 # Rails ActionCable Channel 名称
 RAILS_COMMAND_RECEPTION_CHANNEL_CLASS = "RosCommsSubscriberChannel" # ROS节点订阅这个Channel类
 RAILS_FEEDBACK_DISPATCH_CHANNEL_CLASS = "RobotFeedbackChannel"     # ROS节点向这个Channel类的方法发送消息
+RAILS_CAMERA_STREAM_CHANNEL_CLASS = "CameraStreamChannel"          # ROS节点向这个Channel类发送摄像头数据
 
 # ROS Topics
 TM_DIRECTIVE_TOPIC = "/task_manager/directive" # WSRB publishes, TM subscribes
 TM_FEEDBACK_TOPIC = "/task_manager/feedback"   # TM publishes, WSRB subscribes
 ROBOT_STATUS_TOPIC = "/robot_core/status_compressed" # TM (or other core node) publishes, WSRB subscribes
+CAMERA_STREAM_TOPIC = "/robot_core/camera_stream"    # Camera node publishes, WSRB subscribes
+CAMERA_CONTROL_TOPIC = "/camera_control/command"     # WSRB publishes, Camera node subscribes
 
 class WebRobotBridgeNode:
     def __init__(self):
@@ -38,10 +42,18 @@ class WebRobotBridgeNode:
         self.connect_lock = threading.Lock()
         self.client_id = str(uuid.uuid4()) # 用于调试，如果Rails端需要区分不同bridge实例
 
+        # 摄像头流状态管理
+        self.camera_streaming_enabled = False
+        self.last_camera_frame_time = rospy.Time.now()
+        self.camera_throttle_interval = 0.2  # 200ms，限制摄像头帧率以避免过载WebSocket
+
         # ROS Publishers and Subscribers
         self.task_directive_pub = rospy.Publisher(TM_DIRECTIVE_TOPIC, TaskDirective, queue_size=20)
+        self.camera_control_pub = rospy.Publisher(CAMERA_CONTROL_TOPIC, String, queue_size=10)
+        
         rospy.Subscriber(TM_FEEDBACK_TOPIC, TaskFeedback, self._tm_feedback_callback, queue_size=20)
         rospy.Subscriber(ROBOT_STATUS_TOPIC, RobotStatusCompressed, self._robot_status_callback, queue_size=20)
+        rospy.Subscriber(CAMERA_STREAM_TOPIC, CameraFrameData, self._camera_stream_callback, queue_size=5)
 
         self._start_websocket_manager()
         rospy.loginfo(f"[{self.node_name}] Bridge Initialized (Client ID: {self.client_id}). Waiting for WebSocket connection.")
@@ -103,10 +115,14 @@ class WebRobotBridgeNode:
 
             # 2. 订阅Rails端用于ROS发送反馈的Channel实例 (RobotFeedbackChannel)
             #    这样当WSRB发送带有此identifier的message时，Rails知道路由给哪个Channel对象
-            # feedback_identifier = json.dumps({"channel": RAILS_FEEDBACK_DISPATCH_CHANNEL_CLASS})
-            # ws.send(json.dumps({"command": "subscribe", "identifier": feedback_identifier}))
-            # rospy.loginfo(f"[{self.node_name}] Sent subscribe request for feedback dispatch channel: '{RAILS_FEEDBACK_DISPATCH_CHANNEL_CLASS}'")
-            # 不需要订阅，因为Rails端会自动处理
+            feedback_identifier = json.dumps({"channel": RAILS_FEEDBACK_DISPATCH_CHANNEL_CLASS})
+            ws.send(json.dumps({"command": "subscribe", "identifier": feedback_identifier}))
+            rospy.loginfo(f"[{self.node_name}] Sent subscribe request for feedback dispatch channel: '{RAILS_FEEDBACK_DISPATCH_CHANNEL_CLASS}'")
+
+            # 3. 订阅Rails端用于ROS发送摄像头数据的Channel实例 (CameraStreamChannel)
+            camera_identifier = json.dumps({"channel": RAILS_CAMERA_STREAM_CHANNEL_CLASS})
+            ws.send(json.dumps({"command": "subscribe", "identifier": camera_identifier}))
+            rospy.loginfo(f"[{self.node_name}] Sent subscribe request for camera stream channel: '{RAILS_CAMERA_STREAM_CHANNEL_CLASS}'")
 
         except Exception as e:
             rospy.logerr(f"[{self.node_name}] Error during _on_ws_open while sending subscribe messages: {e}")
@@ -145,6 +161,12 @@ class WebRobotBridgeNode:
 
             rospy.loginfo(f"[{self.node_name}] Parsed app command from Rails '{RAILS_COMMAND_RECEPTION_CHANNEL_CLASS}': Type='{command_type}'")
 
+            # 处理摄像头控制指令
+            if command_type == "TOGGLE_CAMERA_STREAM":
+                self._handle_camera_control_command(command_type, payload_dict)
+                return
+
+            # 处理其他指令 -> 转发给TaskManager
             directive = TaskDirective()
             directive.header.stamp = rospy.Time.now()
             directive.header.frame_id = self.client_id # WSRB的ID
@@ -168,6 +190,43 @@ class WebRobotBridgeNode:
             rospy.logerr(f"[{self.node_name}] Failed to decode JSON from Rails: {message_str}")
         except Exception as e:
             rospy.logerr(f"[{self.node_name}] Error processing message from Rails: {e}\nMsg: {message_str}", exc_info=True)
+
+    def _handle_camera_control_command(self, command_type, payload_dict):
+        """处理摄像头控制指令"""
+        try:
+            enable = payload_dict.get("enable", False) if payload_dict else False
+            
+            # 更新本地状态
+            self.camera_streaming_enabled = enable
+            
+            # 构建发送给摄像头节点的控制指令
+            camera_command = {
+                "command_type": command_type,
+                "enable": enable
+            }
+            
+            # 发布到摄像头控制topic
+            camera_control_msg = String()
+            camera_control_msg.data = json.dumps(camera_command)
+            self.camera_control_pub.publish(camera_control_msg)
+            
+            rospy.loginfo(f"[{self.node_name}] Camera streaming {'ENABLED' if enable else 'DISABLED'}")
+            
+            # 向Rails发送控制结果反馈
+            self._send_to_rails_channel_action("report_camera_control_result", {
+                "command": command_type,
+                "enabled": enable,
+                "status": "success",
+                "message": f"Camera streaming {'enabled' if enable else 'disabled'}"
+            })
+            
+        except Exception as e:
+            rospy.logerr(f"[{self.node_name}] Error handling camera control command: {e}")
+            self._send_to_rails_channel_action("report_camera_control_result", {
+                "command": command_type,
+                "status": "error",
+                "message": f"Failed to control camera: {str(e)}"
+            })
 
     def _on_ws_error(self, ws, error):
         rospy.logerr(f"[{self.node_name}] WebSocket error: {error}")
@@ -206,6 +265,28 @@ class WebRobotBridgeNode:
             rospy.logerr(f"[{self.node_name}] Error sending action '{rails_action_name}' to Rails: {e}")
             return False
 
+    def _send_camera_frame_to_rails(self, frame_data):
+        """发送摄像头帧数据到Rails"""
+        if not self.ws_connected or not self.ws_app:
+            return False
+
+        message_to_rails = {
+            "command": "message",
+            "identifier": json.dumps({"channel": RAILS_CAMERA_STREAM_CHANNEL_CLASS}),
+            "data": json.dumps({
+                "action": "receive_camera_frame",
+                "payload": frame_data
+            })
+        }
+        
+        try:
+            self.ws_app.send(json.dumps(message_to_rails))
+            rospy.logdebug(f"[{self.node_name}] Sent camera frame to Rails: {frame_data['data_size']} bytes")
+            return True
+        except Exception as e:
+            rospy.logerr(f"[{self.node_name}] Error sending camera frame to Rails: {e}")
+            return False
+
     def _start_heartbeat(self): # WebSocketApp 内置了 ping_interval, 此自定义心跳可能不再严格需要
         pass # 如果 WebSocketApp 的 ping_interval 足够，则不需要应用层心跳
 
@@ -214,7 +295,7 @@ class WebRobotBridgeNode:
 
     # --- ROS Topic Callbacks ---
     def _tm_feedback_callback(self, tm_feedback_msg): # Type: TaskFeedback
-        rospy.loginfo(f"[{self.node_name}] Received TaskFeedback from TM: TaskID='{tm_feedback_msg.task_id_rails}', Action='{tm_feedback_msg.feedback_action_rails}'")
+        rospy.loginfo(f"[{self.node_name}] Received TaskFeedback from TM: Action='{tm_feedback_msg.feedback_action_rails}'")
         try:
             payload_for_rails = json.loads(tm_feedback_msg.feedback_payload_json) if tm_feedback_msg.feedback_payload_json else {}
             self._send_to_rails_channel_action(tm_feedback_msg.feedback_action_rails, payload_for_rails)
@@ -243,6 +324,35 @@ class WebRobotBridgeNode:
             self._send_to_rails_channel_action("update_robot_state", payload_for_rails)
         except Exception as e:
             rospy.logerr(f"[{self.node_name}] Error in _robot_status_callback: {e}", exc_info=True)
+
+    def _camera_stream_callback(self, camera_msg): # Type: CameraFrameData
+        """处理来自摄像头节点的帧数据"""
+        if not self.camera_streaming_enabled:
+            return
+        
+        # 简单的帧率限制，避免过载WebSocket连接
+        current_time = rospy.Time.now()
+        time_since_last = (current_time - self.last_camera_frame_time).to_sec()
+        if time_since_last < self.camera_throttle_interval:
+            return
+        
+        try:
+            frame_data = {
+                "frame_id": camera_msg.frame_id,
+                "timestamp": camera_msg.header.stamp.to_sec(),
+                "format": camera_msg.format,
+                "width": camera_msg.width,
+                "height": camera_msg.height,
+                "data_base64": camera_msg.data_base64,
+                "data_size": camera_msg.data_size
+            }
+            
+            if self._send_camera_frame_to_rails(frame_data):
+                self.last_camera_frame_time = current_time
+                rospy.logdebug(f"[{self.node_name}] Forwarded camera frame {camera_msg.frame_id} to Rails")
+            
+        except Exception as e:
+            rospy.logerr(f"[{self.node_name}] Error in _camera_stream_callback: {e}")
 
 if __name__ == '__main__':
     wsrb_node_instance = None
@@ -297,4 +407,15 @@ string error_message        # Current error message, if any
 bool is_emergency_stopped
 int32 active_task_id_rails  # Current active Rails Task ID, 0 if none
 int32 active_map            # ID of the currently loaded map in ROS
+"""
+
+# library_robot_interfaces/msg/CameraFrameData.msg
+"""
+std_msgs/Header header
+int32 frame_id
+string format          # e.g., "jpeg", "png"
+int32 width
+int32 height
+string data_base64     # Base64编码的图像数据
+int32 data_size        # 原始数据大小（字节）
 """
