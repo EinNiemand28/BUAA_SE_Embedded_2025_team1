@@ -54,11 +54,11 @@ class RobotStatus < ApplicationRecord
 
     case task_type_sym
     when :map_build_auto, :load_map # 这些任务可以从 idle 或 offline 状态发起
-      (status_idle? || status_offline?) && current_task_id.nil?
+      (status_idle? || status_offline?) # current_task_id.nil?
     when :navigation_to_point, :fetch_book_to_transfer, :return_book_from_transfer, :inventory_scan_and_relocate
-      status_idle? && active_map.present? && current_task_id.nil?
+      status_idle? && active_map.present?
     else # 其他未知或通用任务
-      status_idle? && current_task_id.nil?
+      status_idle?
     end
   end
 
