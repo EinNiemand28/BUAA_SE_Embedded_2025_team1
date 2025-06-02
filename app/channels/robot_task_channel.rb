@@ -131,7 +131,7 @@ class RobotTaskChannel < ApplicationCable::Channel
         return
       end
 
-      available_slot = transit_station.slots.where(is_occupied: false).first
+      transit_station.slots.where(is_occupied: false).order(z_coordinate: :desc).first
       unless available_slot
         transmit_error("No available slots in transit station.")
         return
