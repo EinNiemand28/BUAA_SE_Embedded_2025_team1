@@ -16,11 +16,18 @@
         type="task_manager_node.py" 
         name="task_manager_node" 
         output="screen">
-    <param name="status_publish_rate_hz" value="2.0"/>
-    <param name="tf_update_rate_hz" value="2.0"/>
+    <!-- <param name="status_publish_rate_hz" value="2.0"/> -->
+    <!-- <param name="tf_update_rate_hz" value="2.0"/> -->
     <param name="map_frame" value="map"/>
     <param name="odom_frame" value="odom"/>
     <param name="base_frame" value="base_link"/>
+  </node>
+
+  <!-- Camera Publisher Node -->
+  <node pkg="library_robot_interfaces" 
+        type="camera_publisher_node.py" 
+        name="camera_publisher_node" 
+        output="screen">
   </node>
 
 </launch>
