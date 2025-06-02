@@ -65,3 +65,9 @@ source /opt/ros/noetic/setup.bash
 source ~/catkin_ws/install/setup.bash
 source /path/to/your/ros_end_workspace/devel/setup.bash
 ```
+
+## 在实际机器上部署时
+
+```bash
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libffi.so.7
+```

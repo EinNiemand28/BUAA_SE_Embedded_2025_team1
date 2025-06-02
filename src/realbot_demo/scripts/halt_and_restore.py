@@ -10,7 +10,7 @@ def halt():
 
 def restore():
     # 运行恢复的指令
-    restore_command = "rosservice call /arm_zero\n \
+    restore_command = "rosservice call /arm_zero_service\n \
         rosrun wpb_home_behaviors wpb_home_grab_action"
 
     subprocess.Popen(restore_command, shell=True)
