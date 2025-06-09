@@ -19,6 +19,20 @@ class TasksController < ApplicationController
       @tasks = @tasks.where(task_type: params[:task_type])
     end
 
+    # 用户筛选（仅管理员可用）
+    if params[:user_id].present? && Current.user.admin?
+      @tasks = @tasks.where(user_id: params[:user_id])
+    end
+
+    # 搜索功能
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @tasks = @tasks.where(
+        "id::text ILIKE ? OR task_type ILIKE ? OR status ILIKE ? OR details::text ILIKE ?",
+        search_term, search_term, search_term, search_term
+      )
+    end
+
     @tasks = @tasks.order(created_at: :desc)
     # 可以根据需要添加分页
     # @tasks = @tasks.page(params[:page]).per(12)

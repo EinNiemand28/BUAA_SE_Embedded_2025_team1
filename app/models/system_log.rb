@@ -32,8 +32,17 @@ class SystemLog < ApplicationRecord
   validates :message, presence: { message: "日志消息不能为空" }
   validates :source, presence: { message: "日志来源不能为空" } # 例如：哪个Controller, Model, Channel, Job
 
-  # 默认排序
-  default_scope { order(created_at: :desc) }
+  # 移除 default_scope 以避免性能问题，改用显式 scope
+  # default_scope { order(created_at: :desc) }
+  
+  # 添加显式的排序 scope
+  scope :latest_first, -> { order(created_at: :desc) }
+  scope :oldest_first, -> { order(created_at: :asc) }
+  
+  # 按日期范围查询的scope
+  scope :in_date_range, ->(start_date, end_date) {
+    where(created_at: start_date.beginning_of_day..end_date.end_of_day)
+  }
 
   # 类方法：便捷创建日志条目
   # SystemLog.log(:user_action, :info, "用户登录成功", "SessionsController#create", user_id: user.id)

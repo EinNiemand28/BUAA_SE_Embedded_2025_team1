@@ -1,28 +1,243 @@
 <%# app/views/system_logs/show.html.erb %>
-<h1><%= t('.title', id: @log.id) %></h1>
+<div class="max-w-4xl mx-auto space-y-6">
+  <!-- 页面标题 -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">
+            <%= t('.title', id: @log.id) %>
+          </h1>
+          <p class="mt-1 text-sm text-gray-600">
+            创建于 <%= l @log.created_at, format: :long %> (<%= time_ago_in_words(@log.created_at) %>前)
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <%= link_to system_logs_path, 
+              class: "inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            返回日志列表
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="mt-4 p-4 border rounded">
-  <p><strong><%= t('activerecord.attributes.system_log.created_at') %>:</strong> <%= l @log.created_at, format: :long %></p>
-  <p><strong><%= t('activerecord.attributes.system_log.log_type') %>:</strong> <%= t("system_logs.log_types.#{@log.log_type}", default: @log.log_type.humanize) %></p>
-  <p><strong><%= t('activerecord.attributes.system_log.severity') %>:</strong> <%= t("system_logs.severities.#{@log.severity}", default: @log.severity.humanize) %></p>
-  <p><strong><%= t('activerecord.attributes.system_log.source') %>:</strong> <%= @log.source %></p>
-  <p><strong><%= t('activerecord.attributes.system_log.message') %>:</strong></p>
-  <pre class="bg-gray-100 p-2 rounded"><%= @log.message %></pre>
+  <!-- 主要信息 -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-medium text-gray-900">日志详情</h2>
+    </div>
+    <div class="px-6 py-4">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+        <!-- 日志类型 -->
+        <div>
+          <dt class="text-sm font-medium text-gray-500">日志类型</dt>
+          <dd class="mt-1">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+              <%= case @log.log_type
+                  when 'system' then 'bg-gray-100 text-gray-800'
+                  when 'robot' then 'bg-blue-100 text-blue-800'
+                  when 'user_action' then 'bg-green-100 text-green-800'
+                  when 'task_event' then 'bg-purple-100 text-purple-800'
+                  when 'app_error' then 'bg-red-100 text-red-800'
+                  when 'security' then 'bg-yellow-100 text-yellow-800'
+                  when 'map_event' then 'bg-indigo-100 text-indigo-800'
+                  else 'bg-gray-100 text-gray-800'
+                  end %>">
+              <%= t("system_logs.log_types.#{@log.log_type}", default: @log.log_type.humanize) %>
+            </span>
+          </dd>
+        </div>
 
+        <!-- 严重程度 -->
+        <div>
+          <dt class="text-sm font-medium text-gray-500">严重程度</dt>
+          <dd class="mt-1">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+              <%= case @log.severity
+                  when 'info' then 'bg-green-100 text-green-800'
+                  when 'warning' then 'bg-yellow-100 text-yellow-800'
+                  when 'error' then 'bg-red-100 text-red-800'
+                  when 'critical' then 'bg-red-200 text-red-900'
+                  when 'debug' then 'bg-blue-100 text-blue-800'
+                  else 'bg-gray-100 text-gray-800'
+                  end %>">
+              <%= t("system_logs.severities.#{@log.severity}", default: @log.severity.humanize) %>
+            </span>
+          </dd>
+        </div>
+
+        <!-- 来源 -->
+        <div>
+          <dt class="text-sm font-medium text-gray-500">来源</dt>
+          <dd class="mt-1">
+            <code class="bg-gray-100 px-3 py-1 rounded text-sm font-mono"><%= @log.source %></code>
+          </dd>
+        </div>
+
+        <!-- 时间戳 -->
+        <div>
+          <dt class="text-sm font-medium text-gray-500">创建时间</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <div><%= l @log.created_at, format: :long %></div>
+            <div class="text-gray-500 text-xs mt-1"><%= time_ago_in_words(@log.created_at) %>前</div>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- 消息内容 -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">消息内容</h3>
+    </div>
+    <div class="px-6 py-4">
+      <div class="bg-gray-50 rounded-lg p-4">
+        <pre class="whitespace-pre-wrap text-sm text-gray-800 font-mono leading-relaxed"><%= @log.message %></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 关联信息 -->
+  <% if @log.user || @log.task || @log.book %>
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">关联信息</h3>
+      </div>
+      <div class="px-6 py-4">
+        <dl class="space-y-4">
+          <!-- 关联用户 -->
   <% if @log.user %>
-    <p><strong><%= t('activerecord.models.user') %>:</strong> <%= link_to @log.user.username, user_path(@log.user) %></p> <%# 假设有 user_path %>
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <svg class="w-5 h-5 text-gray-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <dt class="text-sm font-medium text-gray-500">关联用户</dt>
+                <dd class="mt-1">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-gray-900"><%= @log.user.username %></span>
+                    <span class="text-xs text-gray-500">(<%= @log.user.email %>)</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                      <%= @log.user.admin? ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800' %>">
+                      <%= @log.user.admin? ? '管理员' : '普通用户' %>
+                    </span>
+                  </div>
+                </dd>
+              </div>
+            </div>
   <% end %>
-  <% if @log.task %>
-    <p><strong><%= t('activerecord.models.task') %>:</strong> <%= link_to "Task ##{@log.task_id}", task_path(@log.task) %></p>
-  <% end %>
-  <% if @log.book %>
-    <p><strong><%= t('activerecord.models.book') %>:</strong> <%= link_to @log.book.title, book_path(@log.book) %></p> <%# 假设有 book_path %>
-  <% end %>
-  <%# 如果有 details 字段 %>
-  <%# if @log.details.present? %>
-    <%# <p><strong>Details:</strong></p> %>
-    <%# <pre class="bg-gray-100 p-2 rounded"><%#= JSON.pretty_generate(@log.details) %></pre> %>
-  <%# end %>
-</div>
 
-<%= link_to t('common.back_to_list'), system_logs_path, class: "btn-secondary mt-4" %>
+          <!-- 关联任务 -->
+  <% if @log.task %>
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <svg class="w-5 h-5 text-gray-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <dt class="text-sm font-medium text-gray-500">关联任务</dt>
+                <dd class="mt-1">
+                  <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                      <%= link_to task_path(@log.task), class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" do %>
+                        任务 #<%= @log.task.id %>
+                      <% end %>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                        <%= case @log.task.status
+                            when 'pending' then 'bg-yellow-100 text-yellow-800'
+                            when 'processing' then 'bg-blue-100 text-blue-800'
+                            when 'completed' then 'bg-green-100 text-green-800'
+                            when 'failed' then 'bg-red-100 text-red-800'
+                            when 'cancelled' then 'bg-gray-100 text-gray-800'
+                            else 'bg-gray-100 text-gray-800'
+                            end %>">
+                        <%= t("tasks.statuses.#{@log.task.status}", default: @log.task.status.humanize) %>
+                      </span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                      类型: <%= t("tasks.types.#{@log.task.task_type}", default: @log.task.task_type.humanize) %>
+                    </div>
+                  </div>
+                </dd>
+              </div>
+            </div>
+  <% end %>
+
+          <!-- 关联书籍 -->
+  <% if @log.book %>
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <svg class="w-5 h-5 text-gray-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <dt class="text-sm font-medium text-gray-500">关联书籍</dt>
+                <dd class="mt-1">
+                  <div class="space-y-1">
+                    <div>
+                      <%= link_to book_path(@log.book), class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" do %>
+                        <%= @log.book.title %>
+                      <% end %>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                      作者: <%= @log.book.author %> | ISBN: <%= @log.book.isbn %>
+                    </div>
+                  </div>
+                </dd>
+              </div>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 系统信息 -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">系统信息</h3>
+    </div>
+    <div class="px-6 py-4">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">日志ID</dt>
+          <dd class="mt-1 text-sm text-gray-900 font-mono">#<%= @log.id %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">最后更新</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= l @log.updated_at, format: :long %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- 操作按钮 -->
+  <div class="flex justify-between">
+    <%= link_to system_logs_path, 
+        class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      <%= t('.back_to_list') %>
+    <% end %>
+
+    <div class="flex space-x-3">
+      <!-- 如果需要的话，可以添加更多操作按钮 -->
+      <% if @log.task %>
+        <%= link_to task_path(@log.task), 
+            class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" do %>
+          查看关联任务
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

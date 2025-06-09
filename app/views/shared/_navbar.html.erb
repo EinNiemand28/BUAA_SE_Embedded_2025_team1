@@ -116,22 +116,108 @@
   <!-- 移动端菜单，默认隐藏 -->
   <div class="hidden md:hidden" id="mobile-menu" data-sidebar-target="mobileMenu">
     <div class="pt-2 pb-3 space-y-1">
-      <a href="<%= root_path %>" class="<%= current_page?(root_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-3 pr-4 py-2 text-base font-medium">
+      <!-- 搜索框 -->
+      <div class="border-b border-gray-300 pb-3 mx-3">
+        <%= form_with(url: search_books_path, method: :get, class: "relative rounded-md shadow-sm") do |form| %>
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <%= form.text_field :query,
+                              class: "block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 text-sm",
+                              placeholder: t('shared.sidebar.search_placeholder') %>
+        <% end %>
+      </div>
+
+      <!-- 主要导航 -->
+      <div class="space-y-1">
+        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <%= t('shared.sidebar.main_menu') %>
+        </h3>
+        
+        <a href="<%= root_path %>" class="<%= current_page?(root_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-7 pr-4 py-2 text-base font-medium">
+          <div class="flex items-center">
+            <svg class="<%= current_page?(root_path) ? 'text-blue-500' : 'text-gray-400' %> mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
         <%= t('shared.sidebar.dashboard') %>
+          </div>
       </a>
-      <a href="<%= root_path %>" class="<%= current_page?(root_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-3 pr-4 py-2 text-base font-medium">
+
+        <% if Current.session&.user&.admin? %>
+          <a href="<%= control_robots_path %>" class="<%= current_page?(control_robots_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-7 pr-4 py-2 text-base font-medium">
+            <div class="flex items-center">
+              <svg class="<%= current_page?(control_robots_path) ? 'text-blue-500' : 'text-gray-400' %> mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+              </svg>
         <%= t('shared.sidebar.robot_control') %>
+            </div>
       </a>
-      <a href="<%= books_path %>" class="<%= current_page?(books_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-3 pr-4 py-2 text-base font-medium">
+        <% end %>
+
+        <a href="<%= books_path %>" class="<%= controller_name == 'books' ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-7 pr-4 py-2 text-base font-medium">
+          <div class="flex items-center">
+            <svg class="<%= controller_name == 'books' ? 'text-blue-500' : 'text-gray-400' %> mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
         <%= t('shared.sidebar.book_catalog') %>
+          </div>
       </a>
-      <a href="<%= bookshelves_path %>" class="<%= current_page?(bookshelves_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-3 pr-4 py-2 text-base font-medium">
+
+        <a href="<%= bookshelves_path %>" class="<%= controller_name == 'bookshelves' ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-7 pr-4 py-2 text-base font-medium">
+          <div class="flex items-center">
+            <svg class="<%= controller_name == 'bookshelves' ? 'text-blue-500' : 'text-gray-400' %> mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
         <%= t('shared.sidebar.bookshelf_map') %>
+          </div>
       </a>
-      <% if Current.session&.user&.admin? %>
-        <a href="<%= maps_path %>" class="<%= current_page?(maps_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-3 pr-4 py-2 text-base font-medium">
-          <%= t('shared.sidebar.map_management') %>
+
+        <a href="<%= tasks_path %>" class="<%= controller_name == 'tasks' ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-7 pr-4 py-2 text-base font-medium">
+          <div class="flex items-center">
+            <svg class="<%= controller_name == 'tasks' ? 'text-blue-500' : 'text-gray-400' %> mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            <%= t('shared.sidebar.task_management') %>
+          </div>
         </a>
+      </div>
+
+      <!-- 系统管理（仅管理员可见） -->
+      <% if Current.session&.user&.admin? %>
+        <div class="pt-4 mt-4 border-t border-gray-200 space-y-1">
+          <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <%= t('shared.sidebar.system_management') %>
+          </h3>
+
+          <a href="<%= users_path %>" class="<%= current_page?(users_path) ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-7 pr-4 py-2 text-base font-medium">
+            <div class="flex items-center">
+              <svg class="<%= current_page?(users_path) ? 'text-blue-500' : 'text-gray-400' %> mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <%= t('shared.sidebar.user_management') %>
+            </div>
+          </a>
+
+          <a href="<%= maps_path %>" class="<%= controller_name == 'maps' ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-7 pr-4 py-2 text-base font-medium">
+            <div class="flex items-center">
+              <svg class="<%= controller_name == 'maps' ? 'text-blue-500' : 'text-gray-400' %> mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+          <%= t('shared.sidebar.map_management') %>
+            </div>
+        </a>
+
+          <a href="<%= system_logs_path %>" class="<%= controller_name == 'system_logs' ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700' %> block pl-7 pr-4 py-2 text-base font-medium">
+            <div class="flex items-center">
+              <svg class="<%= controller_name == 'system_logs' ? 'text-blue-500' : 'text-gray-400' %> mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <%= t('shared.sidebar.system_logs') %>
+            </div>
+          </a>
+        </div>
       <% end %>
     </div>
   </div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_18_035324) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_09_114235) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -140,6 +140,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_18_035324) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["book_id"], name: "index_system_logs_on_book_id"
+    t.index ["created_at", "log_type"], name: "index_system_logs_on_created_at_and_log_type"
+    t.index ["created_at", "severity"], name: "index_system_logs_on_created_at_and_severity"
     t.index ["log_type"], name: "index_system_logs_on_log_type"
     t.index ["severity"], name: "index_system_logs_on_severity"
     t.index ["source"], name: "index_system_logs_on_source"
