@@ -30,7 +30,7 @@ export default class extends Controller {
     // 传感器数据
     "batteryText", "batteryBar", "positionX", "positionY", "linearVelocity", "angularVelocity",
     // 控制模式按钮
-    "resumeBtn", "enableManualBtn", "disableManualBtn",
+    "resumeBtn", "enableManualBtn", "disableManualBtn", "emergencyAlert",
     // 手动控制面板
     "manualControlPanel", "speedSlider", "speedValue",
     // 建图控制
@@ -219,7 +219,19 @@ export default class extends Controller {
       this.isCameraStreaming = data.enabled
       this._updateCameraUI()
       this._showNotification(data.message || "摄像头控制成功", "success")
-    } else if (data.message) {
+    } 
+    // 处理手动控制启用/禁用成功
+    else if (data.command === 'enable_manual_control') {
+      this.isManualControlEnabled = true
+      this._updateButtonStates()
+      this._showNotification("手动控制模式已启用", "success")
+    }
+    else if (data.command === 'disable_manual_control') {
+      this.isManualControlEnabled = false
+      this._updateButtonStates()
+      this._showNotification("已返回自主模式", "success")
+    }
+    else if (data.message) {
       // 其他控制命令响应
       this._showNotification(data.message, "success")
     } else {
@@ -278,12 +290,22 @@ export default class extends Controller {
 
   _updateStatusDisplay() {
     if (this.hasStatusTextTarget) {
-      this.statusTextTarget.textContent = this._getStatusText(this.currentRobotStatus)
+      // 急停状态优先显示
+      if (this.isEmergencyStopped) {
+        this.statusTextTarget.textContent = "紧急停止状态"
+      } else {
+        this.statusTextTarget.textContent = this._getStatusText(this.currentRobotStatus)
+      }
     }
     
     if (this.hasStatusIndicatorTarget) {
-      const colorClass = this._getStatusColor(this.currentRobotStatus)
-      this.statusIndicatorTarget.className = `w-3 h-3 rounded-full mr-2 ${colorClass}`
+      // 急停状态优先显示红色
+      if (this.isEmergencyStopped) {
+        this.statusIndicatorTarget.className = "w-3 h-3 rounded-full mr-2 bg-red-500 status-pulse"
+      } else {
+        const colorClass = this._getStatusColor(this.currentRobotStatus)
+        this.statusIndicatorTarget.className = `w-3 h-3 rounded-full mr-2 ${colorClass}`
+      }
     }
   }
 
@@ -302,28 +324,37 @@ export default class extends Controller {
   _updateManualControlMode() {
     this.isManualControlEnabled = (this.currentRobotStatus === "manual_control")
     
-    if (this.hasManualControlPanelTarget) {
-      this.manualControlPanelTarget.classList.toggle("hidden", !this.isManualControlEnabled)
-    }
+    // 手动控制面板的显示由_updateButtonStates()控制，这里不重复处理
   }
 
   _updateButtonStates() {
+    // 急停状态提示
+    if (this.hasEmergencyAlertTarget) {
+      this.emergencyAlertTarget.classList.toggle("hidden", !this.isEmergencyStopped)
+    }
+
     // 恢复运行按钮
     if (this.hasResumeBtnTarget) {
       this.resumeBtnTarget.classList.toggle("hidden", !this.isEmergencyStopped)
     }
 
-    // 手动控制按钮
+    // 手动控制按钮 - 修改逻辑：急停状态下也允许手动控制
     if (this.hasEnableManualBtnTarget) {
-      const canEnableManual = this.currentRobotStatus === "idle" && !this.isEmergencyStopped
-      this.enableManualBtnTarget.classList.toggle("hidden", this.isManualControlEnabled || !canEnableManual)
+      // 在急停状态下或者idle状态下都可以启用手动控制
+      const canEnableManual = (this.isEmergencyStopped || this.currentRobotStatus === "idle") && !this.isManualControlEnabled
+      this.enableManualBtnTarget.classList.toggle("hidden", !canEnableManual)
     }
     
     if (this.hasDisableManualBtnTarget) {
       this.disableManualBtnTarget.classList.toggle("hidden", !this.isManualControlEnabled)
     }
 
-    // 建图按钮
+    // 手动控制面板 - 确保在急停状态下也能显示
+    if (this.hasManualControlPanelTarget) {
+      this.manualControlPanelTarget.classList.toggle("hidden", !this.isManualControlEnabled)
+    }
+
+    // 建图按钮 - 只有在非急停且idle状态下才能建图
     if (this.hasStartMappingBtnTarget) {
       const canStartMapping = this.currentRobotStatus === "idle" && !this.isEmergencyStopped
       this.startMappingBtnTarget.disabled = !canStartMapping
@@ -562,6 +593,12 @@ export default class extends Controller {
   _sendMovementCommand(linear, angular) {
     if (!this.isManualControlEnabled) {
       this._showNotification("请先启用手动控制模式", "warning")
+      return
+    }
+
+    // 在急停状态下，允许手动控制移动（这是安全的，因为用户需要明确启用手动控制）
+    if (!this.isEmergencyStopped && this.currentRobotStatus !== "manual_control" && this.currentRobotStatus !== "idle") {
+      this._showNotification("当前机器人状态不允许手动移动", "warning")
       return
     }
 

@@ -77,17 +77,16 @@ class RobotStatus < ApplicationRecord
       if self.is_emergency_stopped != new_estop_status
         attrs_to_update[:is_emergency_stopped] = new_estop_status
         log_changes << "is_emergency_stopped to #{new_estop_status}"
-        # 如果急停状态改变，TM的 overall_status 应该是 emergency_stopped 或 idle/manual_control
-        # 我们相信TM的 overall_status，但如果TM只发送了 is_emergency_stopped，则相应更新status
+        
+        # 如果急停标志变为true，设置为急停状态
         if new_estop_status && self.status != :emergency_stopped
-            attrs_to_update[:status] = :emergency_stopped
-            # 如果从非急停进入急停，且有当前任务，任务应被TM中断
-            # self.current_task&.update(status: :failed, result_data: (self.current_task.result_data||{}).merge(failure_reason: "Robot emergency stop from ROS."))
-            attrs_to_update[:current_task_id] = nil # 急停时清除当前任务关联
-        elsif !new_estop_status && self.status == :emergency_stopped && ros_payload[:overall_status].to_s != "emergency_stopped"
-          # 如果急停解除，且TM的overall_status不是急停，则根据overall_status设置（或默认idle）
-          # 注意：RESUME_OPERATION 和 ENABLE_MANUAL_CONTROL 也会改变 is_emergency_stopped 和 status
-          # 这里主要是处理TM直接通过RobotStatusCompressed反馈的急停状态变化
+          attrs_to_update[:status] = :emergency_stopped
+          attrs_to_update[:current_task_id] = nil # 急停时清除当前任务关联
+          log_changes << "status to emergency_stopped (due to is_emergency_stopped=true)"
+        # 如果急停标志变为false，不自动更改status，让overall_status来决定
+        elsif !new_estop_status && self.status == :emergency_stopped
+          # 不在这里设置status，等待overall_status来确定具体状态
+          log_changes << "emergency stop released, waiting for overall_status to determine new state"
         end
       end
     end
@@ -165,7 +164,24 @@ class RobotStatus < ApplicationRecord
 
     if attrs_to_update.any?
       logger.info "[RobotStatus] Updating from ROS: #{attrs_to_update.inspect}"
-      self.update(attrs_to_update) # after_save_commit 会广播
+      
+      # 添加重试逻辑来处理SQLite并发锁定问题
+      retries = 0
+      max_retries = 3
+      
+      begin
+        self.update(attrs_to_update) # after_save_commit 会广播
+      rescue ActiveRecord::StatementInvalid => e
+        if e.cause.is_a?(SQLite3::BusyException) && retries < max_retries
+          retries += 1
+          sleep(0.1 * retries) # 指数退避
+          logger.warn "[RobotStatus] Database locked, retrying (#{retries}/#{max_retries}): #{e.message}"
+          retry
+        else
+          logger.error "[RobotStatus] Failed to update after #{retries} retries: #{e.message}"
+          raise
+        end
+      end
     else
       # logger.debug "[RobotStatus] No changes from ROS payload to update."
     end
@@ -182,7 +198,7 @@ class RobotStatus < ApplicationRecord
       id: self.id,
       status: self.status.to_s,
       status_text: I18n.t("robots.status.#{self.status}", default: self.status.to_s.humanize),
-      is_emergency_stopped: self.status_emergency_stopped?, # 急停状态
+      is_emergency_stopped: self.is_emergency_stopped, # 修复：使用数据库字段而不是枚举判断
       is_mapping: self.status_mapping_auto?,             # 根据当前status推断
       is_navigating: self.status_navigating?,       # 根据当前status推断
       is_manual_control: self.status_manual_control?, # 新增
