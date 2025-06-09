@@ -52,3 +52,7 @@
 .kamal/secrets
 
 vendor/bundle
+
+library_robot_interfaces/
+docs/
+README.md

@@ -44,6 +44,5 @@
 
 vendor/bundle
 
-qa.md
-test.md
+docs/qa.md
 library_robot_interfaces/

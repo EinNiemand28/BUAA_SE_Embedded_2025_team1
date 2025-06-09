@@ -985,7 +985,7 @@ zh-CN:
     building_tasks:
       title: "构建新地图"
       description: "使用机器人通过探索环境自动创建新地图。"
-      create: "开始构建新地图"
+      create: "开始构建新地图" 
 
   profiles:
     show:
