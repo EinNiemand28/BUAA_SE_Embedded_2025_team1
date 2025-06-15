@@ -33,10 +33,10 @@ class CameraPublisherNode:
         self.cv_bridge = CvBridge()
         
         # 配置参数
-        self.target_fps = rospy.get_param("~camera_fps", 5.0)  # 降低帧率以减少网络负载
+        self.target_fps = rospy.get_param("~camera_fps", 10.0)  # 降低帧率以减少网络负载
         self.frame_width = rospy.get_param("~frame_width", 640)
         self.frame_height = rospy.get_param("~frame_height", 480)
-        self.jpeg_quality = rospy.get_param("~jpeg_quality", 70)  # JPEG压缩质量
+        self.jpeg_quality = rospy.get_param("~jpeg_quality", 80)  # JPEG压缩质量
         
         # 定时器和线程
         self.processing_thread = None

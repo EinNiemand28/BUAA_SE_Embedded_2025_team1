@@ -43,7 +43,7 @@ CMD_VEL_TOPIC = "/cmd_vel"                     # TM publishes to control robot
 ODOM_TOPIC = "/odom"                           # TM subscribes
 AMCL_POSE_TOPIC = "/amcl_pose"                 # TM subscribes (optional, if AMCL is used)
 
-# TF Frames (将在__init__中获取参数)
+# TF Frames (可在__init__中获取参数)
 MAP_FRAME_ID = "map"
 ODOM_FRAME_ID = "odom"  
 BASE_FRAME_ID = "base_link"
@@ -494,16 +494,15 @@ class TaskManagerNode:
                 "final_status_from_ros": "failed",
                 "message": f"TM: Error in task execution: {str(e)}"
             })
-        finally:
-            with self.task_scheduler_lock:
-                if self.current_executing_task_info == task_info and not self.current_tm_state == self.STATE_MAPPING_AUTO:
-                    self.current_executing_task_info = None
-            need_change_state = False
-            with self.data_lock:
-                if not self.is_robot_emergency_stopped and not self.current_tm_state == self.STATE_MAPPING_AUTO:
-                    need_change_state = True
-            if need_change_state:
-                self._change_tm_state_and_publish(self.STATE_IDLE)
+        with self.task_scheduler_lock:
+            if self.current_executing_task_info == task_info and not self.current_tm_state == self.STATE_MAPPING_AUTO:
+                self.current_executing_task_info = None
+        need_change_state = False
+        with self.data_lock:
+            if not self.is_robot_emergency_stopped and not self.current_tm_state == self.STATE_MAPPING_AUTO:
+                need_change_state = True
+        if need_change_state:
+            self._change_tm_state_and_publish(self.STATE_IDLE)
 
     def _dispatch_task_execution(self, task_info):
         task_id = task_info.task_id
