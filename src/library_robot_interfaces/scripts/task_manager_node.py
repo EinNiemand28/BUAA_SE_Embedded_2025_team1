@@ -212,7 +212,7 @@ class TaskManagerNode:
         # 调用此方法时不能持有 data_lock
         state_changed = False
         with self.data_lock:
-            if self.current_tm_state != new_state_str:
+            if self.current_tm_state != new_state_str or new_state_str == self.STATE_IDLE:
                 rospy.loginfo(f"[{self.node_name}] TM State: {self.current_tm_state} -> {new_state_str}")
                 self.current_tm_state = new_state_str
                 state_changed = True
@@ -240,7 +240,7 @@ class TaskManagerNode:
         msg.robot_state_str = self.current_tm_state # TM自身管理的核心状态
         msg.error_message = self.current_error_msg or ""
         msg.is_emergency_stopped = self.is_robot_emergency_stopped
-        msg.active_task_id_rails = int(self.current_executing_task_info.task_id or 0) if self.current_executing_task_info else 0
+        msg.active_task_id_rails = int(self.current_executing_task_info.task_id or 0) if self.current_executing_task_info and msg.robot_state_str != self.STATE_IDLE else 0
         msg.active_map = self.active_map_in_ros or 0
         self.robot_status_compressed_pub.publish(msg)
         rospy.logdebug(f"[{self.node_name}] Published RobotStatusCompressed: State='{msg.robot_state_str}', EStop={msg.is_emergency_stopped}")
