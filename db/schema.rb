@@ -45,11 +45,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_09_114235) do
     t.string "author", limit: 255, null: false
     t.string "publisher", limit: 255
     t.integer "publication_year"
+    t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "current_slot_id"
     t.integer "intended_slot_id"
-    t.integer "status", default: 0, null: false
     t.index ["author"], name: "index_books_on_author"
     t.index ["current_slot_id"], name: "index_books_on_current_slot_id"
     t.index ["intended_slot_id"], name: "index_books_on_intended_slot_id"

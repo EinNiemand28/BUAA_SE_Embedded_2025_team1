@@ -131,15 +131,22 @@ class RobotTaskChannel < ApplicationCable::Channel
         return
       end
 
-      transit_station.slots.where(is_occupied: false).order(z_coordinate: :desc).first
+      available_slot = transit_station.slots.where(is_occupied: false).order(relative_z: :desc).first
       unless available_slot
         transmit_error("No available slots in transit station.")
         return
       end
 
       # 预分配槽位
-      available_slot.update!(is_occupied: true)
-      book.update!(intended_slot: available_slot)
+      begin
+        ActiveRecord::Base.transaction do
+          available_slot.update!(is_occupied: true)
+          book.update!(intended_slot: available_slot)
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        transmit_error("Failed to allocate slot for book: #{e.message}")
+        return
+      end
 
       # 获取源位置和目标位置坐标
       source_coords = book.current_slot.absolute_coordinates
@@ -233,6 +240,8 @@ class RobotTaskChannel < ApplicationCable::Channel
       task.map = RobotStatus.current.active_map
     end
     task.store_parameters(parameters) # 将原始参数（如 map_name, description）存入 progress_details
+
+    task.status ||= :pending # 确保状态初始化为 pending
 
     if task.save
       log_task_event(task, "Task created successfully.")

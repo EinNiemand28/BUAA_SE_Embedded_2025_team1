@@ -6,7 +6,7 @@ class CreateBooks < ActiveRecord::Migration[7.2]
       t.string :author, limit: 255, null: false
       t.string :publisher, limit: 255
       t.integer :publication_year
-      t.string :status, default: "在架", null: false
+      t.integer :status, default: 0, null: false
 
       t.timestamps
     end

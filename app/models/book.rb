@@ -11,12 +11,12 @@ class Book < ApplicationRecord
   delegate :bookshelf, to: :intended_slot, allow_nil: true, prefix: :intended
 
   # 枚举定义书籍状态 - 使用整数值
-  enum :status, {
-    available: 0,
-    borrowed: 1,
-    unavailable: 2,
-    transit: 3
-  }
+  enum :status, [
+    :available,
+    :borrowed,
+    :unavailable,
+    :transit
+  ], default: :available
 
   # 验证
   validates :isbn, presence: true, uniqueness: true
@@ -66,7 +66,7 @@ class Book < ApplicationRecord
   end
 
   def intended_slot_must_be_available
-     return unless intended_slot.present?
+    return unless intended_slot.present?
     # 检查目标 intended_slot 是否已是其他 book 的 intended_slot
     if intended_slot.intended_book.present? && intended_slot.intended_book != self
       errors.add(:intended_slot_id, "已被书籍 '#{intended_slot.intended_book.title}' 指定为目标位置")

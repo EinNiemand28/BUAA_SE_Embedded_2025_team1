@@ -34,7 +34,7 @@ class Task < ApplicationRecord
     :cancelling,                # 取消中
     :cancelled                  # 已取消
     # :completed_pending_save_ack, # 可选：表示ROS已完成，等待Rails确认地图等资源保存完毕
-  ], prefix: true
+  ], prefix: true, default: :pending
 
   # 验证
   validates :task_type, presence: { message: "任务类型不能为空" }

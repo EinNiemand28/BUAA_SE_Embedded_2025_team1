@@ -275,7 +275,7 @@ graph TD
 
     ```bash
     # .env
-    REDIS_URL=redis://localhost:6379/1
+    REDIS_URL=redis://redis:6379/1
     ROBOT_API_KEY=your_api_key_here
 
     # config/storage.yml
@@ -290,6 +290,9 @@ graph TD
     ```bash
     docker compose build
     docker compose up
+    docker compose exec web /bin/bash # 进行数据库初始化
+    bin/rails db:migrate
+    bin/rails db:seed
     ```
 
 4. **访问应用**
@@ -317,7 +320,7 @@ graph TD
     
     ```bash
     # .env
-    REDIS_URL=redis://localhost:6379/1
+    REDIS_URL=redis://redis:6379/1
     ROBOT_API_KEY=your_api_key_here
 
     # config/storage.yml

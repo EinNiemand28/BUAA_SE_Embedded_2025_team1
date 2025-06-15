@@ -100,23 +100,29 @@ class RobotStatus < ApplicationRecord
         tm_reported_state_sym = tm_reported_state_str.to_sym
         # 只有当RobotStatus当前不是由一个Rails端活动任务管理的状态时，才接受TM的overall_status覆盖
         # 或者，当TM报告的状态是急停或错误时，它具有更高优先级
-        can_be_overridden_by_tm = ![ :mapping, :navigating, :fetching_book, :returning_book, :scanning ].include?(self.status.to_sym)
+        is_task_specific_status = [ :mapping_auto, :navigating, :fetching_book, :returning_book, :scanning ].include?(self.status.to_sym)
 
         if tm_reported_state_sym == :emergency_stopped # 急停状态总是优先
-            attrs_to_update[:status] = :emergency_stopped
-            attrs_to_update[:is_emergency_stopped] = true # 确保同步
+          attrs_to_update[:status] = :emergency_stopped
+          attrs_to_update[:is_emergency_stopped] = true # 确保同步
         elsif self.is_emergency_stopped && tm_reported_state_sym != :emergency_stopped
-        # 如果硬件急停已解除 (is_emergency_stopped变为false)，TM的overall_status会变为idle或manual
-        # 这种情况已由上面 is_emergency_stopped 的逻辑处理，这里不用重复
+          # 如果硬件急停已解除 (is_emergency_stopped变为false)，TM的overall_status会变为idle或manual
+          # 这种情况已由上面 is_emergency_stopped 的逻辑处理，这里不用重复
         elsif tm_reported_state_sym == :error # 错误状态也较优先
-            attrs_to_update[:status] = :error
-        elsif can_be_overridden_by_tm || self.status.nil? || self.status == :offline # 允许TM覆盖初始/非任务状态
-            if self.status.to_s != tm_reported_state_str
-                attrs_to_update[:status] = tm_reported_state_sym
-                log_changes << "status to #{tm_reported_state_sym} (from TM overall_status)"
-            end
-        else # 当前Rails端任务状态优先 (如:mapping)，不被TM的 "idle" 覆盖
-            logger.debug "[{self.node_name}] TM reported overall_status '{tm_reported_state_str}', but Rails status '{self.status}' is task-specific. Not overriding."
+          attrs_to_update[:status] = :error
+        elsif is_task_specific_status
+          # 如果TM报告idle，说明任务结束，允许覆盖
+          if tm_reported_state_sym == :idle
+            attrs_to_update[:status] = :idle
+            log_changes << "status to :idle (TM overall_status signals task finished)"
+          else
+            logger.debug "[#{self.class.name}] TM reported overall_status '#{tm_reported_state_str}', but Rails status '#{self.status}' is task-specific. Not overriding."
+          end
+        else # 当前不是任务专属状态，允许TM覆盖
+          if self.status.to_s != tm_reported_state_str
+            attrs_to_update[:status] = tm_reported_state_sym
+            log_changes << "status to #{tm_reported_state_sym} (from TM overall_status)"
+          end
         end
       else
         logger.warn "[{self.node_name}] Received unknown overall_status from TM: '{tm_reported_state_str}'. Not updating status."
