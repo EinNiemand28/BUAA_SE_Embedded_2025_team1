@@ -123,7 +123,9 @@ RUN apt-get update && \
 
 COPY --from=build /usr/local/bundle /usr/local/bundle
 
-COPY --from=build /rails/public/assets /rails/public/assets
+# COPY --from=build /rails/public /rails/public
+# COPY --from=build /rails/app/assets/builds /rails/app/assets/builds
+# COPY --from=build /rails/tmp/cache/assets /rails/tmp/cache/assets
 
 # COPY --from=build /rails/node_modules /rails/node_modules
 
