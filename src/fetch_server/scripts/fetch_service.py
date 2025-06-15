@@ -119,26 +119,26 @@ class FetchServer:
     
     # 计算应该前往的位置
     def calculate_destination(self, px, py, oz):
-        if abs(oz) < 0.1:
+        if abs(oz + 1.57) < 0.1:
             return (px, py - 1.23, 1.0)
-        elif abs(oz - 1.57) < 0.1:
+        elif abs(oz) < 0.1:
             return (px + 1.23, py - 0.5, 4.0)
-        elif abs(oz + 1.57) < 0.1:
+        elif abs(oz - 3.14) < 0.1:
             return (px - 1.23, py, 0.00)
         else:
             return (px, py + 1.23, -1.57)
     
     # 计算放置物品的位置
     def calculate_place_position(self, x, y, z, oz, place_robot_destination):
-        if abs(oz) < 0.1:
+        if abs(oz + 1.57) < 0.1:
             place_position_x = y - place_robot_destination[1] - 0.1
             place_position_y = x - place_robot_destination[0] - 0.1
             place_position_z = z
-        elif abs(oz - 1.57) < 0.1:
+        elif abs(oz) < 0.1:
             place_position_x =  - x + place_robot_destination[0]
             place_position_y = - y + place_robot_destination[1] + 0.4
             place_position_z = z
-        elif abs(oz + 1.57) < 0.1:
+        elif abs(oz - 3.14) < 0.1:
             place_position_x = x - place_robot_destination[0]
             place_position_y = y - place_robot_destination[1]
             place_position_z = z

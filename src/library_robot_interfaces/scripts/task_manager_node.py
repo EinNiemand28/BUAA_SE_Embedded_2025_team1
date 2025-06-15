@@ -887,6 +887,7 @@ class TaskManagerNode:
                     "final_status_from_ros": "failed",
                     "message": f"TM: Navigation to pose failed: {res.message}"
                 })
+            self._change_tm_state_and_publish(self.STATE_IDLE)
         except Exception as e:
             rospy.logerr(f"[{self.node_name}] Exception occurred while navigating to pose: {e}")
             self._publish_task_feedback("report_task_completion", {
@@ -938,6 +939,7 @@ class TaskManagerNode:
                     "final_status_from_ros": "failed",
                     "message": f"TM: Fetch book failed: {res.message}"
                 })
+            self._change_tm_state_and_publish(self.STATE_IDLE)
         except Exception as e:
             rospy.logerr(f"[{self.node_name}] Exception occurred while fetching book: {e}")
             self._publish_task_feedback("report_task_completion", {
