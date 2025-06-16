@@ -189,6 +189,7 @@
       <!-- 右栏：快速操作面板 -->
       <div class="lg:col-span-2 space-y-6">
         
+        <% if Current.session&.user&.admin? %>
         <!-- 紧急控制 -->
         <div class="bg-white shadow-lg rounded-xl border border-gray-200">
           <div class="bg-red-600 px-6 py-4 rounded-t-xl">
@@ -214,14 +215,16 @@
             </button>
           </div>
         </div>
+        <% end %>
 
         <!-- 快速任务 -->
         <div class="bg-white shadow-lg rounded-xl border border-gray-200">
           <div class="bg-purple-600 px-6 py-4 rounded-t-xl">
             <h3 class="text-lg font-semibold text-white">快速任务</h3>
-  </div>
+        </div>
 
           <div class="p-6 space-y-3">
+            <% if Current.session&.user&.admin? %>
             <!-- 建图任务 -->
             <button data-robot-dashboard-target="startMappingBtn" data-action="robot-dashboard#showMappingModal" 
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
@@ -230,6 +233,7 @@
               </svg>
               开始建图
             </button>
+            <% end %>
 
             <!-- 导航到书架 -->
             <button data-robot-dashboard-target="navigateBtn" data-action="robot-dashboard#showNavigationModal" 
@@ -252,8 +256,9 @@
           </div>
         </div>
 
+        <% if Current.session&.user&.admin? %>
         <!-- 地图管理 -->
-  <div class="bg-white shadow-lg rounded-xl border border-gray-200">
+        <div class="bg-white shadow-lg rounded-xl border border-gray-200">
           <div class="bg-gray-600 px-6 py-4 rounded-t-xl">
             <h3 class="text-lg font-semibold text-white">地图管理</h3>
           </div>
@@ -283,6 +288,7 @@
             <% end %>
           </div>
         </div>
+        <% end %>
       </div>
     </div>
 
