@@ -32,10 +32,10 @@
             <thead class="bg-gray-50">
               <tr>
                 <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">ID</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('activerecord.attributes.user.username') %></th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('activerecord.attributes.user.email') %></th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('activerecord.attributes.user.role') %></th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('activerecord.attributes.user.created_at') %></th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('user.username') %></th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('user.email') %></th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('user.role') %></th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"><%= t('user.created_at') %></th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                   <span class="sr-only">操作</span>
                 </th>
@@ -58,7 +58,7 @@
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= user.email %></td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= user.admin? ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' %>">
-                      <%= User.human_attribute_name("role.#{user.role}") %>
+                      <%= t("user.roles.#{user.role}") %>
                     </span>
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= l user.created_at, format: :short %></td>

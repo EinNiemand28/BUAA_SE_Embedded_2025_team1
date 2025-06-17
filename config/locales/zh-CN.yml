@@ -160,8 +160,10 @@ zh-CN:
         password: "密码"
         password_confirmation: "确认密码"
         password_challenge: "当前密码"
-        role: "角色"
-        role:
+        role: 
+          one: "角色"
+          other: "角色"
+        roles:
           user: "普通用户"
           admin: "管理员"
         verified: "已验证"
