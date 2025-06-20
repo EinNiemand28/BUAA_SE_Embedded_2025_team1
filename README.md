@@ -16,7 +16,8 @@
 project/
 ├── document/      # 项目开发文档
 ├── frontend/      # Web 前端（Rails）
-└── ros_end/       # ROS 后端控制系统
+├── ros_end/       # ROS 后端控制系统
+└── demo.mp4       # 系统展示视频
 ```
 
 
