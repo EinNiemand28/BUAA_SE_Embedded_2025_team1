@@ -1,0 +1,47 @@
+<launch>
+    <!-- Environment Variables -->
+    <env name="GAZEBO_MODEL_PATH" value="$(find gazebosim_demo)/models:$(optenv GAZEBO_MODEL_PATH)" />
+    <env name="GAZEBO_RESOURCE_PATH"
+        value="$(find gazebosim_demo)/worlds:$(optenv GAZEBO_RESOURCE_PATH)" />
+
+    <!-- World -->
+    <include file='$(find gazebosim_demo)/launch/world.launch' />
+
+    <!-- Spawn a robot into Gazebo -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+        args="-file $(find gazebosim_demo)/models/wpb_home_mani.model -urdf -model wpb_home_mani" />
+
+    <!-- load the controllers of WPB_HOME -->
+    <include file="$(find gazebosim_demo)/launch/wpb_home_controllers.launch" />
+
+    <!-- Gmapping -->
+    <include file='$(find gazebosim_demo)/launch/gmapping.launch' />
+
+    <!-- Run move base -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find navigation)/launch/auto_costmap_common_params.yaml" command="load"
+            ns="global_costmap" />
+        <rosparam file="$(find navigation)/launch/auto_costmap_common_params.yaml" command="load"
+            ns="local_costmap" />
+        <rosparam file="$(find wpb_home_tutorials)/nav_lidar/local_costmap_params.yaml"
+            command="load" />
+        <rosparam file="$(find wpb_home_tutorials)/nav_lidar/global_costmap_params.yaml"
+            command="load" />
+        <!-- <rosparam file="$(find wpb_home_tutorials)/nav_lidar/local_planner_params.yaml"
+        command="load" /> -->
+        <param name="base_global_planner" value="global_planner/GlobalPlanner" />
+        <param name="use_dijkstra" value="true" />
+        <param name="base_local_planner" value="wpbh_local_planner/WpbhLocalPlanner" />
+        <param name="controller_frequency" value="10" type="double" />
+    </node>
+
+    <!-- Exploration -->
+    <!-- <node pkg="explore_lite" type="explore" name="explore" output="screen">
+        <param name="robot_base_frame" value="base_link" />
+        <param name="costmap_topic" value="/map" />
+        <param name="planner_frequency" value="0.5" />
+        <param name="progress_timeout" value="20.0" />
+        <param name="potential_scale" value="5.0" />  
+        <param name="min_frontier_size" value="1.0" />
+    </node> -->
+</launch>

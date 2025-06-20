@@ -1,0 +1,6 @@
+bool sim # 明确是在仿真环境内还是在实际场景中
+float64 width
+float64 height
+---
+bool success
+string message

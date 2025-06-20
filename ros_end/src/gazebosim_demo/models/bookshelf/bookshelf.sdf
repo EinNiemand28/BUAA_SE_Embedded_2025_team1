@@ -1,0 +1,108 @@
+<sdf version='1.7'>
+  <model name='bookshelft'>
+    <link name='base_link'>
+      <inertial>
+        <pose>0 0 0.945 0 -0 0</pose>
+        <mass>4</mass>
+        <inertia>
+          <ixx>8.45722</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>8.45722</iyy>
+          <iyz>0</iyz>
+          <izz>0.84304</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_fixed_joint_lump__body_link_collision'>
+        <pose>0.2 0 0.3 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4 1.2 0.6</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__level_1_link_collision_1'>
+        <pose>0.2 0 0.93 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.38 1.2 0.04</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__level_2_link_collision_2'>
+        <pose>0.2 0 1.28 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.38 1.2 0.04</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__level_3_link_collision_3'>
+        <pose>0.2 0 1.63 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.38 1.2 0.04</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.001</size>
+          </box>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__body_link_visual_1'>
+        <pose>0 0 0 0 0.003 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://bookshelf/bookshelft.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__level_1_link_visual_2'>
+        <pose>0 0 0.91 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.001</size>
+          </box>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__level_2_link_visual_3'>
+        <pose>0 0 1.26 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.001</size>
+          </box>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__level_3_link_visual_4'>
+        <pose>0 0 1.61 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.001</size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+    <static>1</static>
+    <frame name='2_to_3' attached_to='level_2_link'>
+      <pose>0 0 0.35 0 -0 0</pose>
+    </frame>
+    <frame name='level_3_link' attached_to='2_to_3'/>
+    <frame name='1_to_2' attached_to='level_1_link'>
+      <pose>0 0 0.35 0 -0 0</pose>
+    </frame>
+    <frame name='level_2_link' attached_to='1_to_2'/>
+    <frame name='body_to_1' attached_to='body_link'>
+      <pose>0 0 0.91 0 -0 0</pose>
+    </frame>
+    <frame name='level_1_link' attached_to='body_to_1'/>
+    <frame name='base_to_body' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='body_link' attached_to='base_to_body'/>
+  </model>
+</sdf>

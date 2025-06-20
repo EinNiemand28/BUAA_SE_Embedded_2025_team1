@@ -1,0 +1,7 @@
+<launch>
+    <!-- Navigation -->
+    <include file='$(find ros_end_core_sim)/launch/navigation.launch'/>
+
+    <!-- Rviz -->
+    <include file="$(find ros_end_core_sim)/launch/rviz.launch"/>
+</launch>

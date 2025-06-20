@@ -1,0 +1,22 @@
+<launch>
+    <!-- Environment Variables -->
+    <env name="GAZEBO_MODEL_PATH" value="$(find gazebosim_demo)/models:$(optenv GAZEBO_MODEL_PATH)" />
+    <env name="GAZEBO_RESOURCE_PATH" value="$(find gazebosim_demo)/worlds:$(optenv GAZEBO_RESOURCE_PATH)" />
+
+    <!-- World -->
+    <include file='$(find gazebosim_demo)/launch/world.launch'/>
+
+    <!-- Robot -->
+    <include file='$(find gazebosim_demo)/launch/robot.launch'/> 
+
+    <!-- Navigation -->
+    <include file='$(find gazebosim_demo)/launch/navigation.launch'/>
+
+    <!-- Rviz -->
+    <include file="$(find gazebosim_demo)/launch/rviz.launch"/>
+
+    <!-- Ros Bridge -->
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+        <arg name='port' value='1991'/>
+    </include>
+</launch>

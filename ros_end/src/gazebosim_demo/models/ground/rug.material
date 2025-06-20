@@ -1,0 +1,14 @@
+material Rug
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture rug_ivory_469x588.png
+                scale 0.5 0.5
+            }
+        }
+    }
+}

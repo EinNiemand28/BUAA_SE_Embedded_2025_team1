@@ -1,0 +1,26 @@
+<launch>
+    <!-- Robot -->
+    <include file='$(find ros_end_core)/launch/robot.launch'/> 
+
+    <!-- Run Kinect -->
+    <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch" />
+
+    <!-- Ros Bridge -->
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+        <arg name='port' value='1991'/>
+    </include>
+
+    <!-- Vizanti node(s) -->
+    <include file='$(find vizanti)/launch/webviz.launch'/> 
+
+    <!-- Node prepared for mapping -->
+    <node pkg="mapping" type="auto_mapping_server.py" name="auto_mapping_server" output="screen" />
+
+    <!-- Node prepared for navigation -->
+    <node pkg="navigation" type="navigation_server.py" name="navigation_server" output="screen" />
+
+    <!-- Node prepared for book fetch -->
+    <node pkg="fetch_server" type="fetch_service.py" name="fetch_server" output="screen" />
+
+    <node pkg="arm_controller" type="arm_controller_server.py" name="arm_controller_server" output="screen" />
+</launch>

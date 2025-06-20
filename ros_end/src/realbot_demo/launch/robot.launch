@@ -1,0 +1,23 @@
+<launch>
+    <!-- wpb_home core-->
+    <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
+        <param name="serial_port" type="string" value="/dev/ftdi" />
+        <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+    </node>
+
+    <!-- wpb_home_grab_server -->
+    <node pkg="wpb_home_behaviors" type="wpb_home_grab_server" name="wpb_home_grab_server" />
+
+    <!-- wpb_home_objects_3d -->
+    <node pkg="wpb_home_behaviors" type="wpb_home_objects_3d" name="wpb_home_objects_3d"
+        output="screen">
+        <param name="topic" type="string" value="/kinect2/sd/points" />
+        <rosparam file='$(find wpb_home_bringup)/config/wpb_home.yaml' command="load" />
+        <param name="start" type="bool" value="true" />
+    </node>
+
+    <!-- wpb_home_grab_action -->
+    <node pkg="wpb_home_behaviors" type="wpb_home_grab_action" name="wpb_home_grab_action">
+        <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+    </node>
+</launch>

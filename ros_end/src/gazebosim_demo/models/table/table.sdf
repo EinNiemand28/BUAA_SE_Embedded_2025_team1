@@ -1,0 +1,95 @@
+<sdf version='1.7'>
+  <model name='table'>
+    <link name='base_link'>
+      <inertial>
+        <pose>0 0 0.765 0 -0 0</pose>
+        <mass>2</mass>
+        <inertia>
+          <ixx>1.00538</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.00538</iyy>
+          <iyz>0</iyz>
+          <izz>0.11076</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_fixed_joint_lump__body_link_collision'>
+        <pose>0 0 0.765 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.5 1.2 0.03</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__bf_link_collision_1'>
+        <pose>-0.235 -0.585 0.375 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.03 0.75</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__br_link_collision_2'>
+        <pose>-0.235 0.585 0.375 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.03 0.75</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__lf_link_collision_3'>
+        <pose>0.235 -0.585 0.375 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.03 0.75</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__lr_link_collision_4'>
+        <pose>0.235 0.585 0.375 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.03 0.75</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.001</size>
+          </box>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__body_link_visual_1'>
+        <pose>-0.25 -0.6 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://table/table.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <frame name='base_to_body' attached_to='base_link'>
+      <pose>0 0 0.765 0 -0 0</pose>
+    </frame>
+    <frame name='body_link' attached_to='base_to_body'/>
+    <frame name='body_to_bf' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='bf_link' attached_to='body_to_bf'/>
+    <frame name='body_to_br' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='br_link' attached_to='body_to_br'/>
+    <frame name='body_to_lf' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='lf_link' attached_to='body_to_lf'/>
+    <frame name='body_to_lr' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='lr_link' attached_to='body_to_lr'/>
+  </model>
+</sdf>
