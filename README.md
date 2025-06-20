@@ -32,7 +32,7 @@ project/
   - 状态仪表盘与 WebSocket 实时通信
 - 可基于 Docker 部署于本地或云服务器，支持 PostgreSQL 与 Redis
 
-详见 frontend/ 目录下的 README 及 docs/ 前端文档。
+详见 frontend/ 目录下的 [README](https://github.com/EinNiemand28/BUAA_SE_Embedded_2025_team1/blob/main/frontend/README.md) 及 [docs/](https://github.com/EinNiemand28/BUAA_SE_Embedded_2025_team1/tree/main/frontend/docs) 前端文档。
 
 
 
@@ -46,7 +46,7 @@ project/
 - 支持对 Web 端下发的任务进行调度，执行导航、取书、地图管理等功能
 - 提供标准 ROS 启动、构建与运行流程
 
-详见 ros_end/ 目录下的 README。
+详见 ros_end/ 目录下的 [README](https://github.com/EinNiemand28/BUAA_SE_Embedded_2025_team1/blob/main/ros_end/README.md)。
 
 
 
@@ -71,6 +71,11 @@ project/
 - ✅ 文档撰写完整，符合课程软件工程实践流程
 - 🚧 部分功能仍待优化：书架巡检等复杂指令、高精度地图构建等
 
+
+## 项目成员（Team 1）
+- [EinNiemand28](https://github.com/EinNiemand28)
+- [GreatMitchell](https://github.com/GreatMitchell)
+- [fuhang23](https://github.com/fuhang23)
 
 
 >本项目仅用于展示课程学习成果，部分代码与功能可能不完整或存在待优化之处。欢迎提出建议与反馈！
