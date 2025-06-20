@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+rm -f .ne/tmp/pids/server.pid
+
+# Default to port 3000 if not specified
+export PORT="${PORT:-3000}"
+
+# Let the debug gem allow remote connections,
+# but avoid loading until `debugger` is called
+export RUBY_DEBUG_OPEN="true"
+export RUBY_DEBUG_LAZY="true"
+
+# 使用开发环境专用的环境变量文件
+if [ -f .env.development ]; then
+  echo "Using .env.development file..."
+  exec bundle exec foreman start -f Procfile.dev -e .env.development "$@"
+else
+  exec bundle exec foreman start -f Procfile.dev "$@"
+fi

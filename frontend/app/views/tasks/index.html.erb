@@ -1,0 +1,214 @@
+<div class="space-y-6">
+  <div class="md:flex md:items-center md:justify-between mb-4">
+    <div class="flex-1 min-w-0">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        <%= t('tasks.index.title') %>
+      </h2>
+      <p class="mt-1 text-sm text-gray-500"><%= t('tasks.index.tasks_count', count: @tasks.count) %></p>
+    </div>
+    <% if Current.session&.user&.admin? %>
+      <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+        <%= link_to control_robots_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+          </svg>
+          机器人控制台
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- 筛选器 -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">筛选任务</h3>
+    </div>
+    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+      <%= form_with(url: tasks_path, method: :get, local: true, class: "space-y-4") do |form| %>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- 状态筛选 -->
+          <div>
+            <%= form.label :status, t('tasks.index.filter_by_status'), class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.select :status, options_for_select([
+                  [t('tasks.index.all_statuses'), ''],
+                  [t('activerecord.attributes.task.statuses.pending'), 'pending'],
+                  [t('activerecord.attributes.task.statuses.queued'), 'queued'],
+                  [t('activerecord.attributes.task.statuses.processing'), 'processing'],
+                  [t('activerecord.attributes.task.statuses.paused'), 'paused'],
+                  [t('activerecord.attributes.task.statuses.completed'), 'completed'],
+                  [t('activerecord.attributes.task.statuses.failed'), 'failed'],
+                  [t('activerecord.attributes.task.statuses.cancelled'), 'cancelled']
+                ], params[:status]), { include_blank: false }, 
+                { class: "block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" } %>
+          </div>
+          
+          <!-- 类型筛选 -->
+          <div>
+            <%= form.label :task_type, t('tasks.index.filter_by_type'), class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.select :task_type, options_for_select([
+                  [t('tasks.index.all_types'), ''],
+                  [t('activerecord.attributes.task.task_types.map_build_auto'), 'map_build_auto'],
+                  [t('activerecord.attributes.task.task_types.navigation_to_point'), 'navigation_to_point'],
+                  [t('activerecord.attributes.task.task_types.fetch_book_to_transfer'), 'fetch_book_to_transfer'],
+                  [t('activerecord.attributes.task.task_types.return_book_from_transfer'), 'return_book_from_transfer'],
+                  [t('activerecord.attributes.task.task_types.inventory_scan_and_relocate'), 'inventory_scan_and_relocate'],
+                  [t('activerecord.attributes.task.task_types.load_map'), 'load_map']
+                ], params[:task_type]), { include_blank: false }, 
+                { class: "block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" } %>
+          </div>
+
+          <!-- 用户筛选 (管理员可见) -->
+          <% if Current.session&.user&.admin? %>
+            <div>
+              <%= form.label :user_id, "创建用户", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= form.select :user_id, 
+                  options_for_select([['全部用户', '']] + User.all.map { |u| [u.username, u.id] }, params[:user_id]), 
+                  { include_blank: false }, 
+                  { class: "block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" } %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- 按钮组 -->
+        <div class="flex items-center space-x-3">
+          <%= form.submit t('common.filter'), 
+              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          <%= link_to tasks_path, 
+              class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+            <%= t('common.clear') %>
+          <% end %>
+          
+          <!-- 搜索框 -->
+          <div class="flex-1 max-w-md">
+            <%= form.text_field :search, 
+                value: params[:search], 
+                placeholder: "搜索任务ID或描述...",
+                class: "block w-full pl-3 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @tasks.any? %>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <% @tasks.each do |task| %>
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+          <!-- 任务类型和状态头部 -->
+          <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="<%= task_type_icon_bg(task.task_type) %> p-2 rounded-md mr-3">
+                  <%= task_type_icon(task.task_type) %>
+                </div>
+                <div>
+                  <h3 class="text-sm font-medium text-gray-900">
+                    <%= t("activerecord.attributes.task.task_types.#{task.task_type}") %>
+                  </h3>
+                  <p class="text-xs text-gray-500">#<%= task.id %></p>
+                </div>
+              </div>
+              
+              <div class="flex items-center">
+                <%= task_status_badge(task.status) %>
+              </div>
+            </div>
+          </div>
+
+          <!-- 任务详情 -->
+          <div class="px-4 py-4">
+            <div class="space-y-3">
+              <!-- 关联书籍信息 -->
+              <% if task.book %>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  <span class="truncate"><%= t('tasks.card.involving_book', title: task.book.title) %></span>
+                </div>
+              <% end %>
+
+              <!-- 地图信息 -->
+              <% if task.map %>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                  <span class="truncate"><%= t('tasks.card.map_used', name: task.map.name) %></span>
+                </div>
+              <% end %>
+
+              <!-- 优先级 -->
+              <% if task.priority > 0 %>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                  </svg>
+                  <span><%= t('tasks.card.priority') %>: <%= task.priority %></span>
+                </div>
+              <% end %>
+
+              <!-- 进度信息 -->
+              <% if task.progress_details.present? && task.progress_details['progress_percentage'] %>
+                <div>
+                  <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <span><%= t('tasks.card.progress', percentage: task.progress_details['progress_percentage'].to_i) %></span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: <%= task.progress_details['progress_percentage'].to_i %>%"></div>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- 创建时间 -->
+              <div class="text-xs text-gray-500">
+                <%= t('tasks.card.created_at', time: time_ago_in_words(task.created_at)) %>
+              </div>
+            </div>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+            <%= link_to task_path(task), class: "text-sm text-blue-600 hover:text-blue-900 font-medium flex items-center" do %>
+              <%= t('tasks.card.view_details') %>
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            <% end %>
+            
+            <% if task.can_be_cancelled? && (Current.session&.user&.admin? || task.user == Current.session&.user) %>
+              <%= button_to task_path(task), method: :delete, 
+                    form: { data: { turbo_confirm: t('tasks.show.confirm_cancel') } }, 
+                    class: "text-sm text-red-600 hover:text-red-700 font-medium bg-transparent border-none flex items-center" do %>
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <%= t('tasks.card.cancel_task') %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('tasks.index.no_tasks') %></h3>
+        <p class="mt-1 text-sm text-gray-500"><%= t('tasks.index.no_tasks_description') %></p>
+        <% if Current.session&.user&.admin? %>
+          <div class="mt-6">
+            <%= link_to control_robots_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+              </svg>
+              前往控制台创建任务
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

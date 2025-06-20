@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html class="h-full">
+  <head>
+    <title><%= content_for(:title) || "图书馆机器人控制系统" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= action_cable_meta_tag %>
+
+    <%# Log Current.user status %>
+    <% Rails.logger.debug "[Layout] Rendering head. Current.user ID: #{Current.user&.id || 'nil'}" %>
+    <% if Current.user %>
+      <% 
+        token = Current.user.generate_token_for(:action_cable_connection)
+        Rails.logger.debug "[Layout] Generated token for meta tag: #{token}"
+      %>
+      <meta name="current-user-token-id" content="<%= token %>">
+    <% else %>
+      <% Rails.logger.debug "[Layout] Current.user is nil" %>
+    <% end %>
+
+    <%= yield :head %>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="h-full bg-gray-50 overflow-hidden">
+    <div class="flex h-full flex-col">
+      <!-- 固定顶部导航栏 -->
+      <header class="fixed top-0 left-0 right-0 z-40 bg-white shadow">
+        <%= render "shared/navbar" %>
+      </header>
+      
+      <div class="flex h-full pt-16"> <!-- 为顶部导航栏添加padding -->
+        <!-- 固定侧边栏 -->
+        <div class="fixed top-16 left-0 bottom-0 z-30 hidden md:block">
+          <div class="h-full md:w-64 md:flex-col transition-all duration-300 ease-in-out">
+            <%= render "shared/sidebar" %>
+          </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <main class="flex-1 overflow-auto h-full pl-0 md:pl-[calc(16rem+0.75rem)] pt-4 pb-4 pr-4 md:p-8 transition-all duration-300 ease-in-out">
+          <% if flash[:notice] %>
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+              <p><%= flash[:notice] %></p>
+            </div>
+          <% end %>
+          
+          <% if flash[:alert] %>
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+              <p><%= flash[:alert] %></p>
+            </div>
+          <% end %>
+          
+          <%= yield %>
+        </main>
+      </div>
+      
+      <!-- 固定在左下角的侧边栏收起/展开按钮 -->
+      <div class="fixed bottom-4 left-4 z-50 hidden md:block sidebar-toggle-button" data-controller="sidebar">
+        <button type="button" class="flex items-center justify-center p-2 bg-white text-gray-600 hover:text-gray-900 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out border border-gray-200 focus:outline-none" data-action="click->sidebar#toggleSidebar">
+          <!-- 展开箭头图标 -->
+          <svg data-sidebar-target="expandIcon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          </svg>
+          <!-- 收起箭头图标 -->
+          <svg data-sidebar-target="collapseIcon" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

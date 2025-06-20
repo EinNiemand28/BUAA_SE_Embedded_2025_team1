@@ -1,0 +1,117 @@
+<%= form_with(model: bookshelf, class: "space-y-6") do |form| %>
+  <% if bookshelf.errors.any? %>
+    <div class="bg-red-50 p-4 rounded-md mb-6">
+      <h2 class="text-lg font-medium text-red-800">
+        <%= t('bookshelves.form.errors_count', count: bookshelf.errors.count) %>
+      </h2>
+      <ul class="mt-2 list-disc pl-5 text-sm text-red-700">
+        <% bookshelf.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+    <%# 第一列 %>
+    <div class="space-y-4">
+      <div>
+        <%= form.label :code, t('helpers.label.bookshelf.code'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.text_field :code, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+      <div>
+        <%= form.label :name, t('helpers.label.bookshelf.name'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.text_field :name, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+       <div>
+        <%= form.label :is_transit_station, t('helpers.label.bookshelf.is_transit_station'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.select :is_transit_station, [[t('helpers.label.bookshelf.is_transit_station_options.true'), true], [t('helpers.label.bookshelf.is_transit_station_options.false'), false]], {}, { class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" } %>
+        </div>
+      </div>
+    </div>
+
+    <%# 第二列 %>
+    <div class="space-y-4">
+      <div>
+        <%= form.label :center_x, t('helpers.label.bookshelf.center_x'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :center_x, step: :any, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+      <div>
+        <%= form.label :center_y, t('helpers.label.bookshelf.center_y'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :center_y, step: :any, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+      <div>
+        <%= form.label :orientation, t('helpers.label.bookshelf.orientation'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :orientation, step: :any, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+    </div>
+
+    <%# 第三列 %>
+    <div class="space-y-4">
+      <div>
+        <%= form.label :length, t('helpers.label.bookshelf.length'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :length, step: :any, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+      <div>
+        <%= form.label :width, t('helpers.label.bookshelf.width'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :width, step: :any, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+      <div>
+        <%= form.label :height, t('helpers.label.bookshelf.height'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :height, step: :any, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+    </div>
+     <%# 第四列 %>
+    <div class="space-y-4">
+      <div>
+        <%= form.label :levels, t('helpers.label.bookshelf.levels'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :levels, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+      <div>
+        <%= form.label :slots_per_level, t('helpers.label.bookshelf.slots_per_level'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :slots_per_level, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+    </div>
+     <%# 第五列 %>
+    <div class="space-y-4">
+      <div>
+        <%= form.label :bottom_clearance, t('helpers.label.bookshelf.bottom_clearance'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :bottom_clearance, step: :any, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+      <div>
+        <%= form.label :level_height, t('helpers.label.bookshelf.level_height'), class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-1">
+          <%= form.number_field :level_height, step: :any, class: "block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end space-x-3 pt-6">
+    <%= link_to t('bookshelves.form.cancel'), bookshelves_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    <%= form.submit t('bookshelves.form.submit'), class: "flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer" %>
+  </div>
+<% end %> 

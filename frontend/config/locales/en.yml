@@ -1,0 +1,904 @@
+# Files in the config/locales directory are used for internationalization and
+# are automatically loaded by Rails. If you want to use locales other than
+# English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t "hello"
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t("hello") %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# To learn more about the API, please read the Rails Internationalization guide
+# at https://guides.rubyonrails.org/i18n.html.
+#
+# Be aware that YAML interprets the following case-insensitive strings as
+# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
+# must be quoted to be interpreted as strings. For example:
+#
+#     en:
+#       "yes": yup
+#       enabled: "ON"
+
+en:
+  app_name: "Library Robot Control System"
+
+  common:
+    unknown: "Unknown"
+    unspecified: "Unspecified"
+    view: "View"
+    edit: "Edit"
+    delete: "Delete"
+    cancel: "Cancel"
+    error: "Error"
+    name: "Name"
+    description: "Description"
+    preview: "Preview"
+    created_by: "Created by"
+    created_at: "Created at"
+    updated_at: "Updated at"
+    status: "Status"
+    actions: "Actions"
+    not_available: "N/A"
+    submit: "Submit"
+    update: "Update"
+    back: "Back"
+    confirm_delete: "Are you sure you want to delete this? This action cannot be undone."
+    errors:
+      one: "1 error prevented this from being saved"
+      other: "%{count} errors prevented this from being saved"
+    not_authorized: "You are not authorized to perform this action"
+    details: "Details"
+    processing: "Processing..."
+    id: "ID"
+    type: "Type"
+
+  slot:
+    level: "Level "
+    row: "Row "
+
+  errors:
+    template:
+      header: "%{count} error(s) prohibited this %{model} from being saved:"
+
+  application:
+    authenticate:
+      require_login: "Please login first"
+    require_admin:
+      unauthorized: "You do not have permission to access this page"
+
+  # Shared components translations
+  shared:
+    navbar:
+      sign_in: "Sign In"
+      sign_up: "Sign Up"
+      profile: "Profile"
+      settings: "Settings"
+      admin_panel: "Admin Panel"
+      sign_out: "Sign Out"
+      open_menu: "Open main menu"
+      view_notifications: "View notifications"
+      open_user_menu: "Open user menu"
+      logged_in_as: "Logged in as"
+    sidebar:
+      main_menu: "Main Menu"
+      dashboard: "Dashboard"
+      robot_control: "Robot Control"
+      task_management: "Task Management"
+      statistical_analysis: "Statistical Analysis"
+      system_management: "System Management"
+      system_settings: "System Settings"
+      user_management: "User Management"
+      system_logs: "System Logs"
+      book_catalog: "Book Catalog"
+      bookshelf_map: "Bookshelf Map"
+      command_history: "Command History" 
+      search_placeholder: "Search title, author or ISBN..."
+      map_management: "Map Management"
+    footer:
+      version: "Version: %{version}"
+      copyright: "© %{year} Library Robot"
+
+  # Form helpers translations
+  helpers:
+    submit:
+      user:
+        create: "Register"
+    label:
+      user:
+        email: "Email"
+        username: "Username"
+        password: "Password"
+        password_confirmation: "Confirm Password"
+      session:
+        login: "Email or Username"
+        password: "Password"
+      bookshelf:
+        code: "Bookshelf Code"
+        name: "Bookshelf Name"
+        is_transit_station: "Is Transit Station?"
+        is_transit_station_options:
+          "true": "Yes"
+          "false": "No"
+        center_x: "Center X Coordinate (m)"
+        center_y: "Center Y Coordinate (m)"
+        orientation: "Orientation (radians)"
+        length: "Length (m)"
+        width: "Width (m)"
+        height: "Height (m)"
+        levels: "Number of Levels"
+        slots_per_level: "Slots per Level"
+        bottom_clearance: "Bottom Clearance (m)"
+        level_height: "Level Height (m)"
+
+  # Password management translations
+  passwords:
+    edit:
+      title: "Change Password"
+      current_password: "Current Password"
+      new_password: "New Password"
+      confirm_new_password: "Confirm New Password"
+      submit: "Save Changes"
+      cancel: "Cancel"
+    update:
+      password_changed: "Password has been successfully changed."
+
+  # Common actions translations
+  actions:
+    edit: "Edit"
+    delete: "Delete"
+    show: "View"
+
+  # Time format translations
+  time:
+    formats:
+      default: "%Y-%m-%d %H:%M:%S"
+      long: "%B %d, %Y %H:%M"
+      short: "%b %d %H:%M"
+
+  # User related translations
+  users:
+    index:
+      title: "User Management"
+      description: "View and manage all registered users."
+      search_label: "Search Users"
+      search_placeholder: "Search by username or email..."
+      search_button: "Search"
+      no_results: "No matching users found."
+      no_users: "There are no registered users."
+      confirm_delete: "Are you sure you want to delete user %{username}? This action cannot be undone."
+    edit:
+      title: "Edit User: %{username}"
+      submit: "Update User"
+      cancel: "Cancel"
+    update:
+      user_updated_successfully: "User information has been successfully updated."
+    destroy:
+      user_deleted_successfully: "User has been successfully deleted."
+      cannot_delete_self: "You cannot delete your own account."
+    set_user:
+      user_not_found: "The specified user could not be found."
+
+  # Authentication related translations
+  registrations:
+    new:
+      title: "Create New Account"
+      submit: "Register"
+      login_link: "Already have an account? %{link}"
+      login: "Login"
+      password_minimum: "Minimum %{count} characters"
+    create:
+      signed_up_successfully: "Welcome! You have successfully registered."
+
+  sessions:
+    new:
+      title: "Login to Your Account"
+      login_label: "Email or Username"
+      password_label: "Password"
+      forgot_password_instruction: "Forgot password? Please contact an administrator to reset."
+      submit: "Login"
+      signup_link: "Don't have an account? %{link}"
+      signup: "Register Now"
+    create:
+      signed_in_successfully: "Signed in successfully"
+      invalid_login_or_password: "Invalid email/username or password"
+    destroy:
+      signed_out_successfully: "Signed out successfully"
+
+  # Profile related translations
+  profiles:
+    show:
+      title: "Profile"
+      section_title: "User Information"
+      section_description: "Your personal details."
+
+  # Book related translations
+  books:
+    index:
+      title: "Book Management"
+      description: "Browse and manage all books"
+      add_new: "Add New Book"
+      search_placeholder: "Enter title, author or ISBN to search..."
+      search_button: "Search"
+      no_books: "No books found"
+      search_results: "Search Results: %{query}"
+      books_count: "Total %{count} books"
+      no_books_for_query: "No books found for '%{query}'."
+      no_books_yet: "No books yet, please add some."
+      view_details: "View Details"
+    show:
+      back_to_list: "Back to List"
+      edit_book: "Edit Book"
+      delete_book: "Delete Book"
+      confirm_delete: "Are you sure you want to delete this book?"
+      book_details: "Book Details"
+      current_location: "Current Location"
+      intended_location: "Intended Location"
+      not_placed: "Not Placed"
+      not_specified: "Not Specified"
+      assign_move: "Assign/Move Location"
+      robot_fetch: "Robot Fetch Book"
+      location_info: "Location Information"
+      location_details: "Detailed location information and related actions for this book"
+      current_location_details: "Current Location Details"
+      level: "Level"
+      row: "Row"
+      level_number: "Level %{number}"
+      row_number: "Row %{number}"
+    new:
+      title: "Add New Book"
+      back_to_list: "Back to List"
+    edit:
+      title: "Edit Book"
+      back_to_list: "Back to List"
+    create:
+      success: "Book was successfully created!"
+    update:
+      success: "Book was successfully updated!"
+    destroy:
+      success: "Book was successfully deleted!"
+    form:
+      submit: "Save Book"
+      select_cover: "Select Cover Image"
+      change_cover: "Change Cover Image"
+      cancel: "Cancel"
+      errors_count: "%{count} errors prohibited this book from being saved:"
+      upload_cover: "Upload Cover"
+      drag_and_drop: "Or drag and drop here"
+      image_formats: "PNG, JPG, GIF formats, max 2MB"
+    placement_modal:
+      title: "Assign Book Location"
+      close: "Close"
+      placement_type: "Placement Type"
+      current_location: "Current Location"
+      intended_location: "Intended Location"
+      select_bookshelf: "Select Bookshelf"
+      select_bookshelf_placeholder: "-- Select Bookshelf --"
+      select_slot: "Select Slot"
+      select_slot_placeholder: "-- Select Bookshelf First --"
+      loading: "Loading slots..."
+      assign: "Assign Location"
+      clear: "Clear Location"
+      cancel: "Cancel"
+
+  # Bookshelf related translations
+  bookshelves:
+    index:
+      title: "Bookshelf Management"
+      description: "Browse and manage all bookshelves"
+      add_new: "Add New Bookshelf"
+      no_bookshelves: "No bookshelves found"
+      transit_stations: "Transit Stations / Return Desks"
+      normal_shelves: "Normal Bookshelves"
+      no_normal_shelves: "No normal bookshelves"
+      please_add_shelves: "Please add some normal bookshelves first."
+    show:
+      back_to_list: "Back to List"
+      edit_bookshelf: "Edit Bookshelf"
+      delete_bookshelf: "Delete Bookshelf"
+      confirm_delete: "Are you sure you want to delete this bookshelf?"
+      bookshelf_details: "Bookshelf Details"
+      physical_properties: "Physical properties and configuration of the bookshelf."
+      location: "Location"
+      type: "Type"
+      dimensions: "Dimensions (LxWxH)"
+      status: "Status"
+      active: "Active"
+      inactive: "Inactive"
+      slot_management: "Slot Management"
+      books_on_shelf: "Books on Shelf"
+      no_books: "No books on this shelf"
+      transit_station_notice: "This is a transit station."
+      transit_station: "Transit Station"
+      normal_shelf: "Normal Shelf"
+      center_location: "Center Location"
+      orientation: "Orientation"
+      radians: "radians"
+      slots_per_level: "Slots per Level"
+      total_slots: "Total Slots"
+      bottom_clearance: "Bottom Clearance"
+      level_height: "Level Height"
+      shelf_slots: "Shelf Slots (%{count} / %{total})"
+      level_number: "Level %{number}"
+      reserved_for: "Reserved for: %{title}"
+      reserved: "Reserved"
+      empty: "Empty"
+      no_slots_generated: "No slots have been generated for this bookshelf yet."
+      shelf_stats: "%{levels} levels / %{slots} slots"
+      occupancy: "Occupancy"
+      more_details: "Show more details..."
+      shelf_visualization: "Shelf Visualization"
+      available: "Available"
+      occupied: "Occupied"
+      bookshelf_front_view: "Bookshelf Front View"
+      level_short: "L%{number}"
+      generate_slots: "Generate Slots"
+      admin_can_generate_slots: "Administrators can generate slots for this bookshelf"
+    edit:
+      title: "Edit Bookshelf: %{name}"
+      view_details: "View Details"
+      back_to_list: "Back to List"
+    card:
+      transit_station: "(Transit Station)"
+      transit: "Transit"
+      normal: "Normal"
+      location: "Location"
+      orientation: "Orientation"
+      dimensions: "Dimensions"
+      levels_slots: "Levels/Total Slots"
+      view_details: "View Details"
+      confirm_delete: "Are you sure you want to delete bookshelf '%{name}'?"
+    new:
+      title: "Add New Bookshelf"
+      back_to_list: "Back to List"
+    create:
+      success: "Bookshelf was successfully created!"
+    update:
+      success: "Bookshelf was successfully updated!"
+    destroy:
+      success: "Bookshelf was successfully deleted!"
+    form:
+      submit: "Save Bookshelf"
+      basic_info: "Basic Information"
+      configuration: "Configuration"
+      levels_count: "Number of Levels"
+      rows_per_level: "Rows per Level"
+      cancel: "Cancel"
+      errors_count: "%{count} errors prohibited this bookshelf from being saved:"
+
+  # Task related translations
+  tasks:
+    index:
+      title: "Task List"
+      create_task: "Create New Task"
+      id: "ID"
+      type: "Type"
+      status: "Status"
+      created_at: "Created At"
+      actions: "Actions"
+      no_tasks: "No tasks available"
+    new:
+      title: "New Task"
+      description: "Create a new task for the robot."
+      back_to_list: "Back to Task List"
+      create_form_title: "Create New Task"
+      select_task_type_instruction: "Select the type of task you want to create."
+      task_type: "Task Type"
+      select_task_type: "Select a task type"
+      priority: "Priority"
+      priority_levels:
+        low: "Low"
+        medium: "Medium"
+        high: "High"
+      priority_value_hint: "Tasks with higher priority will be executed first."
+      map_selection: "Map Selection"
+      map: "Map"
+      select_map: "Select a map"
+      map_hint: "Select a map for this task or create a new one."
+      create_new_map: "Create New Map"
+      common_parameters: "Common Parameters"
+      parent_task: "Parent Task"
+      select_parent_task: "Select a parent task (optional)"
+    show:
+      title: "Task Details"
+      back_to_list: "Back to List"
+      edit_task: "Edit Task"
+      cancel_task: "Cancel Task"
+      delete_task: "Delete Task"
+      confirm_cancel: "Are you sure you want to cancel this task?"
+      confirm_delete: "Are you sure you want to delete this task?"
+      # Basic Information
+      basic_info: "Basic Information"
+      task_id: "Task ID"
+      task_type: "Task Type"
+      status: "Status"
+      creator: "Created By"
+      priority: "Priority"
+      created_at: "Created At"
+      started_at: "Started At"
+      completed_at: "Completed At"
+      # Related Information
+      related_info: "Related Information"
+      related_book: "Related Book"
+      source_slot: "Source Slot"
+      target_slot: "Target Slot"
+      target_coordinates: "Target Coordinates"
+      parent_task: "Parent Task"
+      sub_tasks: "Sub Tasks"
+      # Progress and Results
+      progress_details: "Progress Details"
+      result_data: "Result Data"
+      # System Logs
+      system_logs: "System Logs"
+      log_count: "System Logs (%{count})"
+      no_logs: "No log records"
+      log_source: "Source"
+      level_row: "Level: %{level}, Row: %{row}"
+      task_details: "Task detail information"
+      related_entities: "Task related entities"
+      no_logs_info: "This task hasn't produced any system logs yet"
+      real_time_updates: "Real-time Updates"
+      connecting: "Connecting..."
+      connection_status: "Connection Status"
+      waiting_to_start: "Waiting to Start"
+      task_progress: "Task Progress"
+      overall_progress: "Overall Progress"
+      task_in_progress: "Task is in progress"
+      task_completed: "Task completed"
+      task_failed: "Task failed"
+      task_cancelled: "Task cancelled"
+      task_cancelling: "Cancelling task"
+      task_pending: "Task is pending"
+      status_update: "Status Update"
+      no_updates_yet: "No updates yet"
+      reconnecting: "Reconnecting..."
+      connection_lost: "Connection Lost"
+      connection_established: "Connection Established"
+      connection_rejected: "Connection Rejected"
+      test_actions: "Test Actions"
+      test_pending: "Set to Pending"
+      test_processing: "Set to Processing"
+      test_completed: "Set to Completed"
+      test_failed: "Set to Failed"
+      test_cancelled: "Set to Cancelled"
+      test_with_progress: "Add Progress Update"
+    edit:
+      title: "Edit Task"
+      back_to_details: "Back to Details"
+      back_to_list: "Back to List"
+      update_task: "Update Task"
+    navigation_params:
+      title: "Navigation Parameters"
+      target_point_x: "Target Point X"
+      target_point_y: "Target Point Y"
+      target_point_z: "Target Point Z"
+    book_transfer_params:
+      title: "Book Transfer Parameters"
+      select_book: "Select Book"
+      select_book_placeholder: "-- Select Book --"
+      source_slot: "Source Slot"
+      select_source_slot: "-- Select Source Slot --"
+      target_slot: "Target Slot"
+      select_target_slot: "-- Select Target Slot --"
+    map_params:
+      title: "Mapping Parameters"
+      map_name: "Map Name"
+      time_limit: "Time Limit (minutes)"
+    load_map_params:
+      title: "Load Map Parameters"
+      map_id: "Map ID"
+    inventory_params:
+      title: "Inventory Scan Parameters"
+      select_bookshelf: "Select Bookshelf"
+      all_bookshelves: "-- All Bookshelves --"
+      auto_relocate: "Auto Relocate Misplaced Books"
+    notices:
+      created: "Task created successfully"
+      updated: "Task updated successfully"
+      deleted: "Task deleted successfully"
+      cannot_delete: "Cannot delete task in progress"
+      cancel_requested: "Task cancellation request sent"
+      cannot_cancel: "Only pending or processing tasks can be cancelled"
+      invalid_robot_status: "Robot current status (%{status}) does not allow this task"
+      missing_map_id: "Load map task is missing map_id parameter"
+      invalid_parameters: "Invalid task parameters"
+    map_building:
+      monitoring_title: "Real-time Mapping Monitor"
+      preview_title: "Map Preview"
+      status_title: "Status & Controls"
+      details_title: "Build Details"
+      status_info: "Status Information"
+      progress: "Progress"
+      waiting_for_preview: "Waiting for map preview..."
+      waiting_to_start: "Waiting for mapping to start..."
+      stop_mapping: "Stop Mapping"
+      emergency_stop: "Emergency Stop"
+      confirm_stop: "Are you sure you want to stop the mapping process? The current map will be saved."
+      confirm_emergency: "Are you sure you want to trigger an emergency stop? This will immediately halt all robot operations."
+      stopping: "Stopping mapping process..."
+      stop_failed: "Failed to stop mapping process."
+      emergency_sent: "Emergency stop command sent."
+      emergency_failed: "Failed to send emergency stop command."
+      task_id: "Task ID"
+      map_name: "Map Name"
+      started_at: "Started At"
+    
+    status_waiting: "Waiting"
+    task_number: "Task #%{id}"
+    statuses:
+      pending: "Pending"
+      processing: "Processing"
+      completed: "Completed"
+      failed: "Failed"
+      cancelled: "Cancelled"
+      cancelling: "Cancelling"
+    types:
+      map_build_auto: "Auto Mapping"
+      navigation_to_point: "Navigation"
+      fetch_book_to_transfer: "Fetch Book"
+      return_book_from_transfer: "Return Book"
+      inventory_scan_and_relocate: "Scan & Relocate"
+      inventory_full_inspection: "Full Inspection"
+      load_map: "Load Map"
+      system_command: "System Command"
+
+  # System logs related translations
+  system_logs:
+    title: "System Logs"
+    no_logs: "No log records"
+    filter:
+      all_types: "All Types"
+      all_severities: "All Severities"
+      date_range: "Date Range"
+      apply_filters: "Apply Filters"
+      reset_filters: "Reset Filters"
+    log_types:
+      system: "System"
+      robot: "Robot"
+      user: "User"
+      task: "Task"
+      error: "Error"
+    severities:
+      info: "Info"
+      warning: "Warning"
+      error_level: "Error"
+      critical: "Critical"
+
+  # Model and enum translations
+  activerecord:
+    models:
+      task:
+        one: "Task"
+        other: "Tasks"
+      system_log:
+        one: "System Log"
+        other: "System Logs"
+      robot_status:
+        one: "Robot Status"
+        other: "Robot Statuses"
+    attributes:
+      task:
+        task_type: "Task Type"
+        status: "Status"
+        priority: "Priority"
+        book_id: "Book"
+        source_slot_id: "Source Slot"
+        target_slot_id: "Target Slot"
+        target_point_x: "Target X"
+        target_point_y: "Target Y"
+        target_point_z: "Target Z"
+        parent_task_id: "Parent Task"
+        scheduled_at: "Scheduled Time"
+        started_at: "Start Time" 
+        completed_at: "Completion Time"
+        progress_details: "Progress Details"
+        result_data: "Result Data"
+        created_at: "Created At"
+        updated_at: "Updated At"
+      system_log:
+        log_type: "Log Type"
+        log_types:
+          system: "System"
+          robot: "Robot"
+          user: "User"
+          task: "Task"
+          error: "Error"
+        severity: "Severity"
+        severities:
+          info: "Info"
+          warning: "Warning"
+          error_level: "Error"
+          critical: "Critical"
+        message: "Message"
+        source: "Source"
+        created_at: "Created At"
+        user_id: "User ID"
+        task_id: "Task ID"
+        book_id: "Book ID"
+      robot_status:
+        status: "Status"
+        statuses:
+          offline: "Offline"
+          idle: "Idle"
+          mapping: "Mapping"
+          navigating: "Navigating"
+          fetching_book: "Fetching Book"
+          returning_book: "Returning Book"
+          scanning: "Scanning"
+          error: "Error"
+          paused: "Paused"
+          emergency_stopped: "Emergency Stopped"
+        error_message: "Error Message"
+        is_emergency_stopped: "Emergency Stopped"
+        is_mapping: "Mapping"
+        is_navigating: "Navigating"
+        current_task: "Current Task"
+        active_map: "Active Map"
+    enums:
+      task:
+        task_type:
+          map_build_auto: "Automatic Mapping"
+          navigation_to_point: "Navigate to Point"
+          fetch_book_to_transfer: "Fetch Book to Transfer Station"
+          return_book_from_transfer: "Return Book from Transfer Station"
+          inventory_scan_and_relocate: "Scan and Relocate Books"
+          inventory_full_inspection: "Full Inventory Inspection"
+          load_map: "Load Map"
+          system_command: "System Command"
+        status:
+          pending: "Pending"
+          processing: "Processing"
+          completed: "Completed"
+          failed: "Failed"
+          cancelled: "Cancelled"
+          cancelling: "Cancelling"
+
+  maps:
+    titles:
+      index: "Maps"
+      show: "Map Details"
+      new: "New Map"
+      edit: "Edit Map"
+    buttons:
+      create: "Create New Map"
+      create_first: "Create Your First Map"
+      activate: "Activate Map"
+      deactivate: "Deactivate"
+    notices:
+      created: "Map was successfully created."
+      updated: "Map was successfully updated."
+      deleted: "Map was successfully deleted."
+      activated: "Map was activated successfully."
+      already_active: "Map is already active."
+      cannot_delete_with_tasks: "Cannot delete map with associated tasks."
+    no_maps: "No maps available. Create your first map to get started."
+    active_map: "Currently Active Map"
+    no_active_map: "No active map. Please activate a map to use it for navigation tasks."
+    status:
+      active: "Active"
+      inactive: "Inactive"
+    details:
+      title: "Map Details"
+      data_url: "Map Data URL"
+    preview:
+      title: "Map Preview"
+      not_available: "Preview not available for this map format."
+    related_tasks:
+      title: "Related Tasks"
+      view_all: "View All Tasks Using This Map"
+      none: "No tasks have been created using this map yet."
+    actions:
+      title: "Map Actions"
+      create_navigation_task: "Create Navigation Task"
+      create_mapping_task: "Create Mapping Task"
+      delete: "Delete Map"
+    form:
+      title: "Map Information"
+      name: "Name"
+      name_placeholder: "Enter map name"
+      description: "Description"
+      description_placeholder: "Enter map description"
+      description_help: "Provide details about the area covered by this map, when it was created, or any other relevant information."
+      map_data_url: "Map Data URL"
+      map_data_url_placeholder: "Enter URL to map data"
+      map_data_url_help: "URL to the ROS map file or image representation."
+      auto_mapping_title: "Create Map Automatically"
+      auto_mapping_info: "You can create a map automatically by using the robot to scan the environment."
+      create_mapping_task: "Create Mapping Task"
+      active_map_notice: "This is the currently active map"
+      active_map_info: "This map is being used for navigation tasks. Deactivate it if you want to use another map."
+    building_tasks:
+      title: "Build a New Map"
+      description: "Use the robot to automatically create a new map by exploring the environment."
+      create: "Start Building New Map"
+    no_image: "No image"
+    form:
+      name: "Map Name"
+      name_placeholder: "Enter a short descriptive name"
+      description: "Map Description"
+      description_placeholder: "Enter detailed description"
+      description_help: "Add details about this map, such as covered area, purpose, etc."
+      map_data_url: "Map Data URL"
+      map_data_url_placeholder: "URL to the map data file"
+      map_data_url_help: "This field is typically set automatically by auto-mapping tasks"
+      files: "Map Files"
+      map_config: "Map Configuration File (.yaml)"
+      map_config_help: "Upload ROS format map configuration file (.yaml)"
+      map_image: "Map Image File (.pgm)"
+      map_image_help: "Upload ROS format map image file (.pgm)"
+      view_file: "View File"
+      view_image: "View Image"
+      active_map_notice: "This map is currently active"
+      active_map_info: "The robot will use this map for navigation and other operations"
+      auto_mapping_title: "Auto Mapping"
+      auto_mapping_info: "You can also generate a new map by creating an auto-mapping task"
+      create_mapping_task: "Create Mapping Task"
+    details:
+      title: "Map Details"
+      data_url: "Data URL"
+      config_file: "Configuration File"
+    preview:
+      title: "Map Preview"
+      not_available: "Preview not available"
+    files:
+      title: "Map Files"
+      config_file: "Configuration File"
+      image_file: "Image File"
+      download: "Download"
+      view: "View"
+    status:
+      active: "Active"
+      inactive: "Inactive"
+    related_tasks:
+      title: "Related Tasks"
+      none: "No related tasks"
+      view_all: "View all related tasks"
+    actions:
+      title: "Actions"
+      create_navigation_task: "Create Navigation Task"
+      create_mapping_task: "Create Mapping Task"
+      delete: "Delete Map"
+    buttons:
+      create: "New Map"
+      create_first: "Create First Map"
+      activate: "Activate Map"
+    notices:
+      created: "Map created successfully"
+      updated: "Map updated successfully"
+      deleted: "Map deleted successfully"
+      cannot_delete_with_tasks: "Cannot delete map with associated tasks"
+      activated: "Map has been set as active"
+      already_active: "This map is already active"
+    active_map: "Current Active Map"
+    no_active_map: "No active map currently. Please activate a map from the list"
+    building_tasks:
+      title: "Mapping Tasks"
+      description: "Create auto-mapping tasks to let the robot generate new maps"
+      create: "Create Mapping Task"
+
+  robots:
+    status:
+      offline: "Offline"
+      idle: "Idle"
+      mapping: "Mapping"
+      navigating: "Navigating"
+      fetching_book: "Fetching Book"
+      returning_book: "Returning Book"
+      scanning: "Scanning"
+      error: "Error"
+      paused: "Paused"
+      emergency_stopped: "Emergency Stopped"
+    controls:
+      emergency_stop: "Emergency Stop"
+      resume: "Resume Operation"
+      reset_status: "Reset Status"
+      set_active_map: "Set Active Map"
+      start_work: "Start Work"
+      no_active_map: "No Active Map"
+
+  robot_status:
+    title: "Robot Status"
+    current_status: "Current Status"
+    emergency_stopped: "Emergency Stopped"
+    active_map: "Current Active Map"
+    battery_level: "Battery Level"
+    current_task: "Current Task"
+    error_message: "Error Message"
+    last_update: "Last Update"
+    connection_status: "Connection Status"
+    connected: "Connected"
+    disconnected: "Disconnected"
+
+  robots:
+    titles:
+      index: "Robot Management"
+      control: "Robot Control"
+      status: "Robot Status"
+    status:
+      title: "Robot Status"
+      current_status: "Current Status"
+      offline: "Offline"
+      idle: "Idle"
+      mapping: "Mapping"
+      navigating: "Navigating"
+      fetching_book: "Fetching Book"
+      returning_book: "Returning Book"
+      scanning: "Scanning"
+      error: "Error"
+      paused: "Paused"
+      emergency_stopped: "Emergency Stopped"
+      emergency_stopped_state: "Emergency Stopped"
+      normal_operation: "Normal Operation"
+      current_task: "Current Task"
+      no_task: "No Task"
+      active_map: "Active Map"
+      no_map: "No Map Set"
+      error_message: "Error Message"
+    controls:
+      title: "Robot Controls"
+      basic_controls: "Basic Controls"
+      emergency_stop: "Emergency Stop"
+      resume: "Resume Operation"
+      reset_status: "Reset Status"
+      map_management: "Map Management"
+      set_active_map: "Set Active Map"
+      select_map: "Select Map"
+      choose_map: "-- Choose a Map --"
+      work_mode: "Work Mode"
+      start_work: "Start Work"
+      tasks: "Task Management"
+      create_navigation_task: "Create Navigation Task"
+      view_tasks: "View All Tasks"
+      no_active_map_warning: "Robot has no map loaded and cannot start work."
+      select_map: "Select a Map"
+      ready_to_work_with_map: "Robot is ready to start work with map \"%{map}\""
+      already_in_work_mode: "Robot is already in work mode and can execute tasks"
+      currently_mapping: "Robot is currently executing a mapping task and cannot change status"
+      busy_with_task: "Robot is currently executing a %{task_type} task and cannot change status"
+      cannot_start_work: "Current status \"%{status}\" does not allow starting work"
+      no_maps_available: "No maps available in the system, please create one first"
+      create_map: "Create New Map"
+      view_maps: "View All Maps"
+      create_mapping_task: "Create Mapping Task"
+      confirm_emergency_stop: "Are you sure you want to emergency stop the robot? This will interrupt all running tasks!"
+      confirm_reset: "Are you sure you want to reset the robot status? This should only be used for diagnostic purposes."
+      current_map: "Current Map: %{map}"
+      ready_for_tasks: "Robot is ready to execute tasks"
+    recent_tasks:
+      title: "Recent Tasks"
+      view_all: "View All Tasks"
+      no_tasks: "No task records"
+    buttons:
+      control: "Control Panel"
+    notices:
+      no_active_map: "No active map set, please set a map first"
+      cannot_start_work: "Current status \"%{status}\" does not allow starting work"
+      work_started: "Robot has entered work mode"
+      error_starting_work: "Error starting work mode"
+      emergency_stopped: "Emergency stop command sent"
+      not_emergency_stopped: "Robot is not currently in emergency stop state"
+      resumed: "Robot operation resumed"
+      map_id_required: "Please select a map"
+      map_not_found: "Specified map not found"
+      active_map_set: "Map \"%{name}\" set as active"
+      status_reset: "Robot status has been reset"
+      map_files_missing: "The active map is missing required files"
+
+  book_actions:
+    fetch_book: "Fetch Book"
+    return_book: "Return Book"
+    navigate_to_bookshelf: "Navigate to Bookshelf"
+    book_not_placed: "Not Placed"
+
+  navigation:
+    navigate_to_shelf: "Navigate to Shelf"
+    navigation_to_point: "Navigate to Point"
+    navigation_success: "Navigation task created"
+    navigation_error: "Failed to create navigation task"
