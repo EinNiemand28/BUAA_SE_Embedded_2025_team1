@@ -274,7 +274,9 @@ graph TD
 2. **环境变量**
 
     ```bash
-    # .env
+    # .env 或 .kamal/secrets
+    # 如果需要通过kamal部署，请参考 kamal 部署文档和 config/deploy.yml
+    # 如果不使用kamal部署，可以直接在项目根目录创建 .env 文件
     REDIS_URL=redis://redis:6379/1
     ROBOT_API_KEY=your_api_key_here
 
